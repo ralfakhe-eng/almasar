@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول — المسار السريع</title>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+window._sb = createClient(
+  'https://flkqflnhiphrvizxopak.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
+);
+// فحص الجلسة — إذا مسجل يحول للداشبورد
+window._sb.auth.getSession().then(({data}) => {
+  if (data?.session?.user) goToDash();
+});
+function goToDash() {
+  // طرق متعددة للانتقال تعمل على كل البيئات
+  const url = 'dashboard.html';
+  if (window.location !== window.parent.location) {
+    window.parent.location.href = url;
+  } else {
+    window.location.href = url;
+  }
+}
+window.goToDash = goToDash;
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;}
+html,body{height:100%;background:#070d1c;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(37,99,235,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.06) 1px,transparent 1px);background-size:50px 50px;}
+.glow{position:fixed;pointer-events:none;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:float 6s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translate(-50%,-50%)scale(1);}50%{transform:translate(-50%,-52%)scale(1.06);}}
+.card{position:relative;z-index:1;background:rgba(13,21,40,.92);border:1px solid rgba(37,99,235,.28);border-radius:24px;padding:42px 38px;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.55);animation:up .5s ease both;}
+@keyframes up{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.logo{text-align:center;margin-bottom:34px;}
+.logo-ico{width:66px;height:66px;border-radius:18px;background:linear-gradient(135deg,#1e40af,#2563eb);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto 14px;box-shadow:0 8px 26px rgba(37,99,235,.55);}
+.logo h1{font-size:1.35rem;font-weight:700;color:#e2e8f0;margin-bottom:4px;}
+.logo p{font-size:.8rem;color:#64748b;}
+.fg{margin-bottom:17px;}
+label{display:block;font-size:.8rem;font-weight:600;color:#94a3b8;margin-bottom:7px;}
+.iw{position:relative;}
+.iw .ic{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:1rem;color:#475569;pointer-events:none;}
+input{width:100%;padding:11px 42px 11px 40px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.22);border-radius:11px;color:#e2e8f0;font-family:inherit;font-size:.9rem;outline:none;transition:border-color .2s,box-shadow .2s;}
+input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.16);}
+input::placeholder{color:#475569;}
+.eye{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#475569;cursor:pointer;font-size:.85rem;padding:2px;}
+.eye:hover{color:#94a3b8;}
+.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#f87171;margin-bottom:15px;display:none;align-items:center;gap:8px;}
+.err.on{display:flex;}
+.btn-in{width:100%;padding:13px;margin-top:4px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .25s;box-shadow:0 4px 18px rgba(37,99,235,.42);display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-in:hover{transform:translateY(-2px);}
+.btn-in:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.foot{text-align:center;font-size:.7rem;color:#334155;margin-top:22px;}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-ico">🚚</div>
+    <h1>المسار السريع</h1>
+    <p>سجّل دخولك للمتابعة</p>
+  </div>
+  <div class="err" id="err"><span>⚠️</span><span id="em">بيانات غير صحيحة</span></div>
+  <div class="fg">
+    <label>البريد الإلكتروني</label>
+    <div class="iw"><span class="ic">✉️</span><input type="email" id="email" placeholder="example@mail.com" autocomplete="email" autofocus></div>
+  </div>
+  <div class="fg">
+    <label>كلمة المرور</label>
+    <div class="iw"><span class="ic">🔒</span><input type="password" id="pass" placeholder="••••••••" autocomplete="current-password"><button class="eye" type="button" onclick="toggleEye()">👁️</button></div>
+  </div>
+  <button class="btn-in" id="btn" onclick="login()"><span id="bt">تسجيل الدخول</span></button>
+  <div class="foot">المسار السريع — جميع الحقوق محفوظة</div>
+</div>
+<script type="module">
+const sb = window._sb;
+const ERR_MAP = {
+  'Invalid login credentials':'البريد أو كلمة المرور غير صحيحة',
+  'invalid_credentials':'البريد أو كلمة المرور غير صحيحة',
+  'Email not confirmed':'البريد الإلكتروني غير مؤكد',
+  'Failed to fetch':'لا يوجد اتصال بالإنترنت',
+  'NetworkError':'خطأ في الشبكة — تحقق من الإنترنت',
+  'User not found':'المستخدم غير موجود',
+  'Invalid email':'البريد الإلكتروني غير صحيح',
+  'Password should be':'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
+};
+function arErr(e){
+  const msg = e?.message||e?.error||String(e);
+  for(const[k,v] of Object.entries(ERR_MAP)){
+    if(msg.toLowerCase().includes(k.toLowerCase())) return v;
+  }
+  return 'خطأ: '+msg;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+window.toggleEye=function(){const i=document.getElementById('pass');i.type=i.type==='password'?'text':'password';};
+window.login=async function(){
+  const email=document.getElementById('email').value.trim();
+  const pass=document.getElementById('pass').value;
+  const err=document.getElementById('err');
+  const em=document.getElementById('em');
+  const btn=document.getElementById('btn');
+  const bt=document.getElementById('bt');
+  err.classList.remove('on');
+  if(!email){em.textContent='أدخل البريد الإلكتروني';err.classList.add('on');return;}
+  if(!pass){em.textContent='أدخل كلمة المرور';err.classList.add('on');return;}
+  btn.disabled=true;
+  bt.innerHTML='<div class="spin"></div> جاري التحقق...';
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error||!data?.user){
+      btn.disabled=false;bt.textContent='تسجيل الدخول';
+      em.textContent=arErr(error);err.classList.add('on');return;
+    }
+    const {data:profile}=await sb.from('profiles').select('role,full_name,branch_id,is_active').eq('id',data.user.id).single();
+    if(profile?.is_active===false){
+      await sb.auth.signOut();btn.disabled=false;bt.textContent='تسجيل الدخول';
+      em.textContent='هذا الحساب معطل — تواصل مع المدير';err.classList.add('on');return;
+    }
+    localStorage.setItem('uid',data.user.id);
+    localStorage.setItem('role',profile?.role||'staff');
+    localStorage.setItem('uname',profile?.full_name||email);
+    localStorage.setItem('branchId',profile?.branch_id||'');
+    bt.textContent='✅ جاري الانتقال...';
+    // انتقال بعدة طرق لضمان العمل على كل البيئات
+    setTimeout(()=>{ window.goToDash(); }, 600);
+  }catch(e){
+    btn.disabled=false;bt.textContent='تسجيل الدخول';
+    em.textContent=arErr(e);err.classList.add('on');
+  }
+};
+</script>
+</body>
+</html>

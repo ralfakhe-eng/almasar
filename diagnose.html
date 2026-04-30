@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تشخيص المشكلة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Cairo',sans-serif;box-sizing:border-box;margin:0;padding:0;}
+body{background:#0a0f1e;color:#e2e8f0;padding:20px;min-height:100vh;}
+h1{font-size:1.2rem;font-weight:700;margin-bottom:20px;color:#60a5fa;}
+.card{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:16px;margin-bottom:14px;}
+.card h2{font-size:.85rem;font-weight:700;margin-bottom:12px;color:#94a3b8;}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem;}
+.row:last-child{border:none;}
+.lbl{color:#64748b;}
+.val{font-weight:600;}
+.ok{color:#34d399;} .err{color:#f87171;} .warn{color:#fbbf24;} .info{color:#60a5fa;}
+.btn{padding:10px 18px;border:none;border-radius:9px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;margin:4px;transition:all .2s;}
+.bprim{background:#2563eb;color:#fff;} .bsec{background:rgba(255,255,255,.08);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
+.bgreen{background:#059669;color:#fff;} .bred{background:#dc2626;color:#fff;}
+textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(37,99,235,.2);border-radius:8px;color:#e2e8f0;font-family:monospace;font-size:.78rem;padding:10px;outline:none;resize:vertical;}
+.log{background:#050a14;border-radius:8px;padding:12px;font-family:monospace;font-size:.75rem;max-height:300px;overflow-y:auto;margin-top:10px;}
+.log .ok{color:#34d399;} .log .err{color:#f87171;} .log .info{color:#60a5fa;} .log .warn{color:#fbbf24;}
+</style>
+</head>
+<body>
+<h1>🔍 تشخيص مشكلة المسار السريع</h1>
+
+<!-- 1. اختبار الاتصال -->
+<div class="card">
+  <h2>1️⃣ اتصال Supabase</h2>
+  <div id="conn-results"></div>
+  <button class="btn bprim" onclick="testConnection()">▶️ اختبار الاتصال</button>
+</div>
+
+<!-- 2. اختبار الجداول -->
+<div class="card">
+  <h2>2️⃣ حالة الجداول</h2>
+  <div id="table-results"></div>
+  <button class="btn bprim" onclick="testTables()">▶️ فحص الجداول</button>
+</div>
+
+<!-- 3. اختبار الصلاحيات -->
+<div class="card">
+  <h2>3️⃣ اختبار الصلاحيات (INSERT)</h2>
+  <div id="perm-results"></div>
+  <button class="btn bprim" onclick="testPermissions()">▶️ اختبار INSERT/UPDATE/DELETE</button>
+</div>
+
+<!-- 4. اختبار إضافة شحنة -->
+<div class="card">
+  <h2>4️⃣ اختبار إضافة شحنة مباشرة</h2>
+  <div id="ship-results"></div>
+  <button class="btn bgreen" onclick="testAddShipment()">▶️ إضافة شحنة تجريبية</button>
+  <button class="btn bred" onclick="deleteTestShipment()">🗑️ حذف الشحنة التجريبية</button>
+</div>
+
+<!-- 5. اختبار الدوال SQL -->
+<div class="card">
+  <h2>5️⃣ اختبار دالة create_new_user</h2>
+  <div id="func-results"></div>
+  <button class="btn bprim" onclick="testFunction()">▶️ اختبار الدالة</button>
+</div>
+
+<!-- 6. سجل الأحداث -->
+<div class="card">
+  <h2>📋 سجل الأحداث</h2>
+  <div class="log" id="log"></div>
+  <button class="btn bsec" style="margin-top:8px;" onclick="document.getElementById('log').innerHTML=''">🗑️ مسح</button>
+</div>
+
+<!-- 7. SQL مباشر -->
+<div class="card">
+  <h2>🗄️ اختبار SQL مباشر</h2>
+  <textarea id="sql-inp" rows="3" placeholder="SELECT * FROM branches LIMIT 5"></textarea>
+  <button class="btn bprim" style="margin-top:8px;" onclick="runDirectSQL()">▶️ تنفيذ</button>
+  <div id="sql-results" style="margin-top:10px;font-size:.78rem;"></div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPA_URL = 'https://flkqflnhiphrvizxopak.supabase.co';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ';
+
+const sb = createClient(SUPA_URL, ANON_KEY);
+
+// ══ سجل الأحداث ══
+function addLog(msg, type='info') {
+  const log = document.getElementById('log');
+  const time = new Date().toLocaleTimeString('ar');
+  const div = document.createElement('div');
+  div.innerHTML = `<span style="color:#475569;">[${time}]</span> <span class="${type}">${msg}</span>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function showResult(elId, items) {
+  const el = document.getElementById(elId);
+  el.innerHTML = items.map(({label, value, type}) =>
+    `<div class="row"><span class="lbl">${label}</span><span class="val ${type||''}">${value}</span></div>`
+  ).join('');
+}
+
+// ══ 1. اتصال Supabase ══
+window.testConnection = async function() {
+  addLog('اختبار الاتصال بـ Supabase...', 'info');
+  const results = [];
+
+  // فحص الجلسة
+  const {data:sess, error:sessErr} = await sb.auth.getSession();
+  if (sessErr) {
+    results.push({label:'الجلسة', value:'❌ ' + sessErr.message, type:'err'});
+    addLog('خطأ في الجلسة: ' + sessErr.message, 'err');
+  } else if (sess?.session?.user) {
+    results.push({label:'الجلسة', value:'✅ مسجل دخول: ' + sess.session.user.email, type:'ok'});
+    results.push({label:'User ID', value: sess.session.user.id.slice(0,8)+'...', type:'info'});
+    addLog('الجلسة صالحة: ' + sess.session.user.email, 'ok');
+  } else {
+    results.push({label:'الجلسة', value:'⚠️ غير مسجل دخول', type:'warn'});
+    addLog('لا توجد جلسة نشطة', 'warn');
+  }
+
+  // فحص الاتصال ببيانات بسيطة
+  try {
+    const start = Date.now();
+    const {data, error} = await sb.from('branches').select('id').limit(1);
+    const ms = Date.now() - start;
+    if (error) {
+      results.push({label:'قراءة branches', value:'❌ ' + error.message, type:'err'});
+      addLog('فشل قراءة branches: ' + error.message, 'err');
+    } else {
+      results.push({label:'قراءة branches', value:`✅ يعمل (${ms}ms)`, type:'ok'});
+      addLog('قراءة branches نجحت في ' + ms + 'ms', 'ok');
+    }
+  } catch(e) {
+    results.push({label:'الاتصال', value:'❌ ' + e.message, type:'err'});
+    addLog('استثناء: ' + e.message, 'err');
+  }
+
+  // فحص RLS
+  const {data:rlsData, error:rlsErr} = await sb.from('profiles').select('id').limit(1);
+  if (rlsErr && rlsErr.message.includes('security')) {
+    results.push({label:'RLS', value:'❌ RLS يمنع القراءة — شغّل fix_rls_now.sql', type:'err'});
+    addLog('RLS مفعّل ويمنع القراءة!', 'err');
+  } else if (rlsErr) {
+    results.push({label:'RLS / Profiles', value:'⚠️ ' + rlsErr.message, type:'warn'});
+  } else {
+    results.push({label:'RLS', value:'✅ غير مفعّل (جيد)', type:'ok'});
+    addLog('RLS غير مفعّل - ممتاز', 'ok');
+  }
+
+  showResult('conn-results', results);
+};
+
+// ══ 2. فحص الجداول ══
+window.testTables = async function() {
+  addLog('فحص الجداول...', 'info');
+  const tables = ['branches','profiles','shipments','invoices','tracking_logs','activity_log','shipment_notifications'];
+  const results = [];
+
+  for (const t of tables) {
+    const {count, error} = await sb.from(t).select('*', {count:'exact', head:true});
+    if (error) {
+      results.push({label:t, value:'❌ ' + error.message, type:'err'});
+      addLog(`جدول ${t}: خطأ - ${error.message}`, 'err');
+    } else {
+      results.push({label:t, value:`✅ موجود (${count} سجل)`, type:'ok'});
+      addLog(`جدول ${t}: ${count} سجل`, 'ok');
+    }
+  }
+  showResult('table-results', results);
+};
+
+// ══ 3. اختبار الصلاحيات ══
+window.testPermissions = async function() {
+  addLog('اختبار الصلاحيات...', 'info');
+  const results = [];
+
+  // INSERT في branches
+  const testBranch = {
+    name:'فرع تجريبي', city:'اختبار', branch_code:'TST',
+    tracking_prefix:'TST', is_hub:false, is_active:true
+  };
+
+  const {data:ins, error:insErr} = await sb.from('branches').insert([testBranch]).select();
+  if (insErr) {
+    results.push({label:'INSERT (branches)', value:'❌ ' + insErr.message, type:'err'});
+    addLog('INSERT فشل: ' + insErr.message, 'err');
+
+    // تشخيص سبب الفشل
+    if (insErr.message.includes('permission') || insErr.message.includes('policy')) {
+      addLog('السبب: RLS يمنع الإدراج - شغّل fix_rls_now.sql', 'err');
+      results.push({label:'السبب المحتمل', value:'RLS يمنع INSERT — شغّل fix_rls_now.sql', type:'err'});
+    } else if (insErr.message.includes('duplicate')) {
+      results.push({label:'INSERT (branches)', value:'⚠️ رمز TST موجود مسبقاً', type:'warn'});
+    } else if (insErr.message.includes('auth')) {
+      results.push({label:'السبب', value:'يجب تسجيل الدخول أولاً', type:'warn'});
+      addLog('السبب: لا توجد جلسة مصادقة', 'warn');
+    }
+  } else {
+    results.push({label:'INSERT (branches)', value:'✅ يعمل', type:'ok'});
+    addLog('INSERT نجح', 'ok');
+    // حذف السجل التجريبي
+    if (ins?.[0]?.id) {
+      await sb.from('branches').delete().eq('id', ins[0].id);
+      addLog('تم حذف الفرع التجريبي', 'info');
+    }
+  }
+
+  // INSERT في shipments (بدون بيانات كاملة للاختبار فقط)
+  const {error:shipErr} = await sb.from('shipments').insert([{
+    sender_name:'اختبار', receiver_name:'اختبار', receiver_phone:'967700000000',
+    status:'pending', shipping_cost:0
+  }]).select();
+
+  if (shipErr) {
+    results.push({label:'INSERT (shipments)', value:'❌ ' + shipErr.message, type:'err'});
+    addLog('INSERT shipments فشل: ' + shipErr.message, 'err');
+  } else {
+    results.push({label:'INSERT (shipments)', value:'✅ يعمل', type:'ok'});
+    // حذف التجريبي
+    await sb.from('shipments').delete().eq('sender_name','اختبار').eq('receiver_name','اختبار');
+    addLog('INSERT shipments نجح وتم الحذف', 'ok');
+  }
+
+  showResult('perm-results', results);
+};
+
+// ══ 4. اختبار إضافة شحنة ══
+let testShipId = null;
+window.testAddShipment = async function() {
+  addLog('اختبار إضافة شحنة...', 'info');
+  const results = [];
+
+  // جلب أول فرعين
+  const {data:branches} = await sb.from('branches').select('id,name,branch_code').limit(2);
+  if (!branches?.length) {
+    results.push({label:'الفروع', value:'❌ لا توجد فروع — أضف فروعاً أولاً', type:'err'});
+    addLog('لا توجد فروع في قاعدة البيانات', 'err');
+    showResult('ship-results', results);
+    return;
+  }
+
+  const orig = branches[0];
+  const dest = branches[1] || branches[0];
+  const origCode = orig.branch_code || 'XX';
+  const destCode = dest.branch_code || 'XX';
+
+  // توليد رقم التتبع
+  const {count} = await sb.from('shipments').select('*',{count:'exact',head:true});
+  const trackNum = `${origCode}-${destCode}-${String((count||0)+1).padStart(6,'0')}`;
+
+  addLog(`رقم التتبع: ${trackNum}`, 'info');
+
+  const shipData = {
+    tracking_number: trackNum,
+    sender_name: 'اختبار تلقائي',
+    sender_phone: '+967700000001',
+    receiver_name: 'مستلم تجريبي',
+    receiver_phone: '+967700000002',
+    origin_branch_id: orig.id,
+    destination_branch_id: dest.id,
+    status: 'pending',
+    shipping_cost: 500,
+    payment_method: 'cash_sender',
+    notes: 'شحنة تجريبية للاختبار'
+  };
+
+  const {data, error} = await sb.from('shipments').insert([shipData]).select();
+
+  if (error) {
+    results.push({label:'إضافة الشحنة', value:'❌ ' + error.message, type:'err'});
+    addLog('فشل إضافة الشحنة: ' + error.message, 'err');
+
+    if (error.message.includes('tracking_number')) {
+      results.push({label:'السبب', value:'رقم التتبع مكرر - حاول مجدداً', type:'warn'});
+    } else if (error.message.includes('permission') || error.message.includes('policy')) {
+      results.push({label:'السبب', value:'❌ RLS يمنع الإضافة — شغّل fix_rls_now.sql', type:'err'});
+      addLog('المشكلة: RLS يمنع INSERT', 'err');
+    } else if (error.message.includes('foreign')) {
+      results.push({label:'السبب', value:'خطأ في Foreign Key - تحقق من الفروع', type:'warn'});
+    }
+  } else {
+    testShipId = data[0]?.id;
+    results.push({label:'إضافة الشحنة', value:'✅ نجحت!', type:'ok'});
+    results.push({label:'رقم التتبع', value: data[0]?.tracking_number || trackNum, type:'ok'});
+    results.push({label:'ID', value: testShipId?.slice(0,8)+'...', type:'info'});
+    addLog('✅ الشحنة أُضيفت بنجاح: ' + (data[0]?.tracking_number||trackNum), 'ok');
+    addLog('إذا نجح هذا الاختبار والداشبورد لا يعمل — المشكلة في JavaScript الداشبورد', 'warn');
+  }
+
+  showResult('ship-results', results);
+};
+
+window.deleteTestShipment = async function() {
+  if (!testShipId) { addLog('لا توجد شحنة تجريبية للحذف', 'warn'); return; }
+  const {error} = await sb.from('shipments').delete().eq('id', testShipId);
+  if (error) addLog('فشل الحذف: ' + error.message, 'err');
+  else { addLog('تم حذف الشحنة التجريبية', 'ok'); testShipId = null; }
+};
+
+// ══ 5. اختبار الدالة ══
+window.testFunction = async function() {
+  addLog('اختبار دالة create_new_user...', 'info');
+  const results = [];
+
+  const {data, error} = await sb.rpc('create_new_user', {
+    p_email: 'test_diag_delete@test.com',
+    p_password: 'Test@123456',
+    p_full_name: 'اختبار تشخيص',
+    p_role: 'staff'
+  });
+
+  if (error) {
+    results.push({label:'الدالة', value:'❌ ' + error.message, type:'err'});
+    addLog('الدالة غير موجودة أو تعطل: ' + error.message, 'err');
+    if (error.message.includes('does not exist')) {
+      results.push({label:'الحل', value:'شغّل fix_gen_salt.sql في Supabase', type:'warn'});
+    }
+  } else if (data?.success) {
+    results.push({label:'الدالة', value:'✅ تعمل بنجاح', type:'ok'});
+    results.push({label:'User ID', value: data.user_id?.slice(0,8)+'...', type:'info'});
+    addLog('الدالة تعمل: ' + data.user_id, 'ok');
+    // حذف المستخدم التجريبي
+    await sb.from('profiles').delete().eq('email','test_diag_delete@test.com');
+    addLog('تم حذف المستخدم التجريبي', 'info');
+  } else {
+    results.push({label:'الدالة', value:'⚠️ ' + (data?.error||'نتيجة غير متوقعة'), type:'warn'});
+    addLog('الدالة أرجعت: ' + JSON.stringify(data), 'warn');
+  }
+
+  showResult('func-results', results);
+};
+
+// ══ SQL مباشر ══
+window.runDirectSQL = async function() {
+  const q = document.getElementById('sql-inp').value.trim();
+  if (!q) return;
+  addLog('تنفيذ: ' + q.slice(0,50)+'...', 'info');
+
+  const tblMatch = q.match(/FROM\s+(\w+)/i);
+  if (!tblMatch) { document.getElementById('sql-results').innerHTML='<span style="color:#f87171">يدعم SELECT فقط</span>'; return; }
+
+  const tbl = tblMatch[1];
+  const lmt = parseInt(q.match(/LIMIT\s+(\d+)/i)?.[1] || '10');
+  const {data, error} = await sb.from(tbl).select('*').limit(lmt);
+
+  if (error) {
+    document.getElementById('sql-results').innerHTML = `<span style="color:#f87171">❌ ${error.message}</span>`;
+    addLog('خطأ SQL: ' + error.message, 'err');
+  } else {
+    const keys = data?.[0] ? Object.keys(data[0]) : [];
+    const html = `<div style="color:#34d399;margin-bottom:8px;">✅ ${data?.length||0} نتيجة</div>
+    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:.72rem;">
+    <thead><tr>${keys.map(k=>`<th style="padding:5px 8px;background:#0d1526;text-align:right;color:#64748b;border-bottom:1px solid rgba(255,255,255,.1);">${k}</th>`).join('')}</tr></thead>
+    <tbody>${(data||[]).map(r=>`<tr>${keys.map(k=>`<td style="padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.04);max-width:150px;overflow:hidden;text-overflow:ellipsis;">${r[k]===null?'<span style="color:#475569">null</span>':String(r[k]).slice(0,50)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+    document.getElementById('sql-results').innerHTML = html;
+    addLog('SQL نجح: ' + data?.length + ' سجل', 'ok');
+  }
+};
+
+// تشغيل تلقائي عند الفتح
+window.addEventListener('load', async () => {
+  addLog('بدء التشخيص التلقائي...', 'info');
+  await testConnection();
+  await testTables();
+  addLog('انتهى الفحص الأولي — اضغط على الأزرار للمزيد من الاختبارات', 'info');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>بطاقة شحنة مع QR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style media="print">body { background: white; padding: 0; } .no-print { display: none; }</style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6 print-area">
+        <div class="text-center mb-4"><h2 class="text-xl font-bold">شركة الشحن اليمنية</h2><p class="text-gray-600 text-sm">بطاقة تتبع الشحنة</p></div>
+        <div class="border-t border-b py-4 my-4"><p><strong>رقم التتبع:</strong> <span id="tracking-number" class="font-mono"></span></p><p><strong>المرسل:</strong> <span id="sender"></span></p><p><strong>المستلم:</strong> <span id="receiver"></span></p></div>
+        <div class="flex justify-center my-6"><canvas id="qr-code" width="200" height="200"></canvas></div>
+        <p class="text-center text-sm text-gray-500">امسح الكود لتحديث حالة الشحنة</p>
+        <div class="no-print mt-6 flex justify-center gap-3"><button onclick="window.print()" class="bg-blue-600 text-white px-6 py-2 rounded-lg">طباعة</button><button onclick="window.close()" class="bg-gray-300 px-6 py-2 rounded-lg">إغلاق</button></div>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        document.getElementById('tracking-number').textContent = params.get('tracking') || 'غير معروف';
+        document.getElementById('sender').textContent = params.get('sender') || '—';
+        document.getElementById('receiver').textContent = params.get('receiver') || '—';
+        const trackUrl = `${window.location.origin}/track.html?tracking=${encodeURIComponent(params.get('tracking'))}`;
+        QRCode.toCanvas(document.getElementById('qr-code'), trackUrl, { width: 200 });
+    </script>
+</body>
+</html>

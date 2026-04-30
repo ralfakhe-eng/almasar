@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تتبع شحناتي — نظام الشحنات</title>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+window._sb = createClient(
+  'https://flkqflnhiphrvizxopak.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
+);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;}
+body{background:#070d1c;color:#e2e8f0;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 70% 50% at 20% 10%,rgba(37,99,235,.12) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(16,185,129,.08) 0%,transparent 60%);}
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:20px 16px;}
+.hdr{text-align:center;padding:24px 0 20px;}
+.hdr .ico{font-size:2.5rem;margin-bottom:10px;}
+.hdr h1{font-size:1.4rem;font-weight:700;margin-bottom:6px;}
+.hdr p{font-size:.82rem;color:#64748b;}
+.search-box{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:16px;padding:22px;margin-bottom:20px;}
+.search-box h3{font-size:.9rem;font-weight:700;margin-bottom:14px;}
+.sinp{width:100%;padding:12px 14px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.9rem;outline:none;margin-bottom:10px;}
+.sinp:focus{border-color:#3b82f6;}
+.sinp::placeholder{color:#475569;}
+.sbtn{width:100%;padding:12px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;}
+.sbtn:disabled{opacity:.6;}
+.hint{font-size:.72rem;color:#64748b;text-align:center;margin-top:8px;}
+/* Results */
+.ship-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.card-hdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(37,99,235,.1);}
+.track-code{font-size:.9rem;font-weight:700;color:#60a5fa;font-family:monospace;}
+.card-body{padding:14px 16px;}
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.8rem;}
+.info-row:last-child{border-bottom:none;}
+.info-row .l{color:#64748b;}.info-row .v{font-weight:600;}
+/* Timeline mini */
+.mini-tl{display:flex;align-items:center;gap:4px;margin:12px 0;overflow-x:auto;padding-bottom:4px;}
+.mini-step{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:52px;}
+.mini-dot{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.1);background:#0d1526;display:flex;align-items:center;justify-content:center;font-size:.8rem;}
+.mini-dot.done{background:linear-gradient(135deg,#1e40af,#2563eb);border-color:#3b82f6;}
+.mini-dot.active{background:linear-gradient(135deg,#065f46,#059669);border-color:#10b981;}
+.mini-lbl{font-size:.58rem;color:#64748b;text-align:center;}
+.mini-lbl.done,.mini-lbl.active{color:#e2e8f0;}
+.mini-line{flex:1;height:2px;background:rgba(37,99,235,.15);border-radius:99px;min-width:16px;}
+.mini-line.done{background:linear-gradient(90deg,#2563eb,#10b981);}
+/* Badge */
+.bdg{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:99px;font-size:.68rem;font-weight:700;}
+.bdg::before{content:'●';font-size:.4rem;}
+.bpend{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+.bpick{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2);}
+.btran{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.2);}
+.bdeli{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2);}
+.bcanc{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+/* WA share */
+.wa-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:10px;padding:10px;background:#25D366;border:none;border-radius:9px;color:#fff;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;}
+.wa-btn:hover{background:#1ebe5c;}
+/* Empty */
+.empty-box{text-align:center;padding:40px;background:rgba(13,21,40,.7);border:1px solid rgba(37,99,235,.15);border-radius:14px;}
+.empty-box .ico{font-size:2.5rem;margin-bottom:10px;}
+.empty-box p{font-size:.82rem;color:#64748b;}
+/* Spin */
+.spin{display:inline-block;width:28px;height:28px;border:3px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.loading{text-align:center;padding:40px;}
+.ftr{text-align:center;padding:24px 0;font-size:.7rem;color:#334155;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <div class="ico">🚚</div>
+    <h1>تتبع شحناتي</h1>
+    <p>أدخل رقم جوالك لعرض جميع شحناتك</p>
+  </div>
+
+  <div class="search-box">
+    <h3>🔍 ابحث بجوالك</h3>
+    <input type="tel" id="phone-inp" class="sinp" placeholder="أدخل رقم جوالك..." inputmode="tel" maxlength="15">
+    <button class="sbtn" id="sbtn" onclick="doSearch()">📦 عرض شحناتي</button>
+    <div class="hint">سيتم عرض جميع الشحنات المرتبطة بهذا الرقم سواء كنت مرسلاً أو مستلماً</div>
+  </div>
+
+  <div id="result-area"></div>
+  <div class="ftr">نظام إدارة الشحنات — <a href="track.html" style="color:#60a5fa;text-decoration:none;">تتبع برقم الشحنة</a></div>
+</div>
+
+<script type="module">
+const sb = window._sb;
+
+const STATUS_FLOW = [{key:'pending',icon:'⏳',label:'انتظار'},{key:'picked_up',icon:'✅',label:'استلام'},{key:'in_transit',icon:'🚚',label:'طريق'},{key:'delivered',icon:'🏁',label:'تسليم'}];
+const STATUS_META = {pending:{label:'قيد الانتظار',cls:'bpend'},picked_up:{label:'تم الاستلام',cls:'bpick'},in_transit:{label:'في الطريق',cls:'btran'},delivered:{label:'تم التسليم',cls:'bdeli'},cancelled:{label:'ملغية',cls:'bcanc'}};
+
+// URL param
+const p = new URLSearchParams(location.search);
+const ph = p.get('phone');
+if(ph){document.getElementById('phone-inp').value=ph;doSearch();}
+
+document.getElementById('phone-inp').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+
+window.doSearch = async function(){
+  const phone=document.getElementById('phone-inp').value.trim();
+  if(!phone){return;}
+  document.getElementById('sbtn').disabled=true;
+  document.getElementById('result-area').innerHTML='<div class="loading"><div class="spin"></div></div>';
+  const norm=phone.replace(/^0/,'').replace(/^\+?967/,'');
+  const {data}=await sb.from('shipments').select(`
+    id,tracking_number,sender_name,receiver_name,status,created_at,shipping_cost,payment_method,
+    origin:origin_branch_id(name,city),destination:destination_branch_id(name,city),
+    driver:driver_id(full_name,phone)
+  `).or(`receiver_phone.ilike.%${norm}%,sender_phone.ilike.%${norm}%`).order('created_at',{ascending:false});
+
+  document.getElementById('sbtn').disabled=false;
+
+  if(!data?.length){
+    document.getElementById('result-area').innerHTML=`<div class="empty-box"><div class="ico">📭</div><p>لا توجد شحنات مرتبطة بهذا الرقم</p></div>`;
+    return;
+  }
+
+  const plb={cash_sender:'نقد من المرسل',cash_receiver:'عند الاستلام',prepaid:'مدفوع مسبقاً'};
+  document.getElementById('result-area').innerHTML=`<div style="font-size:.8rem;color:#64748b;margin-bottom:12px;">وُجد ${data.length} شحنة</div>`+
+  data.map(s=>{
+    const meta=STATUS_META[s.status]||STATUS_META['pending'];
+    const idx=STATUS_FLOW.findIndex(f=>f.key===s.status);
+    const steps=STATUS_FLOW.map((step,i)=>{
+      const done=i<idx,active=i===idx;
+      return (i>0?`<div class="mini-line ${done||active?'done':''}"></div>`:'')+
+        `<div class="mini-step"><div class="mini-dot ${done?'done':active?'active':''}">${done?'✓':step.icon}</div><span class="mini-lbl ${done?'done':active?'active':''}">${step.label}</span></div>`;
+    }).join('');
+    const trackUrl=`${location.origin}/track.html?t=${s.tracking_number}`;
+    const waMsg=`📦 *تتبع شحنتك*\n\nرقم التتبع: *${s.tracking_number}*\nالحالة: *${meta.label}*\n\nرابط التتبع:\n${trackUrl}`;
+    return `
+    <div class="ship-card">
+      <div class="card-hdr">
+        <code class="track-code">${s.tracking_number}</code>
+        <span class="bdg ${meta.cls}">${meta.label}</span>
+      </div>
+      <div class="card-body">
+        <div class="mini-tl">${steps}</div>
+        <div class="info-row"><span class="l">المرسل</span><span class="v">${s.sender_name}</span></div>
+        <div class="info-row"><span class="l">المستلم</span><span class="v">${s.receiver_name}</span></div>
+        <div class="info-row"><span class="l">من</span><span class="v">${s.origin?.name||'—'}${s.origin?.city?' - '+s.origin.city:''}</span></div>
+        <div class="info-row"><span class="l">إلى</span><span class="v">${s.destination?.name||'—'}${s.destination?.city?' - '+s.destination.city:''}</span></div>
+        ${s.driver?.full_name?`<div class="info-row"><span class="l">السائق</span><span class="v">${s.driver.full_name}</span></div>`:''}
+        <div class="info-row"><span class="l">التكلفة</span><span class="v" style="color:#34d399;">${(s.shipping_cost||0).toLocaleString()} ﷼</span></div>
+        <div class="info-row"><span class="l">طريقة الدفع</span><span class="v">${plb[s.payment_method]||'—'}</span></div>
+        <div class="info-row"><span class="l">التاريخ</span><span class="v">${fmtDate(s.created_at)}</span></div>
+        <button class="wa-btn" onclick="window.open('https://wa.me/?text=${encodeURIComponent(waMsg)}')">📱 مشاركة عبر واتساب</button>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleString('ar-YE',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+</script>
+</body>
+</html>

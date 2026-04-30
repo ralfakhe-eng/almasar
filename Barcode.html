@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>طباعة ستيكر الشحنة — المسار السريع</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+window._sb = createClient(
+  'https://flkqflnhiphrvizxopak.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
+);
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif;}
+body{background:#0a0f1e;color:#e2e8f0;min-height:100vh;}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px;}
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:12px;}
+.back-a{color:#64748b;text-decoration:none;font-size:.8rem;display:flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid rgba(37,99,235,.2);border-radius:8px;transition:all .2s;}
+.back-a:hover{color:#60a5fa;border-color:#3b82f6;}
+.hdr h1{font-size:1rem;font-weight:700;flex:1;}
+.ctrl{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:14px;padding:18px;margin-bottom:20px;}
+.ctrl h2{font-size:.9rem;font-weight:700;margin-bottom:14px;}
+.inp-row{display:flex;gap:10px;margin-bottom:12px;}
+.sinp{flex:1;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:9px;color:#e2e8f0;font-family:monospace;font-size:.88rem;outline:none;text-transform:uppercase;}
+.sinp:focus{border-color:#3b82f6;}
+.sinp::placeholder{color:#475569;text-transform:none;}
+.btn{padding:10px 20px;border:none;border-radius:9px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-prim{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;}
+.btn-print{background:linear-gradient(135deg,#059669,#10b981);color:#fff;}
+.btn-sec{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
+.hint{font-size:.72rem;color:#64748b;margin-bottom:12px;}
+.size-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.sopt{padding:6px 14px;border-radius:99px;font-size:.75rem;cursor:pointer;border:1px solid rgba(37,99,235,.2);background:rgba(255,255,255,.04);color:#94a3b8;transition:all .2s;}
+.sopt.on{background:rgba(37,99,235,.18);border-color:#3b82f6;color:#60a5fa;font-weight:700;}
+.ctrl-btns{display:flex;gap:8px;flex-wrap:wrap;}
+#sticker-area{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.sticker{background:#fff;color:#111;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.5);border:1px solid #e2e8f0;}
+.stk-hdr{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.stk-brand{display:flex;align-items:center;gap:7px;}
+.stk-brand .ico{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;}
+.stk-brand span{font-size:.8rem;font-weight:700;}
+.stk-tn{font-family:monospace;font-size:.72rem;background:rgba(0,0,0,.2);padding:3px 8px;border-radius:5px;}
+.stk-body{padding:12px;}
+.stk-parties{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.stk-party{background:#f8fafc;border-radius:8px;padding:8px 10px;border:1px solid #e2e8f0;}
+.stk-party h4{font-size:.58rem;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;display:flex;align-items:center;gap:3px;}
+.stk-name{font-size:.82rem;font-weight:700;color:#111;margin-bottom:2px;}
+.stk-phone{font-size:.68rem;color:#64748b;}
+.stk-city{font-size:.64rem;color:#2563eb;font-weight:600;margin-top:3px;}
+.stk-addr{font-size:.62rem;color:#475569;padding:5px 8px;background:#f1f5f9;border-radius:5px;margin-bottom:8px;}
+.stk-bottom{display:flex;align-items:center;gap:10px;border-top:2px dashed #e2e8f0;padding-top:10px;}
+.stk-qr{flex-shrink:0;}
+.stk-qr canvas{display:block;border-radius:6px;border:3px solid #1d4ed8;}
+.stk-info{flex:1;}
+.stk-status{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:700;margin-bottom:5px;}
+.s-pending{background:#fef3c7;color:#92400e;}
+.s-in_transit{background:#ede9fe;color:#5b21b6;}
+.s-delivered{background:#d1fae5;color:#065f46;}
+.s-picked_up{background:#dbeafe;color:#1e40af;}
+.stk-meta{font-size:.62rem;color:#64748b;}
+.stk-meta p{margin-bottom:2px;}
+.stk-scan-hint{font-size:.58rem;color:#94a3b8;text-align:center;margin-top:5px;}
+/* باركود خطي */
+.stk-barcode{margin-top:8px;text-align:center;}
+.stk-barcode svg{display:block;margin:0 auto;}
+.stk-barcode-num{font-family:monospace;font-size:.58rem;color:#64748b;margin-top:2px;letter-spacing:.1em;}
+.spin{display:inline-block;width:24px;height:24px;border:2.5px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+@media print{
+  body{background:#fff!important;}
+  .ctrl,.hdr,.noprint{display:none!important;}
+  #sticker-area{padding:0;}
+  .sticker{box-shadow:none;border:1px solid #ccc;margin:4px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr noprint">
+    <a href="dashboard.html" class="back-a">← رجوع للداشبورد</a>
+    <h1>🏷️ طباعة ستيكر الشحنة — المسار السريع</h1>
+  </div>
+  <div class="ctrl noprint">
+    <h2>أدخل رقم التتبع</h2>
+    <div class="inp-row">
+      <input type="text" id="track-inp" class="sinp"
+        placeholder="AD-SN-000001 (أو عدة أرقام مفصولة بفاصلة)"
+        autocomplete="off">
+      <button class="btn btn-prim" onclick="loadSticker()">📥 تحميل</button>
+    </div>
+    <div class="hint">يمكن إدخال عدة أرقام مفصولة بفاصلة لطباعة دفعة واحدة</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:.75rem;color:#94a3b8;margin-bottom:7px;font-weight:600;">📐 حجم الستيكر:</div>
+      <div class="size-opts" id="size-opts">
+        <div class="sopt on" data-size="sm">صغير</div>
+        <div class="sopt" data-size="md">متوسط</div>
+        <div class="sopt" data-size="lg">كبير</div>
+      </div>
+    </div>
+    <div class="ctrl-btns">
+      <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الستيكرات</button>
+      <button class="btn btn-sec" onclick="clearAll()">🗑️ مسح</button>
+    </div>
+  </div>
+  <div id="sticker-area"></div>
+</div>
+
+<script type="module">
+const sb = window._sb;
+let currentSize = 'sm';
+
+const SIZES = {
+  sm: { width:'260px', qr:80,  barH:28 },
+  md: { width:'320px', qr:100, barH:36 },
+  lg: { width:'420px', qr:130, barH:44 },
+};
+
+const STATUS_LBL = {
+  pending:    'قيد الانتظار',
+  picked_up:  'تم الاستلام',
+  in_transit: 'في الطريق',
+  delivered:  'تم التسليم',
+  cancelled:  'ملغية'
+};
+const STATUS_CLS = {
+  pending:    's-pending',
+  picked_up:  's-picked_up',
+  in_transit: 's-in_transit',
+  delivered:  's-delivered',
+  cancelled:  's-pending'
+};
+
+const trackUrl = s => `${location.origin}/track.html?t=${s}`;
+
+// اختيار الحجم
+document.getElementById('size-opts').addEventListener('click', e => {
+  const opt = e.target.closest('.sopt');
+  if (!opt) return;
+  document.querySelectorAll('.sopt').forEach(x => x.classList.remove('on'));
+  opt.classList.add('on');
+  currentSize = opt.dataset.size;
+});
+
+// Enter
+document.getElementById('track-inp').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadSticker();
+});
+
+// URL param
+const p = new URLSearchParams(location.search);
+if (p.get('t')) {
+  document.getElementById('track-inp').value = p.get('t');
+  loadSticker();
+}
+
+window.clearAll = function() {
+  document.getElementById('sticker-area').innerHTML = '';
+  document.getElementById('track-inp').value = '';
+};
+
+// ═══ رسم باركود خطي (Code 128 مبسط) ═══
+function drawBarcode(canvasId, text, height) {
+  // نرسم باركود بسيط بدون مكتبة خارجية
+  const svg = generateBarcodeSVG(text, height);
+  const el  = document.getElementById(canvasId);
+  if (el) el.innerHTML = svg;
+}
+
+function generateBarcodeSVG(text, height = 36) {
+  // تحويل النص لنمط بار بسيط (كل حرف = نمط من الخطوط)
+  const bars = [];
+  let x      = 0;
+  const barW = 1.8;
+  const gap  = 0.9;
+
+  // بداية
+  bars.push({ x: x, w: barW, dark: true });  x += barW + gap;
+  bars.push({ x: x, w: barW, dark: true });  x += barW + gap;
+  bars.push({ x: x, w: gap,  dark: false }); x += gap + gap;
+
+  // البيانات
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    const bits = (code % 64).toString(2).padStart(6, '0');
+    for (const bit of bits) {
+      const w = bit === '1' ? barW : gap;
+      bars.push({ x, w, dark: bit === '1' });
+      x += w + gap * 0.5;
+    }
+    x += gap;
+  }
+
+  // نهاية
+  bars.push({ x: x, w: barW, dark: true }); x += barW + gap;
+  bars.push({ x: x, w: barW, dark: true }); x += barW + gap;
+  bars.push({ x: x, w: barW, dark: true }); x += barW;
+
+  const totalW = x + 4;
+  const rects  = bars
+    .filter(b => b.dark)
+    .map(b => `<rect x="${b.x.toFixed(1)}" y="0" width="${b.w.toFixed(1)}" height="${height}" fill="#1d4ed8"/>`)
+    .join('');
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW.toFixed(0)}" height="${height}" viewBox="0 0 ${totalW.toFixed(0)} ${height}">${rects}</svg>`;
+}
+
+// ═══ تحميل وعرض الستيكرات ═══
+window.loadSticker = async function() {
+  const raw  = document.getElementById('track-inp').value.trim();
+  if (!raw) return;
+  const nums = raw.split(/[,،\s]+/)
+    .map(x => x.trim().toUpperCase())
+    .filter(Boolean);
+  const area = document.getElementById('sticker-area');
+  area.innerHTML = '<div style="text-align:center;padding:40px;"><div class="spin"></div><p style="margin-top:12px;color:#64748b;font-size:.82rem;">جاري تحميل الستيكرات...</p></div>';
+
+  const results = [];
+  for (const tn of nums) {
+    const { data } = await sb.from('shipments').select(`
+      tracking_number,sender_name,sender_phone,receiver_name,receiver_phone,
+      receiver_address,status,created_at,shipping_cost,
+      origin:origin_branch_id(name,city),destination:destination_branch_id(name,city)
+    `).ilike('tracking_number', tn).single();
+    if (data) results.push(data);
+    else results.push({ tracking_number: tn, _notFound: true });
+  }
+
+  if (!results.filter(r => !r._notFound).length) {
+    area.innerHTML = '<div style="text-align:center;padding:30px;color:#f87171;">⚠️ لم يتم العثور على أي شحنة</div>';
+    return;
+  }
+
+  area.innerHTML = '';
+  const sz = SIZES[currentSize];
+
+  for (const s of results) {
+    if (s._notFound) {
+      const el = document.createElement('div');
+      el.style.cssText = `width:${sz.width};padding:20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;text-align:center;color:#f87171;font-size:.8rem;`;
+      el.innerHTML     = `⚠️ "${s.tracking_number}" — غير موجود`;
+      area.appendChild(el);
+      continue;
+    }
+
+    const stk  = document.createElement('div');
+    stk.className   = 'sticker';
+    stk.style.width = sz.width;
+    const qrId  = 'qr_'  + s.tracking_number.replace(/[^a-z0-9]/gi, '');
+    const barId = 'bar_' + s.tracking_number.replace(/[^a-z0-9]/gi, '');
+
+    stk.innerHTML = `
+      <div class="stk-hdr">
+        <div class="stk-brand">
+          <div class="ico">🚚</div>
+          <span>المسار السريع</span>
+        </div>
+        <div class="stk-tn">${s.tracking_number}</div>
+      </div>
+      <div class="stk-body">
+        <div class="stk-parties">
+          <div class="stk-party">
+            <h4>📤 المرسل</h4>
+            <div class="stk-name">${s.sender_name}</div>
+            <div class="stk-phone">${s.sender_phone || '—'}</div>
+            <div class="stk-city">${s.origin?.name || ''}${s.origin?.city ? ' - ' + s.origin.city : ''}</div>
+          </div>
+          <div class="stk-party">
+            <h4>📥 المستلم</h4>
+            <div class="stk-name">${s.receiver_name}</div>
+            <div class="stk-phone">${s.receiver_phone || '—'}</div>
+            <div class="stk-city">${s.destination?.name || ''}${s.destination?.city ? ' - ' + s.destination.city : ''}</div>
+          </div>
+        </div>
+        ${s.receiver_address ? `<div class="stk-addr">📍 ${s.receiver_address}</div>` : ''}
+        <div class="stk-bottom">
+          <div class="stk-qr">
+            <canvas id="${qrId}" width="${sz.qr}" height="${sz.qr}"></canvas>
+            <div class="stk-scan-hint">امسح لتتبع الشحنة</div>
+          </div>
+          <div class="stk-info">
+            <span class="stk-status ${STATUS_CLS[s.status] || 's-pending'}">● ${STATUS_LBL[s.status] || s.status}</span>
+            <div class="stk-meta">
+              <p>💰 ${(s.shipping_cost || 0).toLocaleString()} ريال</p>
+              <p>📅 ${new Date(s.created_at).toLocaleDateString('ar-YE', { year:'numeric', month:'short', day:'numeric' })}</p>
+            </div>
+          </div>
+        </div>
+        <!-- باركود خطي -->
+        <div class="stk-barcode">
+          <div id="${barId}"></div>
+          <div class="stk-barcode-num">${s.tracking_number}</div>
+        </div>
+      </div>`;
+
+    area.appendChild(stk);
+
+    // رسم QR Code
+    const tryQR = (n = 0) => {
+      const canvas = document.getElementById(qrId);
+      if (!canvas) return;
+      if (typeof QRCode !== 'undefined') {
+        QRCode.toCanvas(canvas, trackUrl(s.tracking_number), {
+          width:  sz.qr,
+          margin: 1,
+          color:  { dark: '#1d4ed8', light: '#ffffff' }
+        }, () => {});
+      } else if (n < 20) {
+        setTimeout(() => tryQR(n + 1), 200);
+      }
+    };
+    setTimeout(tryQR, 100);
+
+    // رسم الباركود الخطي
+    setTimeout(() => drawBarcode(barId, s.tracking_number, sz.barH), 150);
+  }
+};
+</script>
+</body>
+</html>
