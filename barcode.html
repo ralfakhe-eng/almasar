@@ -11,78 +11,94 @@ window._sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
 );
 </script>
+
+<!-- مكتبة QR + Barcode مضمنة بالكامل — تعمل بدون إنترنت -->
+<script src="qr-barcode.js"></script>
+
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-
-<!-- مكتبة QR مضمنة بالكامل - تعمل بدون إنترنت -->
-<script>
-/*!
- * QRCode.js - مكتبة QR مضغوطة ومضمنة
- * نسخة مبسطة تعمل محلياً
- */
-var QRCode=function(){var a={},b=function(){var a=function(){this.IR=[],this.IC=[]};a.prototype={get:function(a){return this.IR[a]},set:function(a,b){this.IR[a]=b,this.IC[a]=!0},isUnset:function(a){return!this.IC[a]},setLength:function(a){for(this.IR.length=a;a-- >0;)this.isUnset(a)&&(this.IR[a]=0)}};return a}(),c=function(a,b){this.i=a,this.j=b};c.prototype={compareTo:function(a){return this.i!=a.i?this.i-a.i:this.j-a.j}};var d=function(){function a(){this.m_list=[]}return a.prototype={add:function(a,b){for(var c=0;c<this.m_list.length;++c)if(this.m_list[c].data==a)return void(this.m_list[c].mode|=b);this.m_list.push({mode:b,data:a})},getLengthInBits:function(a){for(var b=0,c=0;c<this.m_list.length;++c)b+=this.m_list[c].data.length*a;return b}},a}();var e=function(){var a=[],b=function(a){a.prototype=new e};var c=function(b,c){a[b]=c};var e=function(){this.buffer=[]};e.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&(this.buffer[b]>>>7-a%8))},put:function(a,b){for(var c=0;c<b;++c)this.putBit(1==(1&(a>>>b-c-1)))},getLengthInBits:function(){return this.buffer.length},putBit:function(a){var b=Math.floor(this.buffer.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.buffer.length%8)}};var f=function(a){this.buffer=a,this.length=8*a.length};b(f),f.prototype.get=function(a){return 1==(1&(this.buffer[Math.floor(a/8)]>>>7-a%8))};var g=function(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]};var h=function(a,b){var c=-1,d=a.length-1,e=[],f=0;for(e.push(1);f<b;++f){var g=0;for(e.push(0);g<=d;++g){var h=0;for(h=0;h<=d;++h){if(null!=a[g])try{e[g+h+1]^=l[a[g]+l.indexOf(b[h])%255]}catch(a){}}}}return e};var i=function(a,b){return a-b};var j=function(a){var b=0;for(;0!=a;)b+=a&1,a>>>=1;return b};var k=[],l=[];!function(){for(var a=1,b=0;b<255;++b)k.push(a),a<<=1,256<=a&&(a^=285);for(var c=0;c<255;++c)l.push(k.indexOf(c))}();g.prototype={addData:function(a){var b=new n(a);this.dataList.push(b),this.dataCache=null},isDark:function(a,b){if(a<0||this.moduleCount<=a||b<0||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,b){this.moduleCount=4*this.typeNumber+17,this.modules=function(a){var b=[];for(var c=0;c<a;++c){b.push([]);for(var d=0;d<a;++d)b[c].push(null)}return b}(this.moduleCount),this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,b),7<=this.typeNumber&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=g.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,b)},setupPositionProbePattern:function(a,b){for(var c=-1;c<=7;++c)if(!(a+c<=-1||this.moduleCount<=a+c))for(var d=-1;d<=7;++d)b+d<=-1||this.moduleCount<=b+d||(this.modules[a+c][b+d]=0<=c&&c<=6&&0==d||0<=c&&c<=6&&6==d||0==c&&0<=d&&d<=6||6==c&&0<=d&&d<=6||2<=c&&c<=4&&2<=d&&d<=4)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;c<8;++c){this.makeImpl(!0,c);var d=g.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;++a)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;++b)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=g.getPatternPosition(this.typeNumber),b=0;b<a.length;++b)for(var c=0;c<a.length;++c){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var f=-2;f<=2;++f)for(var h=-2;h<=2;++h)this.modules[d+f][e+h]=-2==f||2==f||-2==h||2==h||0==f&&0==h}},setupTypeNumber:function(a){for(var b=g.getBCHTypeNumber(this.typeNumber),c=0;c<18;++c){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var e=0;e<18;++e){var f=!a&&1==(1&b>>e);this.modules[e%3+this.moduleCount-8-3][Math.floor(e/3)]=f}},setupTypeInfo:function(a,b){for(var c=g.getBCHTypeInfo(this.errorCorrectLevel<<3|b),d=0;d<15;++d){var e=!a&&1==(1&c>>d);d<6?this.modules[d][8]=e:d<8?this.modules[d+1][8]=e:this.modules[this.moduleCount-15+d][8]=e}for(var f=0;f<15;++f){var h=!a&&1==(1&c>>f);f<8?this.modules[8][this.moduleCount-f-1]=h:f<9?this.modules[8][15-f-1+1]=h:this.modules[8][15-f-1]=h}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,f=0,h=this.moduleCount-1;0<h;h-=2)for(6==h&&--h;;){for(var i=0;i<2;++i){var j=h-i;if(null==this.modules[d][j]){var k=!1;f<a.length&&(k=1==(1&a[f]>>>e));g.getMask(b,d,j)&&(k=!k),this.modules[d][j]=k,-1==--e&&(++f,e=7)}}if((d+=c)<0||this.moduleCount<=d){d-=c,c=-c;break}}}},g.PAD0=236,g.PAD1=17,g.createData=function(a,b,c){for(var d=g.getRSBlocks(a,b),e=new f([]),h=0;h<c.length;++h){var i=c[h];e.put(i.mode,4),e.put(i.getLength(),m.getLengthInBits(i.mode,a)),i.write(e)}for(var j=0,k=0;k<d.length;++k)j+=d[k].dataCount;if(j<e.getLengthInBits()/8)throw new Error("code length overflow. ("+e.getLengthInBits()+">"+8*j+")");e.getLengthInBits()+4<=8*j&&e.put(0,4);for(;0!=e.getLengthInBits()%8;)e.putBit(!1);for(;;){if(e.getLengthInBits()/8>=j)break;if(e.put(g.PAD0,8),e.getLengthInBits()/8>=j)break;e.put(g.PAD1,8)}return g.createBytes(e,d)},g.createBytes=function(a,b){for(var c=0,d=0,e=0,f=new Array(b.length),h=new Array(b.length),i=0;i<b.length;++i){var j=b[i].dataCount,k=b[i].totalCount-j;d=Math.max(d,j),e=Math.max(e,k),f[i]=new Array(j);for(var l=0;l<f[i].length;++l)f[i][l]=255&a.get(8*(c+l));c+=j,h[i]=new Array(k);var m=0;for(m=0;m<h[i].length;++m)h[i][m]=a.get(8*(c+m));c+=k}var n=[],o=0;for(o=0;o<d;++o)for(var p=0;p<b.length;++p)o<f[p].length&&n.push(f[p][o]);for(o=0;o<e;++o)for(var q=0;q<b.length;++q)o<h[q].length&&n.push(h[q][o]);return n},g.getLostPoint=function(a){for(var b=a.getModuleCount(),c=0,d=0;d<b;++d)for(var e=0;e<b;++e){for(var f=0,h=a.isDark(d,e),i=-1;i<=1;++i)if(!(d+i<0||b<=d+i))for(var j=-1;j<=1;++j)e+j<0||b<=e+j||0==i&&0==j||(a.isDark(d+i,e+j)==h&&++f);5<f&&(c+=3+f-5)}for(var k=0;k<b-1;++k)for(var l=0;l<b-1;++l){var m=0;a.isDark(k,l)&&++m,a.isDark(k+1,l)&&++m,a.isDark(k,l+1)&&++m,a.isDark(k+1,l+1)&&++m,0!=m&&4!=m||(c+=3)}for(var n=0;n<b;++n){var o=0;for(var p=0;p<b;++p)a.isDark(n,p)?o?o=0:(++o,c+=40):5>o&&--o&&(c+=40)}for(var q=0;q<b;++q){var r=0;for(var s=0;s<b;++s)a.isDark(s,q)?r?r=0:(++r,c+=40):5>r&&--r&&(c+=40)}var t=0;for(var u=0;u<b;++u)for(var v=0;v<b;++v)a.isDark(u,v)&&++t;return c+=Math.abs(100*t/b/b-50)/5*10},g.getPatternPosition=function(a){return[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]][a-1]},g.getBCHTypeInfo=function(a){for(var b=a<<10;0<=g.getBCHDigit(b)-g.getBCHDigit(1335);)b^=1335<<g.getBCHDigit(b)-g.getBCHDigit(1335);return 21522^(a<<10|b)},g.getBCHTypeNumber=function(a){for(var b=a<<12;0<=g.getBCHDigit(b)-g.getBCHDigit(7973);)b^=7973<<g.getBCHDigit(b)-g.getBCHDigit(7973);return a<<12|b},g.getBCHDigit=function(a){for(var b=0;0!=a;)++b,a>>>=1;return b},g.getRSBlocks=function(a,b){var c=g.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;f<d;++f)for(var h=c[3*f+0],i=c[3*f+1],j=c[3*f+2],k=0;k<h;++k)e.push(new p(i,j));return e},g.getRsBlockTable=function(a,b){switch(b){case 1:return[1,26,19,1,26,16,1,26,13,1,26,9][4*(a-1)>>2&0x3c|b-1];case 0:return[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]][4*(a-1)+b-1];default:throw new Error("bad errorCorrectLevel:"+b)}},g.getMask=function(a,b,c){switch(a){case 0:return 0==(b+c)%2;case 1:return 0==b%2;case 2:return 0==c%3;case 3:return 0==(b+c)%3;case 4:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case 5:return 0==b*c%2+b*c%3;case 6:return 0==(b*c%2+b*c%3)%2;case 7:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}};var m={getLengthInBits:function(a,b){if(1<=b&&b<10)switch(a){case 1:return 10;case 2:return 9;case 4:return 8;case 8:return 8;default:throw new Error("mode:"+a)}else if(b<27)switch(a){case 1:return 12;case 2:return 11;case 4:return 16;case 8:return 10;default:throw new Error("mode:"+a)}else{if(!(b<41))throw new Error("type:"+b);switch(a){case 1:return 14;case 2:return 13;case 4:return 16;case 8:return 12;default:throw new Error("mode:"+a)}}}};var n=function(a){this.mode=4,this.data=a};n.prototype={getLength:function(){return this.data.length},write:function(a){for(var b=0;b<this.data.length;++b)a.put(this.data.charCodeAt(b),8)}};var p=function(a,b){this.totalCount=a,this.dataCount=b};var q={stringToBytes:function(a){for(var b=[],c=0;c<a.length;++c)b.push(255&a.charCodeAt(c));return b}};a.stringToBytes=q.stringToBytes;a.createQRCode=function(a,b){var c=new g(b||5,0);c.addData(a),c.make();return c};a.draw=function(b,c,d,e,f){var h=a.createQRCode(b,e||5),i=h.getModuleCount(),j=Math.floor(c/i),k=Math.floor(d/i),l=c-j*i,m=d-k*i,n=Math.floor(l/2),o=Math.floor(m/2);f.fillStyle="#ffffff";f.fillRect(0,0,c,d);f.fillStyle="#1d4ed8";for(var p=0;p<i;++p)for(var q=0;q<i;++q)h.isDark(p,q)&&f.fillRect(q*j+n,p*k+o,j,k)};return a}();
-window.QRCodeLib = QRCode;
-</script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Cairo',sans-serif;}
 body{background:#0a0f1e;color:#e2e8f0;min-height:100vh;}
-.wrap{max-width:800px;margin:0 auto;padding:20px 16px;}
-.hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:12px;}
-.back-a{color:#64748b;text-decoration:none;font-size:.8rem;display:flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid rgba(37,99,235,.2);border-radius:8px;}
-.back-a:hover{color:#60a5fa;}
+.wrap{max-width:860px;margin:0 auto;padding:20px 16px;}
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 18px;
+  background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:12px;}
+.back-a{color:#64748b;text-decoration:none;font-size:.8rem;display:flex;align-items:center;
+  gap:5px;padding:6px 12px;border:1px solid rgba(37,99,235,.2);border-radius:8px;transition:all .2s;}
+.back-a:hover{color:#60a5fa;border-color:#3b82f6;}
 .hdr h1{font-size:1rem;font-weight:700;flex:1;}
-.ctrl{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:14px;padding:18px;margin-bottom:20px;}
+.ctrl{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.2);border-radius:14px;
+  padding:18px;margin-bottom:20px;}
 .ctrl h2{font-size:.9rem;font-weight:700;margin-bottom:14px;}
 .inp-row{display:flex;gap:10px;margin-bottom:12px;}
-.sinp{flex:1;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:9px;color:#e2e8f0;font-family:monospace;font-size:.88rem;outline:none;text-transform:uppercase;}
+.sinp{flex:1;padding:10px 13px;background:rgba(255,255,255,.05);
+  border:1.5px solid rgba(37,99,235,.2);border-radius:9px;color:#e2e8f0;
+  font-family:monospace;font-size:.88rem;outline:none;text-transform:uppercase;}
 .sinp:focus{border-color:#3b82f6;}
 .sinp::placeholder{color:#475569;text-transform:none;}
-.btn{padding:10px 20px;border:none;border-radius:9px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn{padding:10px 20px;border:none;border-radius:9px;font-family:inherit;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;}
 .btn-prim{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;}
 .btn-print{background:linear-gradient(135deg,#059669,#10b981);color:#fff;}
 .btn-sec{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
 .hint{font-size:.72rem;color:#64748b;margin-bottom:12px;}
 .size-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.sopt{padding:6px 14px;border-radius:99px;font-size:.75rem;cursor:pointer;border:1px solid rgba(37,99,235,.2);background:rgba(255,255,255,.04);color:#94a3b8;transition:all .2s;}
+.sopt{padding:6px 14px;border-radius:99px;font-size:.75rem;cursor:pointer;
+  border:1px solid rgba(37,99,235,.2);background:rgba(255,255,255,.04);color:#94a3b8;transition:all .2s;}
 .sopt.on{background:rgba(37,99,235,.18);border-color:#3b82f6;color:#60a5fa;font-weight:700;}
 .ctrl-btns{display:flex;gap:8px;flex-wrap:wrap;}
 #sticker-area{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
-.sticker{background:#fff;color:#111;border-radius:12px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.5);border:1px solid #e2e8f0;page-break-inside:avoid;}
-.stk-hdr{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+
+/* تصميم الستيكر */
+.sticker{background:#fff;color:#111;border-radius:12px;overflow:hidden;
+  box-shadow:0 6px 24px rgba(0,0,0,.5);border:1px solid #e2e8f0;page-break-inside:avoid;}
+.stk-hdr{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
 .stk-brand{display:flex;align-items:center;gap:7px;}
-.stk-brand .ico{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.9rem;}
+.stk-brand .ico{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:.9rem;}
 .stk-brand span{font-size:.8rem;font-weight:700;}
-.stk-tn{font-family:monospace;font-size:.7rem;background:rgba(0,0,0,.25);padding:3px 8px;border-radius:5px;}
+.stk-tn{font-family:monospace;font-size:.7rem;background:rgba(0,0,0,.25);
+  padding:3px 8px;border-radius:5px;letter-spacing:.05em;}
 .stk-body{padding:12px;}
 .stk-parties{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
 .stk-party{background:#f8fafc;border-radius:8px;padding:8px 10px;border:1px solid #e2e8f0;}
-.stk-party h4{font-size:.58rem;color:#64748b;font-weight:700;text-transform:uppercase;margin-bottom:5px;}
+.stk-party h4{font-size:.58rem;color:#64748b;font-weight:700;text-transform:uppercase;
+  margin-bottom:5px;letter-spacing:.04em;}
 .stk-name{font-size:.82rem;font-weight:700;color:#111;margin-bottom:2px;}
 .stk-phone{font-size:.68rem;color:#64748b;}
 .stk-city{font-size:.64rem;color:#2563eb;font-weight:600;margin-top:3px;}
-.stk-addr{font-size:.62rem;color:#475569;padding:5px 8px;background:#f1f5f9;border-radius:5px;margin-bottom:10px;}
-.stk-bottom{display:flex;align-items:center;gap:12px;border-top:2px dashed #e2e8f0;padding-top:10px;}
-.stk-qr-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;}
-.stk-qr-wrap canvas{border-radius:4px;border:2px solid #1d4ed8;display:block;}
-.stk-scan-hint{font-size:.55rem;color:#94a3b8;text-align:center;}
-.stk-info{flex:1;}
-.stk-status{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:700;margin-bottom:6px;}
+.stk-addr{font-size:.62rem;color:#475569;padding:5px 8px;background:#f1f5f9;
+  border-radius:5px;margin-bottom:10px;}
+.stk-codes{border-top:2px dashed #e2e8f0;padding-top:10px;display:flex;
+  align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;}
+.stk-qr-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.stk-qr-wrap canvas{border:2px solid #1d4ed8;border-radius:4px;display:block;}
+.stk-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.stk-bar-wrap canvas{display:block;}
+.stk-code-label{font-size:.55rem;color:#94a3b8;text-align:center;font-family:monospace;}
+.stk-info-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-top:1px solid #f1f5f9;margin-top:6px;font-size:.7rem;}
+.stk-status{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;
+  border-radius:99px;font-size:.64rem;font-weight:700;}
 .s-pending{background:#fef3c7;color:#92400e;}
 .s-in_transit{background:#ede9fe;color:#5b21b6;}
 .s-delivered{background:#d1fae5;color:#065f46;}
 .s-picked_up{background:#dbeafe;color:#1e40af;}
 .s-cancelled{background:#fee2e2;color:#991b1b;}
-.stk-meta{font-size:.65rem;color:#64748b;line-height:1.7;}
-.stk-track-code{font-family:monospace;font-size:.6rem;color:#2563eb;font-weight:700;margin-top:4px;}
-.spin{display:inline-block;width:24px;height:24px;border:2.5px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .8s linear infinite;}
+
+.spin{display:inline-block;width:24px;height:24px;border:2.5px solid rgba(59,130,246,.2);
+  border-top-color:#3b82f6;border-radius:50%;animation:sp .8s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg);}}
-.not-found{padding:16px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;text-align:center;color:#f87171;font-size:.8rem;}
+.not-found{padding:16px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);
+  border-radius:10px;text-align:center;color:#f87171;font-size:.8rem;}
+
 @media print{
   body{background:#fff!important;}
   .ctrl,.hdr,.noprint{display:none!important;}
   #sticker-area{padding:0;gap:8px;}
   .sticker{box-shadow:none;border:1px solid #ccc;}
   .stk-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .stk-qr-wrap canvas,.stk-bar-wrap canvas{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 </style>
 </head>
@@ -92,15 +108,17 @@ body{background:#0a0f1e;color:#e2e8f0;min-height:100vh;}
     <a href="dashboard.html" class="back-a">← رجوع للداشبورد</a>
     <h1>🏷️ طباعة ستيكر الشحنة — المسار السريع</h1>
   </div>
+
   <div class="ctrl noprint">
     <h2>أدخل رقم التتبع</h2>
     <div class="inp-row">
       <input type="text" id="track-inp" class="sinp"
-        placeholder="مثال: AD-SN-000001" autocomplete="off">
+        placeholder="مثال: AD-SN-000001 (أو عدة أرقام بفاصلة)"
+        autocomplete="off">
       <button class="btn btn-prim" onclick="loadSticker()">📥 تحميل</button>
     </div>
-    <div class="hint">يمكن إدخال عدة أرقام مفصولة بفاصلة</div>
-    <div style="margin-bottom:12px;">
+    <div class="hint">💡 يمكن إدخال عدة أرقام مفصولة بفاصلة لطباعة دفعة واحدة</div>
+    <div style="margin-bottom:12px;margin-top:10px;">
       <div style="font-size:.75rem;color:#94a3b8;margin-bottom:7px;font-weight:600;">📐 حجم الستيكر:</div>
       <div class="size-opts" id="size-opts">
         <div class="sopt on" data-size="sm">صغير</div>
@@ -109,37 +127,48 @@ body{background:#0a0f1e;color:#e2e8f0;min-height:100vh;}
       </div>
     </div>
     <div class="ctrl-btns">
-      <button class="btn btn-print" onclick="window.print()">🖨️ طباعة</button>
+      <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الستيكرات</button>
       <button class="btn btn-sec" onclick="clearAll()">🗑️ مسح</button>
     </div>
   </div>
+
   <div id="sticker-area"></div>
 </div>
 
 <script type="module">
 const sb = window._sb;
-const QR = window.QRCodeLib;
 
 let currentSize = 'sm';
 const SIZES = {
-  sm: { width:260, qr:88 },
-  md: { width:320, qr:108 },
-  lg: { width:420, qr:138 },
-};
-const STATUS_LBL = {
-  pending:'قيد الانتظار', picked_up:'تم الاستلام',
-  in_transit:'في الطريق', delivered:'تم التسليم', cancelled:'ملغية',
-};
-const STATUS_CLS = {
-  pending:'s-pending', picked_up:'s-picked_up',
-  in_transit:'s-in_transit', delivered:'s-delivered', cancelled:'s-cancelled',
+  sm: { width: 280, qr: 80,  barW: 160, barH: 44 },
+  md: { width: 340, qr: 96,  barW: 200, barH: 52 },
+  lg: { width: 440, qr: 120, barW: 270, barH: 64 },
 };
 
+const STATUS_LBL = {
+  pending:    'قيد الانتظار',
+  picked_up:  'تم الاستلام',
+  in_transit: 'في الطريق',
+  delivered:  'تم التسليم',
+  cancelled:  'ملغية',
+};
+const STATUS_CLS = {
+  pending:    's-pending',
+  picked_up:  's-picked_up',
+  in_transit: 's-in_transit',
+  delivered:  's-delivered',
+  cancelled:  's-cancelled',
+};
+
+// اختيار الحجم
 document.getElementById('size-opts').addEventListener('click', e => {
-  const opt = e.target.closest('.sopt'); if (!opt) return;
+  const opt = e.target.closest('.sopt');
+  if (!opt) return;
   document.querySelectorAll('.sopt').forEach(x => x.classList.remove('on'));
-  opt.classList.add('on'); currentSize = opt.dataset.size;
+  opt.classList.add('on');
+  currentSize = opt.dataset.size;
 });
+
 document.getElementById('track-inp').addEventListener('keydown', e => {
   if (e.key === 'Enter') loadSticker();
 });
@@ -156,37 +185,17 @@ window.clearAll = function() {
   document.getElementById('track-inp').value = '';
 };
 
-// رسم QR محلياً بالكامل
-function drawQR(canvasId, trackingNum, size) {
-  const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  // رابط التتبع
-  const base = location.href.replace(/[^/]*$/, '');
-  const url  = base + 'track.html?t=' + encodeURIComponent(trackingNum);
-  try {
-    QR.draw(url, size, size, 3, ctx);
-  } catch(e) {
-    // fallback: نص رقم التتبع
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = '#1d4ed8';
-    ctx.font = 'bold 10px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(trackingNum.slice(0, 14), size/2, size/2 - 6);
-    ctx.fillText(trackingNum.slice(14), size/2, size/2 + 10);
-  }
-}
-
 window.loadSticker = async function() {
   const raw = document.getElementById('track-inp').value.trim().toUpperCase();
   if (!raw) return;
+
   const nums = raw.split(/[,،\s]+/).map(x => x.trim()).filter(Boolean);
   const area = document.getElementById('sticker-area');
-  area.innerHTML = `<div style="text-align:center;padding:40px;">
-    <div class="spin"></div>
-    <p style="margin-top:12px;color:#64748b;font-size:.82rem;">جاري التحميل...</p>
-  </div>`;
+  area.innerHTML = `
+    <div style="text-align:center;padding:40px;">
+      <div class="spin"></div>
+      <p style="margin-top:12px;color:#64748b;font-size:.82rem;">جاري التحميل...</p>
+    </div>`;
 
   const results = [];
   for (const tn of nums) {
@@ -197,17 +206,23 @@ window.loadSticker = async function() {
       origin:origin_branch_id(name,city),
       destination:destination_branch_id(name,city)
     `).ilike('tracking_number', tn).single();
+
     if (data) results.push(data);
     else results.push({ tracking_number: tn, _notFound: true });
   }
 
-  if (!results.filter(r => !r._notFound).length) {
+  const found = results.filter(r => !r._notFound);
+  if (!found.length) {
     area.innerHTML = '<div class="not-found">⚠️ لم يتم العثور على أي شحنة</div>';
     return;
   }
 
   area.innerHTML = '';
   const sz = SIZES[currentSize];
+
+  // رابط التتبع الأساسي
+  const baseUrl = location.href.replace(/[^/]*$/, '');
+  const QR = window.AlMasarQR;
 
   for (const s of results) {
     if (s._notFound) {
@@ -219,11 +234,15 @@ window.loadSticker = async function() {
       continue;
     }
 
-    const uid = 'qr_' + s.tracking_number.replace(/[^a-zA-Z0-9]/g,'_');
+    const trackUrl = baseUrl + 'track.html?t=' + encodeURIComponent(s.tracking_number);
+    const uid = 'stk_' + s.tracking_number.replace(/[^a-zA-Z0-9]/g, '_');
+    const qrId  = uid + '_qr';
+    const barId = uid + '_bar';
 
     const stk = document.createElement('div');
     stk.className = 'sticker';
     stk.style.width = sz.width + 'px';
+
     stk.innerHTML = `
       <div class="stk-hdr">
         <div class="stk-brand">
@@ -236,40 +255,64 @@ window.loadSticker = async function() {
         <div class="stk-parties">
           <div class="stk-party">
             <h4>📤 المرسل</h4>
-            <div class="stk-name">${s.sender_name||'—'}</div>
-            <div class="stk-phone">${s.sender_phone||'—'}</div>
-            <div class="stk-city">${s.origin?.name||''}${s.origin?.city?' - '+s.origin.city:''}</div>
+            <div class="stk-name">${s.sender_name || '—'}</div>
+            <div class="stk-phone">${s.sender_phone || '—'}</div>
+            <div class="stk-city">
+              ${s.origin?.name || ''}${s.origin?.city ? ' — ' + s.origin.city : ''}
+            </div>
           </div>
           <div class="stk-party">
             <h4>📥 المستلم</h4>
-            <div class="stk-name">${s.receiver_name||'—'}</div>
-            <div class="stk-phone">${s.receiver_phone||'—'}</div>
-            <div class="stk-city">${s.destination?.name||''}${s.destination?.city?' - '+s.destination.city:''}</div>
+            <div class="stk-name">${s.receiver_name || '—'}</div>
+            <div class="stk-phone">${s.receiver_phone || '—'}</div>
+            <div class="stk-city">
+              ${s.destination?.name || ''}${s.destination?.city ? ' — ' + s.destination.city : ''}
+            </div>
           </div>
         </div>
-        ${s.receiver_address?`<div class="stk-addr">📍 ${s.receiver_address}</div>`:''}
-        <div class="stk-bottom">
+        ${s.receiver_address
+          ? `<div class="stk-addr">📍 ${s.receiver_address}</div>`
+          : ''}
+        <!-- QR + Barcode -->
+        <div class="stk-codes">
           <div class="stk-qr-wrap">
-            <canvas id="${uid}" width="${sz.qr}" height="${sz.qr}"></canvas>
-            <div class="stk-scan-hint">امسح للتتبع</div>
+            <canvas id="${qrId}" width="${sz.qr}" height="${sz.qr}"></canvas>
+            <div class="stk-code-label">امسح للتتبع</div>
           </div>
-          <div class="stk-info">
-            <div class="stk-status ${STATUS_CLS[s.status]||'s-pending'}">
-              ● ${STATUS_LBL[s.status]||s.status}
-            </div>
-            <div class="stk-meta">
-              💰 ${(s.shipping_cost||0).toLocaleString()} ريال<br>
-              📅 ${new Date(s.created_at).toLocaleDateString('ar-YE',{year:'numeric',month:'short',day:'numeric'})}
-            </div>
-            <div class="stk-track-code">${s.tracking_number}</div>
+          <div class="stk-bar-wrap">
+            <canvas id="${barId}" width="${sz.barW}" height="${sz.barH}"></canvas>
+            <div class="stk-code-label">${s.tracking_number}</div>
           </div>
+        </div>
+        <div class="stk-info-row">
+          <span class="stk-status ${STATUS_CLS[s.status] || 's-pending'}">
+            ● ${STATUS_LBL[s.status] || s.status}
+          </span>
+          <span style="color:#64748b;font-size:.65rem;">
+            💰 ${(s.shipping_cost || 0).toLocaleString()} ريال &nbsp;
+            📅 ${new Date(s.created_at).toLocaleDateString('ar-YE', {
+              year: 'numeric', month: 'short', day: 'numeric'
+            })}
+          </span>
         </div>
       </div>`;
 
     area.appendChild(stk);
 
-    // رسم QR بعد إضافة العنصر للصفحة
-    setTimeout(() => drawQR(uid, s.tracking_number, sz.qr), 50);
+    // رسم QR + Barcode بعد إضافة العنصر
+    setTimeout(() => {
+      const qrCanvas  = document.getElementById(qrId);
+      const barCanvas = document.getElementById(barId);
+      if (qrCanvas && QR) {
+        QR.drawQR(qrCanvas, trackUrl, { darkColor: '#1d4ed8' });
+      }
+      if (barCanvas && QR) {
+        QR.drawBarcode(barCanvas, s.tracking_number, {
+          darkColor: '#000000',
+          height: sz.barH
+        });
+      }
+    }, 100);
   }
 };
 </script>
