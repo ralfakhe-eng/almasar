@@ -1033,12 +1033,19 @@
 
     // QR
     function genQR(canvas, text) {
-        const tryGen = (n=0) => {
-            if (typeof QRCode !== 'undefined') {
-                try { QRCode.toCanvas(canvas, text, { width:130, margin:1, color:{dark:'#000',light:'#ffffff'} }, ()=>{}); } catch (e) {}
-            } else if (n < 20) { setTimeout(()=>tryGen(n+1), 200); }
-        };
-        tryGen();
+        // استخدام Google Charts API — يعمل دائماً بدون مكتبة
+        const trackUrl = `${location.origin.replace('dashboard.html','')}/track.html?t=${encodeURIComponent(text)}`;
+        const qrUrl = `https://chart.googleapis.com/chart?chs=130x130&cht=qr&chl=${encodeURIComponent(trackUrl)}&chco=1d4ed8&chf=bg,s,ffffff&chld=M|1`;
+        // استبدال الـ canvas بصورة
+        const img = document.createElement('img');
+        img.src = qrUrl;
+        img.width  = 130;
+        img.height = 130;
+        img.style.borderRadius = '6px';
+        img.alt = text;
+        if (canvas && canvas.parentNode) {
+            canvas.parentNode.replaceChild(img, canvas);
+        }
     }
 
     // التحقق من الجلسة
