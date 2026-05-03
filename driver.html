@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>تطبيق السائق — المسار السريع</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="qr-barcode.js"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 window._sb = createClient(
@@ -12,12 +12,11 @@ window._sb = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
 );
 </script>
-<!-- مكتبة مسح الباركود -->
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
+/* Login */
 #login-screen{position:fixed;inset:0;background:#0a0f1e;display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;}
 .login-box{background:rgba(13,21,40,.95);border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center;}
 .login-ico{font-size:3rem;margin-bottom:12px;}
@@ -28,6 +27,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .finp::placeholder{color:#475569;}
 .lbtn{width:100%;padding:13px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:11px;color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:4px;}
 .lerr{color:#f87171;font-size:.78rem;margin-top:8px;display:none;}
+/* App */
 #app{height:100%;display:flex;flex-direction:column;display:none;}
 .topbar{background:rgba(11,18,36,.97);border-bottom:1px solid rgba(37,99,235,.18);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .topbar-brand{display:flex;align-items:center;gap:8px;}
@@ -42,8 +42,6 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .nav-item.on{color:#60a5fa;}
 .page{flex:1;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;}
 .page.on{display:block;}
-.page::-webkit-scrollbar{width:3px;}
-.page::-webkit-scrollbar-thumb{background:rgba(37,99,235,.2);border-radius:99px;}
 .section-title{font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;padding:14px 16px 6px;}
 .ship-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.18);border-radius:14px;margin:0 12px 10px;overflow:hidden;}
 .ship-card-hdr{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;}
@@ -67,8 +65,9 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .abtn-green{background:linear-gradient(135deg,#059669,#10b981);color:#fff;}
 .abtn-sec{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
 .abtn-wa{background:#25D366;color:#fff;}
-.abtn-danger{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
 .abtn-map{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2);}
+.abtn-cam{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;}
+/* إحصائيات */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;}
 .stat-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.18);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;border-radius:12px 12px 0 0;}
@@ -86,29 +85,44 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .scanner-hdr h3{font-size:.9rem;font-weight:700;}
 .scanner-hdr p{font-size:.72rem;color:#64748b;margin-top:3px;}
 .scanner-body{padding:16px;}
-.scan-input-wrap{display:flex;gap:8px;margin-bottom:10px;}
+.scan-btns-row{display:flex;gap:8px;margin-bottom:10px;}
 .scan-inp{flex:1;padding:11px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:monospace;font-size:.9rem;outline:none;text-transform:uppercase;}
 .scan-inp:focus{border-color:#3b82f6;}
 .scan-inp::placeholder{color:#475569;}
-.scan-btn{padding:11px 16px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;}
-.cam-btn{padding:11px 14px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;}
-/* Camera scanner */
-#camera-container{margin-bottom:14px;border-radius:12px;overflow:hidden;background:#000;display:none;}
-#camera-container.on{display:block;}
-#html5qr-code-full-region{border:none !important;}
-#html5qr-code-full-region img{display:none !important;}
-#html5qr-code-full-region video{border-radius:10px;}
-.cam-status{font-size:.75rem;color:#64748b;text-align:center;padding:8px;margin-bottom:8px;}
-.cam-status.scanning{color:#60a5fa;}
-.cam-status.found{color:#34d399;}
-#scan-result{margin-top:12px;}
+.scan-btn{padding:11px 14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+.cam-btn{padding:11px 14px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+/* كاميرا */
+#cam-wrap{display:none;margin-bottom:12px;border-radius:12px;overflow:hidden;background:#000;position:relative;}
+#cam-wrap.on{display:block;}
+#cam-video{width:100%;max-height:260px;object-fit:cover;display:block;}
+#cam-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #a855f7;border-radius:12px;box-shadow:0 0 0 4000px rgba(0,0,0,.5);}
+#cam-status{padding:8px 12px;background:rgba(13,21,40,.9);color:#94a3b8;font-size:.75rem;text-align:center;}
+#cam-status.scanning{color:#a855f7;}
+#cam-status.found{color:#34d399;}
+/* نموذج إضافة شحنة */
+#add-ship-sheet{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+#add-ship-sheet.on{opacity:1;pointer-events:all;}
+.sheet-box{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+#add-ship-sheet.on .sheet-box{transform:translateY(0);}
+.sheet-box::-webkit-scrollbar{width:3px;}
+.sheet-box::-webkit-scrollbar-thumb{background:rgba(37,99,235,.2);border-radius:99px;}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sheet-hdr h3{font-size:.95rem;font-weight:700;}
+.sheet-close{background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;padding:4px;line-height:1;}
+.sfinp{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;margin-bottom:10px;}
+.sfinp:focus{border-color:#3b82f6;}
+.sfinp::placeholder{color:#475569;}
+select.sfinp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 8px center;background-size:14px;padding-left:26px;}
+.sflbl{font-size:.72rem;font-weight:600;color:#94a3b8;margin-bottom:4px;display:block;}
+.sfrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sheet-btns{display:flex;gap:8px;margin-top:4px;}
 /* تحذير المسار */
-.route-warning{background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.4);border-radius:12px;padding:14px;margin-bottom:12px;}
-.route-warning h4{color:#fbbf24;font-size:.85rem;font-weight:700;margin-bottom:6px;}
-.route-warning p{font-size:.78rem;color:#fcd34d;line-height:1.6;}
-.route-ok{background:rgba(16,185,129,.1);border:2px solid rgba(16,185,129,.4);border-radius:12px;padding:14px;margin-bottom:12px;}
-.route-ok h4{color:#34d399;font-size:.85rem;font-weight:700;margin-bottom:4px;}
-/* Note modal */
+.route-warn{background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.4);border-radius:10px;padding:12px;margin-bottom:10px;}
+.route-warn h4{color:#fbbf24;font-size:.82rem;font-weight:700;margin-bottom:4px;}
+.route-warn p{font-size:.75rem;color:#fcd34d;line-height:1.5;}
+.route-ok{background:rgba(16,185,129,.1);border:2px solid rgba(16,185,129,.4);border-radius:10px;padding:12px;margin-bottom:10px;}
+.route-ok h4{color:#34d399;font-size:.82rem;font-weight:700;}
+/* ملاحظة */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-bg.on{opacity:1;pointer-events:all;}
 .modal-sheet{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
@@ -116,11 +130,13 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .modal-sheet h3{font-size:.95rem;font-weight:700;margin-bottom:14px;}
 .mnote{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;resize:none;height:90px;}
 .modal-btns{display:flex;gap:8px;margin-top:12px;}
+/* Profile */
 .profile-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.18);border-radius:14px;margin:12px;padding:20px;text-align:center;}
 .profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 12px;}
 .empty{text-align:center;padding:48px 24px;color:#64748b;}
 .empty-ico{font-size:2.5rem;margin-bottom:10px;}
 .empty p{font-size:.82rem;}
+/* Toast */
 #toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(13,21,40,.97);border:2px solid rgba(16,185,129,.4);color:#34d399;padding:12px 22px;border-radius:12px;font-size:.85rem;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5);}
 #toast.show{opacity:1;}
 #toast.err{border-color:rgba(239,68,68,.4);color:#f87171;}
@@ -131,6 +147,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 </head>
 <body>
 
+<!-- Login -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-ico">🚛</div>
@@ -145,6 +162,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 
 <div id="toast"></div>
 
+<!-- App -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-brand">
@@ -166,7 +184,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
   <!-- الإحصائيات -->
   <div class="page" id="pg-stats">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;">
-      <span class="section-title" style="padding:0;">📊 إحصائياتي</span>
+      <span style="font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;">📊 إحصائياتي</span>
       <button onclick="loadStats()" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.25);color:#60a5fa;border-radius:8px;padding:6px 12px;font-size:.72rem;font-family:inherit;cursor:pointer;font-weight:600;">🔄 تحديث</button>
     </div>
     <div class="stats-grid">
@@ -185,22 +203,25 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
       <div class="scanner-box">
         <div class="scanner-hdr">
           <h3>📷 مسح / بحث عن شحنة</h3>
-          <p>امسح QR Code أو أدخل رقم التتبع يدوياً</p>
+          <p>امسح QR أو أدخل رقم التتبع — أو أضف شحنة جديدة</p>
         </div>
         <div class="scanner-body">
-          <!-- أزرار المسح -->
-          <div class="scan-input-wrap">
-            <input type="text" id="scan-inp" class="scan-inp"
-              placeholder="رقم التتبع..."
-              autocomplete="off" autocorrect="off" spellcheck="false">
-            <button class="cam-btn" onclick="toggleCamera()" id="cam-toggle-btn">📷 كاميرا</button>
-            <button class="scan-btn" onclick="doScan()">🔍 بحث</button>
+          <div class="scan-btns-row">
+            <input type="text" id="scan-inp" class="scan-inp" placeholder="رقم التتبع..." autocomplete="off" autocorrect="off" spellcheck="false">
+            <button class="cam-btn" onclick="toggleCamera()" id="cam-btn">📷</button>
+            <button class="scan-btn" onclick="doScan()">🔍</button>
           </div>
 
-          <!-- منطقة الكاميرا -->
-          <div id="camera-container">
-            <div class="cam-status scanning" id="cam-status">📷 جاري تشغيل الكاميرا...</div>
-            <div id="html5qr-code-full-region"></div>
+          <!-- زر إضافة شحنة جديدة -->
+          <button onclick="openAddShip()" style="width:100%;padding:12px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            📦 إضافة شحنة جديدة من فرع لآخر
+          </button>
+
+          <!-- كاميرا -->
+          <div id="cam-wrap">
+            <video id="cam-video" autoplay playsinline muted></video>
+            <div id="cam-overlay"></div>
+            <div id="cam-status" class="scanning">📷 جاري تشغيل الكاميرا...</div>
           </div>
 
           <div id="scan-result"></div>
@@ -230,23 +251,101 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
   </div>
 </div>
 
-<!-- Note modal -->
+<!-- نموذج ملاحظة -->
 <div class="modal-bg" id="note-modal">
   <div class="modal-sheet">
     <h3>📝 إضافة ملاحظة</h3>
     <textarea id="note-txt" class="mnote" placeholder="اكتب ملاحظة على الشحنة..."></textarea>
     <div class="modal-btns">
-      <button class="abtn abtn-sec" style="flex:1;" onclick="closeNote()">إلغاء</button>
-      <button class="abtn abtn-prim" style="flex:2;" onclick="submitNote()">✅ حفظ الملاحظة</button>
+      <button class="abtn abtn-sec" style="flex:1;padding:10px;" onclick="closeNote()">إلغاء</button>
+      <button class="abtn abtn-prim" style="flex:2;padding:10px;" onclick="submitNote()">✅ حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- نموذج إضافة شحنة جديدة -->
+<div id="add-ship-sheet">
+  <div class="sheet-box">
+    <div class="sheet-hdr">
+      <h3>📦 إضافة شحنة من فرع لآخر</h3>
+      <button class="sheet-close" onclick="closeAddShip()">×</button>
+    </div>
+
+    <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.72rem;color:#c084fc;">
+      📷 يمكنك مسح QR الشحنة أولاً لملء البيانات تلقائياً
+    </div>
+
+    <!-- مسح QR لملء البيانات -->
+    <div id="add-cam-wrap" style="display:none;margin-bottom:12px;border-radius:10px;overflow:hidden;background:#000;position:relative;">
+      <video id="add-cam-video" autoplay playsinline muted style="width:100%;max-height:200px;object-fit:cover;display:block;"></video>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;border:3px solid #a855f7;border-radius:8px;box-shadow:0 0 0 4000px rgba(0,0,0,.5);"></div>
+      <div id="add-cam-status" style="padding:6px 12px;background:rgba(13,21,40,.9);color:#a855f7;font-size:.72rem;text-align:center;">📷 امسح QR الشحنة...</div>
+    </div>
+
+    <button onclick="toggleAddCam()" id="add-cam-btn" style="width:100%;padding:10px;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);border-radius:10px;color:#c084fc;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;margin-bottom:12px;">
+      📷 مسح QR لملء البيانات تلقائياً
+    </button>
+
+    <span class="sflbl">اسم المرسل *</span>
+    <input type="text" id="as-sender" class="sfinp" placeholder="اسم المرسل الكامل">
+
+    <span class="sflbl">جوال المرسل</span>
+    <input type="text" id="as-sender-ph" class="sfinp" placeholder="+967xxxxxxxxx" inputmode="numeric">
+
+    <span class="sflbl">اسم المستلم *</span>
+    <input type="text" id="as-receiver" class="sfinp" placeholder="اسم المستلم الكامل">
+
+    <span class="sflbl">جوال المستلم *</span>
+    <input type="text" id="as-receiver-ph" class="sfinp" placeholder="+967xxxxxxxxx" inputmode="numeric">
+
+    <span class="sflbl">العنوان</span>
+    <input type="text" id="as-addr" class="sfinp" placeholder="الحي، الشارع...">
+
+    <div class="sfrow" style="margin-bottom:10px;">
+      <div>
+        <span class="sflbl">فرع الإرسال *</span>
+        <select id="as-from" class="sfinp" style="margin-bottom:0;"></select>
+      </div>
+      <div>
+        <span class="sflbl">فرع الاستلام *</span>
+        <select id="as-to" class="sfinp" style="margin-bottom:0;"></select>
+      </div>
+    </div>
+
+    <div class="sfrow" style="margin-bottom:10px;">
+      <div>
+        <span class="sflbl">التكلفة (ريال)</span>
+        <input type="number" id="as-cost" class="sfinp" style="margin-bottom:0;" value="0" min="0">
+      </div>
+      <div>
+        <span class="sflbl">طريقة الدفع</span>
+        <select id="as-pay" class="sfinp" style="margin-bottom:0;">
+          <option value="cash_sender">نقد/مرسل</option>
+          <option value="cash_receiver">عند الاستلام</option>
+          <option value="prepaid">مدفوع</option>
+        </select>
+      </div>
+    </div>
+
+    <span class="sflbl">ملاحظات</span>
+    <input type="text" id="as-notes" class="sfinp" placeholder="وصف البضاعة...">
+
+    <div class="sheet-btns">
+      <button onclick="closeAddShip()" style="flex:1;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:10px;font-family:inherit;font-size:.85rem;cursor:pointer;">إلغاء</button>
+      <button onclick="submitAddShip()" style="flex:2;padding:12px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;">💾 إضافة الشحنة</button>
     </div>
   </div>
 </div>
 
 <script type="module">
 const sb = window._sb;
-let S = { uid:'', uname:'', uemail:'', branchId:'', noteShipId:null };
-let html5QrScanner = null;
-let cameraActive   = false;
+let S = { uid:'', uname:'', uemail:'', branchId:'', noteShipId:null, branches:[] };
+let camStream    = null;
+let camActive    = false;
+let addCamStream = null;
+let addCamActive = false;
+let scanInterval = null;
+let addScanInterval = null;
 
 const STATUS_META = {
   pending:    { label:'قيد الانتظار', cls:'bpend' },
@@ -274,79 +373,64 @@ window.doLogin = async function() {
   const pass  = document.getElementById('l-pass').value;
   const err   = document.getElementById('lerr');
   err.style.display = 'none';
-  if (!email || !pass) {
-    err.textContent = 'أدخل البريد وكلمة المرور';
-    err.style.display = 'block';
-    return;
-  }
+  if (!email || !pass) { err.textContent='أدخل البريد وكلمة المرور'; err.style.display='block'; return; }
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error || !data?.user) {
-    err.textContent = 'بيانات غير صحيحة';
-    err.style.display = 'block';
-    return;
-  }
+  if (error || !data?.user) { err.textContent='بيانات غير صحيحة'; err.style.display='block'; return; }
   S.uid = data.user.id;
-  const { data: profile } = await sb.from('profiles')
-    .select('full_name,email,role,branch_id').eq('id', S.uid).single();
-  if (profile?.role !== 'driver') {
-    err.textContent = 'هذا التطبيق للسائقين فقط';
-    err.style.display = 'block';
-    await sb.auth.signOut();
-    return;
-  }
-  S.uname    = profile.full_name || email;
-  S.uemail   = email;
-  S.branchId = profile.branch_id || '';
+  const { data: p } = await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();
+  if (p?.role !== 'driver') { err.textContent='هذا التطبيق للسائقين فقط'; err.style.display='block'; await sb.auth.signOut(); return; }
+  S.uname = p.full_name || email; S.uemail = email; S.branchId = p.branch_id || '';
   startApp();
 };
 
-document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
 (async () => {
   const ok = await checkSession();
   if (ok) {
-    const { data: p } = await sb.from('profiles')
-      .select('full_name,email,role,branch_id').eq('id', S.uid).single();
-    if (p?.role === 'driver') {
-      S.uname    = p.full_name || 'سائق';
-      S.uemail   = p.email || '';
-      S.branchId = p.branch_id || '';
-      startApp();
-    }
+    const { data: p } = await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();
+    if (p?.role === 'driver') { S.uname=p.full_name||'سائق'; S.uemail=p.email||''; S.branchId=p.branch_id||''; startApp(); }
   }
 })();
 
-function startApp() {
+async function startApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
   document.getElementById('driver-name').textContent = S.uname;
-  document.getElementById('p-name').textContent      = S.uname;
-  document.getElementById('p-email').textContent     = S.uemail;
-  document.getElementById('p-avatar').textContent    = S.uname[0] || 'م';
+  document.getElementById('p-name').textContent  = S.uname;
+  document.getElementById('p-email').textContent = S.uemail;
+  document.getElementById('p-avatar').textContent = S.uname[0] || 'م';
+  await loadBranches();
   loadAll();
   setupRealtime();
 }
 
 window.loadAll = function() { loadTasks(); loadStats(); };
 
+// ═══ تحميل الفروع ═══
+async function loadBranches() {
+  const { data } = await sb.from('branches').select('id,name,city,branch_code,is_hub').eq('is_active',true).order('name');
+  S.branches = data || [];
+  ['as-from','as-to'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '<option value="">اختر الفرع...</option>' + S.branches.map(b => `<option value="${b.id}">${b.name}${b.city?' - '+b.city:''}</option>`).join('');
+  });
+}
+
 // ═══ الشحنات النشطة ═══
 async function loadTasks() {
   const { data } = await sb.from('shipments').select(`
-    id,tracking_number,status,receiver_name,receiver_phone,receiver_address,
+    id,tracking_number,status,receiver_name,receiver_phone,
+    receiver_address,delivery_type,
     destination:destination_branch_id(name,city)
-  `).eq('driver_id', S.uid)
-    .not('status', 'in', '(delivered,cancelled)')
-    .order('created_at', { ascending: false });
-
+  `).eq('driver_id',S.uid).not('status','in','(delivered,cancelled)').order('created_at',{ascending:false});
   const el = document.getElementById('tasks-list');
-  if (!data?.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-ico">🎉</div><p>لا توجد شحنات نشطة الآن</p></div>';
-    return;
-  }
-
+  if (!data?.length) { el.innerHTML='<div class="empty"><div class="empty-ico">🎉</div><p>لا توجد شحنات نشطة الآن</p></div>'; return; }
+  const deliveryAr = { branch:'استلام من الفرع 🏢', door:'توصيل للباب 🚪' };
   el.innerHTML = data.map(s => {
     const nx   = FLOW[s.status];
-    const meta = STATUS_META[s.status] || { label: s.status, cls: 'bpend' };
+    const meta = STATUS_META[s.status] || { label:s.status, cls:'bpend' };
     return `
     <div class="ship-card">
       <div class="ship-card-hdr">
@@ -356,19 +440,16 @@ async function loadTasks() {
       <div class="ship-card-body">
         <div class="ship-info">
           <div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${s.receiver_name}</span></div>
-          <div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone || '—'}</span></div>
-          <div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address || '—'}</span></div>
-          <div class="ship-info-item"><span class="lbl">وجهة</span><span class="val">${s.destination?.name || '—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">وجهة</span><span class="val">${s.destination?.name||'—'}</span></div>
+          <div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">التسليم</span><span class="val" style="color:#60a5fa;">${deliveryAr[s.delivery_type]||'استلام من الفرع 🏢'}</span></div>
         </div>
         <div class="act-btns">
-          ${nx ? `<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','${nx.next}','${s.tracking_number}')">${nx.lbl}</button>` : ''}
-          <button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone || ''}')">📱 واتساب</button>
-          <button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝 ملاحظة</button>
-          ${s.receiver_address
-            ? `<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️ خريطة</button>`
-            : s.destination?.name
-              ? `<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.destination.name + (s.destination.city ? ' ' + s.destination.city : ''))}')">🗺️ خريطة</button>`
-              : ''}
+          ${nx?`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','${nx.next}','${s.tracking_number}')">${nx.lbl}</button>`:''}
+          <button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone||''}')">📱</button>
+          <button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝</button>
+          ${s.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️</button>`:''}
         </div>
       </div>
     </div>`;
@@ -377,146 +458,108 @@ async function loadTasks() {
 
 // ═══ الإحصائيات ═══
 window.loadStats = async function() {
-  const { data } = await sb.from('shipments')
-    .select('status,created_at')
-    .eq('driver_id', S.uid);
+  const { data } = await sb.from('shipments').select('status,created_at').eq('driver_id',S.uid);
   if (!data) return;
   const td = new Date().toISOString().split('T')[0];
   document.getElementById('s-total').textContent  = data.length;
-  document.getElementById('s-done').textContent   = data.filter(s => s.status === 'delivered').length;
-  document.getElementById('s-active').textContent = data.filter(s => !['delivered','cancelled'].includes(s.status)).length;
-  document.getElementById('s-today').textContent  = data.filter(s => s.created_at.startsWith(td)).length;
-
-  const { data: done } = await sb.from('shipments')
-    .select('tracking_number,receiver_name,created_at,destination:destination_branch_id(name)')
-    .eq('driver_id', S.uid).eq('status', 'delivered')
-    .order('created_at', { ascending: false }).limit(10);
-
-  const dl = document.getElementById('done-list');
-  dl.innerHTML = done?.length
-    ? done.map(s => `
-      <div class="ship-card"><div class="ship-card-hdr">
-        <code class="ship-track" style="font-size:.75rem;">${s.tracking_number}</code>
-        <span class="bdg bdeli">تم التسليم</span>
-      </div><div class="ship-card-body">
-        <div style="font-size:.78rem;"><span style="color:#64748b">المستلم:</span> ${s.receiver_name}</div>
-        <div style="font-size:.7rem;color:#64748b;margin-top:3px;">${fmtDate(s.created_at)}</div>
-      </div></div>`).join('')
-    : '<div class="empty"><p>لا توجد شحنات مسلّمة بعد</p></div>';
+  document.getElementById('s-done').textContent   = data.filter(s=>s.status==='delivered').length;
+  document.getElementById('s-active').textContent = data.filter(s=>!['delivered','cancelled'].includes(s.status)).length;
+  document.getElementById('s-today').textContent  = data.filter(s=>s.created_at.startsWith(td)).length;
+  const { data: done } = await sb.from('shipments').select('tracking_number,receiver_name,created_at').eq('driver_id',S.uid).eq('status','delivered').order('created_at',{ascending:false}).limit(10);
+  document.getElementById('done-list').innerHTML = done?.length ? done.map(s=>`
+    <div class="ship-card"><div class="ship-card-hdr">
+      <code class="ship-track" style="font-size:.75rem;">${s.tracking_number}</code>
+      <span class="bdg bdeli">تم التسليم</span>
+    </div><div class="ship-card-body">
+      <div style="font-size:.78rem;"><span style="color:#64748b">المستلم:</span> ${s.receiver_name}</div>
+      <div style="font-size:.7rem;color:#64748b;margin-top:3px;">${fmtDate(s.created_at)}</div>
+    </div></div>`).join('') : '<div class="empty"><p>لا توجد شحنات مسلّمة بعد</p></div>';
 };
 
-// ═══ تحديث الحالة مع تحديث فوري لقاعدة البيانات ═══
+// ═══ تحديث الحالة ═══
 window.updateStatus = async function(id, newSt, tn) {
-  const labels = {
-    picked_up:  'تأكيد الاستلام',
-    in_transit: 'بدء التوصيل',
-    delivered:  'تأكيد التسليم'
-  };
-  const ok = confirm(`⚠️ تأكيد العملية\n\nالشحنة: ${tn}\nالإجراء: ${labels[newSt] || newSt}\n\nهل أنت متأكد؟`);
+  const labels = { picked_up:'تأكيد الاستلام', in_transit:'بدء التوصيل', delivered:'تأكيد التسليم' };
+  const ok = confirm(`⚠️ تأكيد العملية\n\nالشحنة: ${tn}\nالإجراء: ${labels[newSt]||newSt}\n\nهل أنت متأكد؟`);
   if (!ok) return;
-
-  showToast('⏳ جاري التحديث...', 'warn');
-
-  // تحديث الحالة في قاعدة البيانات
-  const { error } = await sb.from('shipments')
-    .update({ status: newSt, updated_at: new Date().toISOString() })
-    .eq('id', id);
-
-  if (error) {
-    showToast('❌ فشل التحديث — ' + error.message, 'err');
-    return;
-  }
-
-  // إضافة سجل التتبع
-  await sb.from('tracking_logs').insert([{
-    shipment_id: id,
-    status:      newSt,
-    created_by:  S.uid
-  }]);
-
-  // إضافة سجل الحركات
-  await sb.from('activity_log').insert([{
-    user_id:     S.uid,
-    user_name:   S.uname,
-    action:      'status_change',
-    entity_type: 'shipment',
-    entity_id:   id,
-    details:     { new_status: newSt, tracking: tn, label: labels[newSt] }
-  }]).catch(() => {});
-
-  showToast(`✅ تم: ${labels[newSt] || newSt}`);
-
-  // تحديث فوري للواجهة
-  await loadTasks();
-  await loadStats();
+  showToast('⏳ جاري التحديث...','warn');
+  const { error } = await sb.from('shipments').update({ status:newSt, updated_at:new Date().toISOString() }).eq('id',id);
+  if (error) { showToast('❌ فشل التحديث','err'); return; }
+  await sb.from('tracking_logs').insert([{ shipment_id:id, status:newSt, created_by:S.uid }]);
+  await sb.from('activity_log').insert([{ user_id:S.uid, user_name:S.uname, action:'status_change', entity_type:'shipment', entity_id:id, details:{ new_status:newSt, tracking:tn, label:labels[newSt] } }]).catch(()=>{});
+  showToast(`✅ ${labels[newSt]||newSt}`);
+  await loadTasks(); await loadStats();
 };
 
-// ═══ الكاميرا ═══
+// ═══ مسح الكاميرا (تبويب مسح) ═══
 window.toggleCamera = async function() {
-  const container = document.getElementById('camera-container');
-  const btn       = document.getElementById('cam-toggle-btn');
-  const status    = document.getElementById('cam-status');
-
-  if (cameraActive) {
-    // إيقاف الكاميرا
-    if (html5QrScanner) {
-      await html5QrScanner.stop().catch(() => {});
-      html5QrScanner = null;
-    }
-    container.classList.remove('on');
-    btn.textContent = '📷 كاميرا';
-    cameraActive    = false;
+  const wrap = document.getElementById('cam-wrap');
+  const btn  = document.getElementById('cam-btn');
+  const stat = document.getElementById('cam-status');
+  if (camActive) {
+    stopCamera();
+    wrap.classList.remove('on');
+    btn.textContent = '📷';
     return;
   }
-
-  // تشغيل الكاميرا
-  container.classList.add('on');
-  btn.textContent   = '⏹️ إيقاف';
-  status.textContent = '📷 جاري تشغيل الكاميرا...';
-  status.className  = 'cam-status scanning';
-  cameraActive      = true;
-
+  wrap.classList.add('on');
+  btn.textContent = '⏹️';
+  stat.textContent = '📷 جاري تشغيل الكاميرا...';
+  stat.className = 'scanning';
   try {
-    html5QrScanner = new Html5Qrcode('html5qr-code-full-region');
-    await html5QrScanner.start(
-      { facingMode: 'environment' },
-      { fps: 10, qrbox: { width: 220, height: 220 } },
-      async (decodedText) => {
-        // تم مسح كود بنجاح
-        status.textContent = '✅ تم المسح بنجاح!';
-        status.className   = 'cam-status found';
-
-        // إيقاف الكاميرا
-        await html5QrScanner.stop().catch(() => {});
-        html5QrScanner  = null;
-        cameraActive    = false;
-        container.classList.remove('on');
-        btn.textContent = '📷 كاميرا';
-
-        // استخراج رقم التتبع من الـ URL أو النص
-        let trackNum = decodedText;
-        if (decodedText.includes('?t=')) {
-          trackNum = decodedText.split('?t=')[1].split('&')[0];
-        } else if (decodedText.includes('track')) {
-          const match = decodedText.match(/([A-Z]+-[A-Z]+-\d+)/);
-          if (match) trackNum = match[1];
-        }
-
-        document.getElementById('scan-inp').value = trackNum.toUpperCase();
-        showToast('📷 تم مسح الكود بنجاح');
-        await processScan(trackNum.toUpperCase());
-      },
-      () => {} // خطأ مسح — نتجاهله
-    );
-  } catch (e) {
-    status.textContent = '❌ تعذّر الوصول للكاميرا';
-    status.className   = 'cam-status';
-    showToast('❌ تعذّر تشغيل الكاميرا — تحقق من الإذن', 'err');
-    cameraActive = false;
-    container.classList.remove('on');
-    btn.textContent = '📷 كاميرا';
+    camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
+    const video = document.getElementById('cam-video');
+    video.srcObject = camStream;
+    camActive = true;
+    stat.textContent = '📷 امسح QR الشحنة...';
+    startQRScan(video, stat, async (code) => {
+      let tn = code;
+      if (code.includes('?t=')) tn = decodeURIComponent(code.split('?t=')[1].split('&')[0]);
+      stat.textContent = `✅ تم المسح: ${tn}`;
+      stat.className = 'found';
+      document.getElementById('scan-inp').value = tn.toUpperCase();
+      stopCamera();
+      wrap.classList.remove('on');
+      btn.textContent = '📷';
+      showToast('📷 تم المسح بنجاح');
+      await processScan(tn.toUpperCase());
+    });
+  } catch(e) {
+    stat.textContent = '❌ تعذّر الوصول للكاميرا';
+    stat.className = '';
+    showToast('❌ تعذّر تشغيل الكاميرا','err');
+    camActive = false;
+    wrap.classList.remove('on');
+    btn.textContent = '📷';
   }
 };
+
+function stopCamera() {
+  if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  if (scanInterval) { clearInterval(scanInterval); scanInterval=null; }
+  camActive = false;
+}
+
+// ═══ مسح QR بدون مكتبة خارجية ═══
+function startQRScan(video, statusEl, onFound) {
+  const canvas = document.createElement('canvas');
+  const ctx    = canvas.getContext('2d');
+  let found    = false;
+  scanInterval = setInterval(() => {
+    if (!video.videoWidth || found) return;
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0);
+    try {
+      // استخدام BarcodeDetector إذا متوفر
+      if ('BarcodeDetector' in window) {
+        const detector = new BarcodeDetector({ formats:['qr_code','code_128','code_39'] });
+        detector.detect(canvas).then(codes => {
+          if (codes.length > 0 && !found) { found=true; clearInterval(scanInterval); onFound(codes[0].rawValue); }
+        }).catch(()=>{});
+      }
+    } catch(e) {}
+  }, 300);
+}
 
 // ═══ بحث يدوي ═══
 window.doScan = async function() {
@@ -525,62 +568,30 @@ window.doScan = async function() {
   await processScan(q);
 };
 
-document.getElementById('scan-inp').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doScan();
-});
+document.getElementById('scan-inp').addEventListener('keydown', e => { if(e.key==='Enter') doScan(); });
 
-// ═══ معالجة نتيجة المسح ═══
 async function processScan(trackNum) {
   const el = document.getElementById('scan-result');
   el.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spin"></div><p style="color:#64748b;margin-top:8px;font-size:.8rem;">جاري التحقق...</p></div>';
-
   const { data } = await sb.from('shipments').select(`
     id,tracking_number,status,receiver_name,receiver_phone,
-    receiver_address,driver_id,
+    receiver_address,driver_id,delivery_type,
     origin:origin_branch_id(name,city),
     destination:destination_branch_id(id,name,city)
   `).ilike('tracking_number', trackNum).single();
+  if (!data) { el.innerHTML='<div style="text-align:center;padding:20px;color:#f87171;">⚠️ لم يتم العثور على الشحنة</div>'; return; }
 
-  if (!data) {
-    el.innerHTML = '<div style="text-align:center;padding:20px;color:#f87171;">⚠️ لم يتم العثور على الشحنة</div>';
-    return;
-  }
-
-  // ═══ فحص المسار ═══
+  // فحص المسار
   let routeAlert = '';
-  let routeOk    = true;
-
-  // هل الشحنة مخصصة لسائق آخر؟
   if (data.driver_id && data.driver_id !== S.uid) {
-    routeOk   = false;
-    routeAlert = `
-      <div class="route-warning">
-        <h4>⚠️ تحذير — شحنة مُعيَّنة لسائق آخر</h4>
-        <p>هذه الشحنة مخصصة لسائق مختلف وليست ضمن مساراتك المعيّنة.</p>
-        <p style="margin-top:6px;">الرجاء التواصل مع المشرف قبل المتابعة.</p>
-      </div>`;
-  }
-  // هل الشحنة لفرع مختلف عن فرع السائق؟
-  else if (S.branchId && data.destination?.id && data.destination.id !== S.branchId && !data.driver_id) {
-    routeOk   = false;
-    routeAlert = `
-      <div class="route-warning">
-        <h4>⚠️ تنبيه — الشحنة خارج مسارك</h4>
-        <p>وجهة هذه الشحنة: <strong>${data.destination.name || '—'}</strong></p>
-        <p style="margin-top:6px;">هذه الشحنة متجهة لفرع مختلف عن فرعك المخصص. تأكد من صحة المسار مع المشرف.</p>
-      </div>`;
-  }
-  // الشحنة في مسار صحيح
-  else if (data.driver_id === S.uid) {
-    routeAlert = `
-      <div class="route-ok">
-        <h4>✅ الشحنة في مسارك الصحيح</h4>
-        <p style="font-size:.76rem;color:#6ee7b7;">هذه الشحنة مُعيَّنة لك ويمكنك المتابعة.</p>
-      </div>`;
+    routeAlert = `<div class="route-warn"><h4>⚠️ تحذير — شحنة مُعيَّنة لسائق آخر</h4><p>هذه الشحنة مخصصة لسائق مختلف. الرجاء التواصل مع المشرف قبل المتابعة.</p></div>`;
+  } else if (data.driver_id === S.uid) {
+    routeAlert = `<div class="route-ok"><h4>✅ الشحنة في مسارك الصحيح</h4></div>`;
   }
 
   const nx   = FLOW[data.status];
-  const meta = STATUS_META[data.status] || { label: data.status, cls: 'bpend' };
+  const meta = STATUS_META[data.status] || { label:data.status, cls:'bpend' };
+  const deliveryAr = { branch:'استلام من الفرع 🏢', door:'توصيل للباب 🚪' };
 
   el.innerHTML = `
     ${routeAlert}
@@ -592,124 +603,188 @@ async function processScan(trackNum) {
       <div class="ship-card-body">
         <div class="ship-info">
           <div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${data.receiver_name}</span></div>
-          <div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${data.receiver_phone || '—'}</span></div>
-          <div class="ship-info-item"><span class="lbl">من</span><span class="val">${data.origin?.name || '—'}</span></div>
-          <div class="ship-info-item"><span class="lbl">إلى</span><span class="val">${data.destination?.name || '—'}</span></div>
-          ${data.receiver_address ? `<div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">العنوان</span><span class="val">${data.receiver_address}</span></div>` : ''}
+          <div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${data.receiver_phone||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">من</span><span class="val">${data.origin?.name||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">إلى</span><span class="val">${data.destination?.name||'—'}</span></div>
+          <div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">التسليم</span><span class="val" style="color:#60a5fa;">${deliveryAr[data.delivery_type]||'استلام من الفرع 🏢'}</span></div>
+          ${data.receiver_address?`<div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">العنوان</span><span class="val">${data.receiver_address}</span></div>`:''}
         </div>
         <div class="act-btns">
-          ${nx && routeOk
-            ? `<button class="abtn abtn-prim" onclick="updateStatus('${data.id}','${nx.next}','${data.tracking_number}')">${nx.lbl}</button>`
-            : nx && !routeOk
-              ? `<button class="abtn abtn-danger" onclick="confirmOverride('${data.id}','${nx.next}','${data.tracking_number}')">⚠️ ${nx.lbl} (خارج المسار)</button>`
-              : '<span style="color:#64748b;font-size:.75rem;">لا توجد إجراءات متاحة</span>'
-          }
+          ${nx?`<button class="abtn abtn-prim" onclick="updateStatus('${data.id}','${nx.next}','${data.tracking_number}')">${nx.lbl}</button>`:'<span style="color:#64748b;font-size:.75rem;">لا توجد إجراءات</span>'}
           <button class="abtn abtn-sec" onclick="openNote('${data.id}')">📝 ملاحظة</button>
-          ${data.receiver_address
-            ? `<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(data.receiver_address)}')">🗺️ خريطة</button>`
-            : ''}
+          ${data.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(data.receiver_address)}')">🗺️</button>`:''}
         </div>
       </div>
     </div>`;
 }
 
-// تأكيد تجاوز تحذير المسار
-window.confirmOverride = function(id, newSt, tn) {
-  const ok = confirm(
-    '⚠️ تحذير هام\n\nهذه الشحنة خارج مسارك المعيّن.\n\nهل تريد المتابعة على مسؤوليتك الخاصة؟'
-  );
-  if (ok) updateStatus(id, newSt, tn);
+// ═══ إضافة شحنة جديدة ═══
+window.openAddShip = function() {
+  document.getElementById('add-ship-sheet').classList.add('on');
+};
+window.closeAddShip = function() {
+  document.getElementById('add-ship-sheet').classList.remove('on');
+  stopAddCam();
 };
 
-// ═══ Note Modal ═══
-window.openNote = function(id) {
-  S.noteShipId = id;
-  document.getElementById('note-txt').value = '';
-  document.getElementById('note-modal').classList.add('on');
-  setTimeout(() => document.getElementById('note-txt').focus(), 300);
-};
-window.closeNote = function() {
-  document.getElementById('note-modal').classList.remove('on');
-};
-window.submitNote = async function() {
-  const note = document.getElementById('note-txt').value.trim();
-  if (!note || !S.noteShipId) return;
-  const { data: sh } = await sb.from('shipments')
-    .select('status').eq('id', S.noteShipId).single();
-  await sb.from('tracking_logs').insert([{
-    shipment_id:   S.noteShipId,
-    status:        sh.status,
-    location_note: note,
-    created_by:    S.uid
-  }]);
-  closeNote();
-  showToast('✅ تمت إضافة الملاحظة');
-};
-document.getElementById('note-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('note-modal')) closeNote();
-});
-
-// ═══ الخرائط — مُصلح ═══
-window.openMaps = function(addr) {
-  if (!addr) return;
-  const decoded = decodeURIComponent(addr);
-  // يفتح تطبيق الخرائط المثبت على الجهاز مباشرة
-  const isIOS     = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-  if (isIOS) {
-    window.open(`maps://maps.apple.com/?q=${addr}`);
-  } else if (isAndroid) {
-    window.open(`geo:0,0?q=${addr}`);
-  } else {
-    window.open(`https://maps.google.com/?q=${addr}`);
+// مسح QR في نموذج الإضافة
+window.toggleAddCam = async function() {
+  const wrap = document.getElementById('add-cam-wrap');
+  const btn  = document.getElementById('add-cam-btn');
+  const stat = document.getElementById('add-cam-status');
+  if (addCamActive) { stopAddCam(); wrap.style.display='none'; btn.textContent='📷 مسح QR لملء البيانات تلقائياً'; return; }
+  wrap.style.display = 'block';
+  btn.textContent = '⏹️ إيقاف الكاميرا';
+  stat.textContent = '📷 امسح QR الشحنة لملء البيانات...';
+  try {
+    addCamStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' }, audio:false });
+    const video = document.getElementById('add-cam-video');
+    video.srcObject = addCamStream;
+    addCamActive = true;
+    startQRScan(video, stat, async (code) => {
+      let tn = code;
+      if (code.includes('?t=')) tn = decodeURIComponent(code.split('?t=')[1].split('&')[0]);
+      // جلب بيانات الشحنة وملء النموذج
+      stat.textContent = `✅ جاري جلب بيانات ${tn}...`;
+      const { data } = await sb.from('shipments').select(`
+        sender_name,sender_phone,receiver_name,receiver_phone,receiver_address,
+        shipping_cost,payment_method,
+        origin:origin_branch_id(id),destination:destination_branch_id(id)
+      `).ilike('tracking_number', tn).single();
+      if (data) {
+        document.getElementById('as-sender').value    = data.sender_name || '';
+        document.getElementById('as-sender-ph').value = data.sender_phone || '';
+        document.getElementById('as-receiver').value  = data.receiver_name || '';
+        document.getElementById('as-receiver-ph').value = data.receiver_phone || '';
+        document.getElementById('as-addr').value      = data.receiver_address || '';
+        document.getElementById('as-cost').value      = data.shipping_cost || 0;
+        if (data.origin?.id)      document.getElementById('as-from').value = data.origin.id;
+        if (data.destination?.id) document.getElementById('as-to').value   = data.destination.id;
+        showToast('✅ تم ملء البيانات من QR');
+      } else {
+        showToast('⚠️ لم يتم العثور على الشحنة — أدخل البيانات يدوياً','warn');
+      }
+      stopAddCam();
+      wrap.style.display = 'none';
+      btn.textContent = '📷 مسح QR لملء البيانات تلقائياً';
+    });
+  } catch(e) {
+    showToast('❌ تعذّر تشغيل الكاميرا','err');
+    addCamActive = false;
+    wrap.style.display = 'none';
+    btn.textContent = '📷 مسح QR لملء البيانات تلقائياً';
   }
 };
 
-window.callWA = function(ph) {
-  if (!ph) return;
-  const p = ph.replace(/^\+/, '').replace(/^00/, '');
-  window.open(`https://wa.me/${p}`);
+function stopAddCam() {
+  if (addCamStream) { addCamStream.getTracks().forEach(t=>t.stop()); addCamStream=null; }
+  if (addScanInterval) { clearInterval(addScanInterval); addScanInterval=null; }
+  addCamActive = false;
+}
+
+window.submitAddShip = async function() {
+  const sn = document.getElementById('as-sender').value.trim();
+  const rn = document.getElementById('as-receiver').value.trim();
+  const rp = document.getElementById('as-receiver-ph').value.trim();
+  const or2 = document.getElementById('as-from').value;
+  const ds  = document.getElementById('as-to').value;
+  if (!sn || !rn) { showToast('أدخل أسماء المرسل والمستلم','err'); return; }
+  if (!or2 || !ds) { showToast('اختر فرع الإرسال والاستلام','err'); return; }
+  if (!rp) { showToast('أدخل جوال المستلم','err'); return; }
+
+  showToast('⏳ جاري إضافة الشحنة...','warn');
+
+  const origBranch = S.branches.find(b=>b.id===or2);
+  const destBranch = S.branches.find(b=>b.id===ds);
+  const origCode   = (origBranch?.branch_code||'XX').toUpperCase();
+  const destCode   = (destBranch?.branch_code||'XX').toUpperCase();
+
+  const { data:last } = await sb.from('shipments').select('tracking_number').like('tracking_number',origCode+'-'+destCode+'-%').order('tracking_number',{ascending:false}).limit(1);
+  let seq = 1;
+  if (last?.[0]?.tracking_number) { const p=last[0].tracking_number.split('-'); seq=(parseInt(p[p.length-1])||0)+1; }
+  const tn = origCode+'-'+destCode+'-'+String(seq).padStart(6,'0');
+  const sp = document.getElementById('as-sender-ph').value.trim();
+
+  const pl = {
+    tracking_number: tn,
+    sender_name:     sn,
+    sender_phone:    sp||null,
+    receiver_name:   rn,
+    receiver_phone:  rp,
+    receiver_address:document.getElementById('as-addr').value.trim()||null,
+    origin_branch_id:or2,
+    destination_branch_id:ds,
+    driver_id:       S.uid,
+    shipping_cost:   parseFloat(document.getElementById('as-cost').value)||0,
+    payment_method:  document.getElementById('as-pay').value,
+    notes:           document.getElementById('as-notes').value.trim()||null,
+    status:          'pending',
+    delivery_type:   'branch',
+    created_by:      S.uid,
+  };
+
+  const { data, error } = await sb.from('shipments').insert([pl]).select();
+  if (error) { showToast('❌ فشل الإضافة: '+error.message,'err'); return; }
+
+  await sb.from('activity_log').insert([{ user_id:S.uid, user_name:S.uname, action:'create_shipment', entity_type:'shipment', entity_id:data[0].id, details:{ tracking:tn, sender:sn, receiver:rn, by_driver:true } }]).catch(()=>{});
+
+  showToast(`✅ تمت إضافة الشحنة — رقم التتبع: ${tn}`);
+  closeAddShip();
+
+  // مسح الحقول
+  ['as-sender','as-sender-ph','as-receiver','as-receiver-ph','as-addr','as-notes'].forEach(id => { document.getElementById(id).value=''; });
+  document.getElementById('as-cost').value = '0';
+  document.getElementById('as-from').value = '';
+  document.getElementById('as-to').value   = '';
+
+  await loadTasks();
 };
+
+// ═══ Note Modal ═══
+window.openNote = function(id) { S.noteShipId=id; document.getElementById('note-txt').value=''; document.getElementById('note-modal').classList.add('on'); setTimeout(()=>document.getElementById('note-txt').focus(),300); };
+window.closeNote = function() { document.getElementById('note-modal').classList.remove('on'); };
+window.submitNote = async function() {
+  const note = document.getElementById('note-txt').value.trim();
+  if (!note || !S.noteShipId) return;
+  const { data:sh } = await sb.from('shipments').select('status').eq('id',S.noteShipId).single();
+  await sb.from('tracking_logs').insert([{ shipment_id:S.noteShipId, status:sh.status, location_note:note, created_by:S.uid }]);
+  closeNote(); showToast('✅ تمت إضافة الملاحظة');
+};
+document.getElementById('note-modal').addEventListener('click', e => { if(e.target===document.getElementById('note-modal')) closeNote(); });
+document.getElementById('add-ship-sheet').addEventListener('click', e => { if(e.target===document.getElementById('add-ship-sheet')) closeAddShip(); });
+
+// ═══ الخرائط ═══
+window.openMaps = function(addr) {
+  if (!addr) return;
+  const decoded = decodeURIComponent(addr);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const isIOS     = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (isAndroid) window.open(`geo:0,0?q=${addr}`);
+  else if (isIOS) window.open(`maps://maps.apple.com/?q=${addr}`);
+  else window.open(`https://maps.google.com/?q=${addr}`);
+};
+window.callWA = function(ph) { if(!ph) return; window.open(`https://wa.me/${ph.replace(/^\+/,'').replace(/^00/,'')}`); };
 
 // ═══ Realtime ═══
 function setupRealtime() {
-  sb.channel('driver-rt')
-    .on('postgres_changes', {
-      event:  '*',
-      schema: 'public',
-      table:  'shipments',
-      filter: `driver_id=eq.${S.uid}`
-    }, () => { loadAll(); })
-    .subscribe();
+  sb.channel('driver-rt').on('postgres_changes',{ event:'*', schema:'public', table:'shipments', filter:`driver_id=eq.${S.uid}` },()=>{ loadAll(); }).subscribe();
 }
 
 // ═══ Navigation ═══
 window.navTo = function(pg, btn) {
-  // إيقاف الكاميرا عند التنقل
-  if (cameraActive && pg !== 'scan') {
-    if (html5QrScanner) {
-      html5QrScanner.stop().catch(() => {});
-      html5QrScanner = null;
-    }
-    document.getElementById('camera-container').classList.remove('on');
-    document.getElementById('cam-toggle-btn').textContent = '📷 كاميرا';
-    cameraActive = false;
-  }
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('on'));
-  document.getElementById('pg-' + pg).classList.add('on');
+  if (camActive && pg!=='scan') { stopCamera(); document.getElementById('cam-wrap').classList.remove('on'); document.getElementById('cam-btn').textContent='📷'; }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
   btn.classList.add('on');
-  // تحديث الإحصائيات عند فتح التبويب
-  if (pg === 'stats') loadStats();
+  if (pg==='stats') loadStats();
 };
 
 // ═══ تسجيل الخروج ═══
 window.doLogout = async function() {
-  if (cameraActive && html5QrScanner) {
-    await html5QrScanner.stop().catch(() => {});
-  }
+  stopCamera(); stopAddCam();
   await sb.auth.signOut();
-  document.getElementById('app').style.display          = 'none';
+  document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('l-email').value = '';
   document.getElementById('l-pass').value  = '';
@@ -718,17 +793,13 @@ window.doLogout = async function() {
 // ═══ Helpers ═══
 function fmtDate(d) {
   if (!d) return '—';
-  return new Date(d).toLocaleString('ar-YE', {
-    month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
+  return new Date(d).toLocaleString('ar-YE',{ month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 }
-
-function showToast(msg, type = 'ok') {
+function showToast(msg, type='ok') {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.className   = 'show' + (type === 'err' ? ' err' : type === 'warn' ? ' warn' : '');
-  setTimeout(() => el.className = '', 3500);
+  el.className = 'show' + (type==='err'?' err':type==='warn'?' warn':'');
+  setTimeout(()=>el.className='', 4000);
 }
 </script>
 </body>
