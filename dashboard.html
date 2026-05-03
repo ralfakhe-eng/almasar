@@ -565,7 +565,7 @@
             </div>
             <div class="tw">
                 <table>
-                    <thead><tr><th>#</th><th>الوقت</th><th>المستخدم</th><th>العملية</th><th>النوع</th><th>التفاصيل</th></tr></thead>
+                    <thead><tr><th>#</th><th>الوقت</th><th>المنفِّذ</th><th>العملية</th><th>النوع</th><th>التفاصيل</th><th>إجراء</th></tr></thead>
                     <tbody id="al-tbody"></tbody>
                 </table>
             </div>
@@ -704,8 +704,11 @@
         </div>
         <div class="mbody">
             <div style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:8px 12px;margin-bottom:13px;font-size:.73rem;color:#93c5fd;">
-                ℹ️ رقم التتبع يُولَّد تلقائياً — QR Code يُنشأ تلقائياً عند الحفظ
+                ℹ️ رقم التتبع يُولَّد تلقائياً — حدد المسار الكامل للشحنة
             </div>
+
+            <!-- معلومات المرسل والمستلم -->
+            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;">👤 معلومات الأطراف</div>
             <div class="frow">
                 <div class="fgrp"><label class="flbl">اسم المرسل *</label><input id="fsn" class="finp" placeholder="الاسم الكامل"></div>
                 <div class="fgrp"><label class="flbl">جوال المرسل (9 أرقام)</label>
@@ -723,10 +726,49 @@
                 <div class="fgrp"><label class="flbl">بريد المستلم</label><input id="fre" class="finp" type="email" placeholder="example@mail.com"></div>
                 <div class="fgrp"><label class="flbl">عنوان التسليم</label><input id="fra" class="finp" placeholder="الحي، الشارع..."></div>
             </div>
+
+            <!-- الفروع والمسار -->
+            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin:12px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;">🏢 مسار الشحنة</div>
             <div class="frow">
-                <div class="fgrp"><label class="flbl">الفرع المرسل *</label><select id="for2" class="finp"><option value="">اختر الفرع...</option></select></div>
-                <div class="fgrp"><label class="flbl">الفرع المستلم *</label><select id="fds" class="finp"><option value="">اختر الفرع...</option></select></div>
+                <div class="fgrp">
+                    <label class="flbl">فرع الإرسال *</label>
+                    <select id="for2" class="finp" onchange="buildRoute()"><option value="">اختر الفرع...</option></select>
+                </div>
+                <div class="fgrp">
+                    <label class="flbl">فرع الاستلام النهائي *</label>
+                    <select id="fds" class="finp" onchange="buildRoute()"><option value="">اختر الفرع...</option></select>
+                </div>
             </div>
+
+            <!-- عرض المسار المقترح -->
+            <div id="route-preview" style="display:none;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:12px;margin-bottom:12px;">
+                <div style="font-size:.72rem;font-weight:700;color:#60a5fa;margin-bottom:8px;">🗺️ المسار المقترح للشحنة:</div>
+                <div id="route-steps" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;"></div>
+                <div style="font-size:.65rem;color:#64748b;margin-top:6px;">
+                    ℹ️ الفروع التجميعية (Hub) تظهر كمحطات وسيطة تلقائياً
+                </div>
+            </div>
+
+            <!-- طريقة التسليم -->
+            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;">🚚 طريقة التسليم</div>
+            <div class="fgrp">
+                <label class="flbl">كيف سيستلم العميل شحنته؟</label>
+                <div style="display:flex;gap:8px;margin-top:4px;">
+                    <label style="flex:1;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s;" id="del-branch-lbl">
+                        <input type="radio" name="delivery_type" value="branch" id="del-branch" checked onchange="toggleDeliveryType()" style="margin-left:6px;">
+                        <span style="font-size:.8rem;font-weight:600;">🏢 استلام من الفرع</span>
+                        <div style="font-size:.65rem;color:#64748b;margin-top:3px;">يأتي العميل للفرع ويستلم شحنته</div>
+                    </label>
+                    <label style="flex:1;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s;" id="del-door-lbl">
+                        <input type="radio" name="delivery_type" value="door" id="del-door" onchange="toggleDeliveryType()" style="margin-left:6px;">
+                        <span style="font-size:.8rem;font-weight:600;">🚪 توصيل للباب</span>
+                        <div style="font-size:.65rem;color:#64748b;margin-top:3px;">يوصّل السائق للعنوان مباشرة</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- المالية والسائق -->
+            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin:12px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;">💰 التفاصيل المالية</div>
             <div class="frow">
                 <div class="fgrp"><label class="flbl">تكلفة الشحن (ريال) *</label><input id="fcost" class="finp" type="number" min="0" step="100" value="0"></div>
                 <div class="fgrp"><label class="flbl">طريقة الدفع</label>
@@ -1216,7 +1258,7 @@
             <button class="btn bprim bsm" onclick="vD('${s.id}')">عرض</button>
             ${S.role!=='driver'?`<button class="btn bsec bsm" onclick="opAsgn('${s.id}')">سائق</button>`:''}
             <button class="btn bsec bsm" onclick="window.open('barcode.html?t='+encodeURIComponent('${s.tracking_number}'),'_blank')" title="طباعة ستيكر">🏷️</button>
-            ${S.role==='admin'?`<button class="btn bdng bsm" onclick="dlShip('${s.id}')">حذف</button>`:''}
+            ${S.role==='admin' && s.status==='pending' ?`<button class="btn bdng bsm" onclick="dlShip('${s.id}')">حذف</button>`:''}
           </div></td>
         </tr>`).join('') : '<tr><td colspan="12"><div class="empty"><div class="eico">📭</div><p>لا توجد شحنات</p></div></td></tr>';
         const pgEl = document.getElementById('pager');
@@ -1275,16 +1317,105 @@
     };
 
     // إضافة شحنة
-    window.openAddShip = async function(){await fillBSel('for2');await fillBSel('fds');await fillDSel('fdrv');OM('m-as');};
+    window.openAddShip = async function(){
+        await fillBSel('for2');
+        await fillBSel('fds');
+        await fillDSel('fdrv');
+        // إعادة ضبط حقول المسار
+        document.getElementById('route-preview').style.display = 'none';
+        document.getElementById('route-steps').innerHTML = '';
+        // إعادة ضبط طريقة التسليم
+        document.getElementById('del-branch').checked = true;
+        toggleDeliveryType();
+        OM('m-as');
+    };
+
+    // بناء المسار المقترح
+    window.buildRoute = function() {
+        const orId = document.getElementById('for2').value;
+        const dsId = document.getElementById('fds').value;
+        if (!orId || !dsId) {
+            document.getElementById('route-preview').style.display = 'none';
+            return;
+        }
+        if (orId === dsId) {
+            document.getElementById('route-preview').style.display = 'none';
+            return;
+        }
+
+        const origin = S.branches.find(b => b.id === orId);
+        const dest   = S.branches.find(b => b.id === dsId);
+        if (!origin || !dest) return;
+
+        // الفروع التجميعية (Hub) بين فرع الإرسال والاستلام
+        const hubs = S.branches.filter(b =>
+            b.is_hub === true &&
+            b.id !== orId &&
+            b.id !== dsId
+        );
+
+        // بناء المسار: فرع الإرسال → Hub (إن وجد) → فرع الاستلام
+        const route = [origin, ...hubs, dest];
+        window._currentRoute = route;
+
+        // عرض المسار
+        const stepsEl = document.getElementById('route-steps');
+        stepsEl.innerHTML = route.map((b, i) => `
+            <div style="display:flex;align-items:center;gap:4px;">
+                <div style="background:${i===0?'rgba(37,99,235,.2)':i===route.length-1?'rgba(16,185,129,.2)':'rgba(245,158,11,.2)'};
+                    border:1px solid ${i===0?'#3b82f6':i===route.length-1?'#10b981':'#f59e0b'};
+                    border-radius:8px;padding:5px 10px;font-size:.72rem;font-weight:700;
+                    color:${i===0?'#60a5fa':i===route.length-1?'#34d399':'#fbbf24'};">
+                    ${i===0?'📤':i===route.length-1?'📥':'🔄'} ${b.name}
+                    ${b.is_hub?'<span style="font-size:.58rem;background:rgba(245,158,11,.2);padding:1px 5px;border-radius:4px;margin-right:3px;">Hub</span>':''}
+                    <div style="font-size:.6rem;color:#64748b;">${b.city||''}</div>
+                </div>
+                ${i < route.length-1 ? '<span style="color:#64748b;font-size:.9rem;">←</span>' : ''}
+            </div>`).join('');
+
+        document.getElementById('route-preview').style.display = 'block';
+    };
+
+    // تبديل طريقة التسليم
+    window.toggleDeliveryType = function() {
+        const isBranch = document.getElementById('del-branch').checked;
+        const brLbl = document.getElementById('del-branch-lbl');
+        const drLbl = document.getElementById('del-door-lbl');
+        if (brLbl) {
+            brLbl.style.borderColor = isBranch ? '#3b82f6' : 'var(--border)';
+            brLbl.style.background  = isBranch ? 'rgba(37,99,235,.1)' : 'rgba(255,255,255,.04)';
+        }
+        if (drLbl) {
+            drLbl.style.borderColor = !isBranch ? '#10b981' : 'var(--border)';
+            drLbl.style.background  = !isBranch ? 'rgba(16,185,129,.1)' : 'rgba(255,255,255,.04)';
+        }
+    };
     window.subShip = async function(){
         const sn=g('fsn'),rn=g('frn'),rp=g('frp'),or2=g('for2'),ds=g('fds');
         if(!sn||!rn){tst('أدخل أسماء المرسل والمستلم','terr');return;}
         if(!rp||rp.length!==9){document.getElementById('rpherr').style.display='block';document.getElementById('frp').classList.add('inv');return;}
         document.getElementById('rpherr').style.display='none';document.getElementById('frp').classList.remove('inv');
-        if(!or2||!ds){tst('اختر الفروع','terr');return;}
-        const ok=await cfm(`إضافة شحنة من "${sn}" إلى "${rn}"؟`,'تأكيد الإضافة','📦','bprim'); if(!ok) return;
+        if(!or2||!ds){tst('اختر فرع الإرسال والاستلام','terr');return;}
+
+        // طريقة التسليم
+        const deliveryType = document.querySelector('input[name="delivery_type"]:checked')?.value || 'branch';
+        const deliveryAr   = deliveryType === 'door' ? 'توصيل للباب 🚪' : 'استلام من الفرع 🏢';
+
+        // المسار
+        const route = window._currentRoute || [];
+        const routeText = route.length > 0
+            ? route.map(b => b.name).join(' ← ')
+            : S.branches.find(b=>b.id===or2)?.name + ' ← ' + S.branches.find(b=>b.id===ds)?.name;
+
+        const ok=await cfm(
+            `إضافة شحنة من "${sn}" إلى "${rn}"؟\n\nالمسار: ${routeText}\nالتسليم: ${deliveryAr}`,
+            'تأكيد الإضافة','📦','bprim'
+        );
+        if(!ok) return;
+
         const sp=g('fsp'),cost=parseFloat(g('fcost'))||0,pay=g('fpay');
-        const origBranch=S.branches.find(b=>b.id===or2); const destBranch=S.branches.find(b=>b.id===ds);
+        const origBranch=S.branches.find(b=>b.id===or2);
+        const destBranch=S.branches.find(b=>b.id===ds);
         const origCode=(origBranch?.branch_code||origBranch?.tracking_prefix||'XX').toUpperCase();
         const destCode=(destBranch?.branch_code||destBranch?.tracking_prefix||'XX').toUpperCase();
         const {data:lastShip}=await sb.from('shipments').select('tracking_number').like('tracking_number',origCode+'-'+destCode+'-%').order('tracking_number',{ascending:false}).limit(1);
@@ -1292,21 +1423,110 @@
         if(lastShip?.[0]?.tracking_number){const parts=lastShip[0].tracking_number.split('-');const lastNum=parseInt(parts[parts.length-1])||0;seq=lastNum+1;}
         else{const{count}=await sb.from('shipments').select('*',{count:'exact',head:true});seq=(count||0)+1;}
         const trackNum=origCode+'-'+destCode+'-'+String(seq).padStart(6,'0');
-        const pl={tracking_number:trackNum,sender_name:sn,sender_phone:sp?'+967'+sp:null,receiver_name:rn,receiver_phone:'+967'+rp,receiver_email:g('fre'),receiver_address:g('fra'),origin_branch_id:or2,destination_branch_id:ds,driver_id:g('fdrv')||null,shipping_cost:cost,payment_method:pay,notes:g('fnot'),status:'pending',created_by:S.uid};
+
+        const pl={
+            tracking_number:trackNum,
+            sender_name:sn, sender_phone:sp?'+967'+sp:null,
+            receiver_name:rn, receiver_phone:'+967'+rp,
+            receiver_email:g('fre'), receiver_address:g('fra'),
+            origin_branch_id:or2, destination_branch_id:ds,
+            driver_id:g('fdrv')||null,
+            shipping_cost:cost, payment_method:pay,
+            notes:g('fnot'), status:'pending',
+            delivery_type:deliveryType,
+            route_notes:routeText,
+            created_by:S.uid
+        };
+
         const{data,error}=await sb.from('shipments').insert([pl]).select();
         if(error){tst(ar(error),'terr');playSound('error');return;}
         const tn=data[0].tracking_number;
-        await log('create_shipment','shipment',data[0].id,{tracking:tn,sender:sn,receiver:rn,cost,pay});
-        await sb.from('invoices').insert([{shipment_id:data[0].id,sender_name:sn,receiver_name:rn,sender_phone:sp?'+967'+sp:null,receiver_phone:'+967'+rp,shipping_cost:cost,tax_amount:0,discount_amount:0,total_amount:cost,payment_method:pay,payment_status:pay==='prepaid'?'paid':'pending',created_by:S.uid}]).catch(()=>{});
+        const shipId=data[0].id;
+
+        // حفظ المسار في جدول shipment_routes
+        if (route.length > 0) {
+            const routeRows = route.map((b, i) => ({
+                shipment_id: shipId,
+                branch_id:   b.id,
+                branch_name: b.name,
+                sequence:    i + 1,
+                status:      i === 0 ? 'current' : 'pending',
+            }));
+            await sb.from('shipment_routes').insert(routeRows).catch(() => {});
+        }
+
+        await log('create_shipment','shipment',shipId,{
+            tracking:tn, sender:sn, receiver:rn,
+            cost, pay,
+            delivery_type:deliveryType,
+            route:routeText
+        });
+
+        await sb.from('invoices').insert([{
+            shipment_id:shipId, sender_name:sn, receiver_name:rn,
+            sender_phone:sp?'+967'+sp:null, receiver_phone:'+967'+rp,
+            shipping_cost:cost, tax_amount:0, discount_amount:0, total_amount:cost,
+            payment_method:pay, payment_status:pay==='prepaid'?'paid':'pending',
+            created_by:S.uid
+        }]).catch(()=>{});
+
         CM('m-as');
-        tst(`✅ تمت إضافة الشحنة!\nرقم التتبع: ${tn}`,'tok');
         playSound('success');
         document.getElementById('m-as').querySelectorAll('input:not([type=checkbox])').forEach(el=>el.value=el.type==='number'?'0':'');
-        if(sp){const msg=`📦 *تأكيد الشحنة*\n\nعزيزي ${sn}،\nرقم التتبع: *${tn}*\nالمستلم: *${rn}*\n\nتتبع شحنتك:\n${location.origin}/track.html?t=${tn}`;const wn='967'+sp;setTimeout(()=>{if(confirm(`إرسال رقم التتبع للمرسل (${sp}) عبر واتساب؟`))window.open(`https://wa.me/${wn}?text=${encodeURIComponent(msg)}`);},400);}
+        document.getElementById('route-preview').style.display='none';
+        window._currentRoute = [];
+
+        // إشعار نجاح واضح ومفصّل
+        showSuccessAlert(tn, sn, rn, deliveryAr, routeText);
+
+        if(sp){
+            const msg=`📦 *تأكيد الشحنة*\n\nعزيزي ${sn}،\nرقم التتبع: *${tn}*\nالمستلم: *${rn}*\nطريقة التسليم: ${deliveryAr}\n\nتتبع شحنتك:\n${location.origin}/track.html?t=${tn}`;
+            const wn='967'+sp;
+            setTimeout(()=>{if(confirm(`إرسال رقم التتبع للمرسل (${sp}) عبر واتساب؟`))window.open(`https://wa.me/${wn}?text=${encodeURIComponent(msg)}`);},400);
+        }
         await loadOv();
         if(document.getElementById('pg-sh').classList.contains('on')) await loadShips();
         if(document.getElementById('pg-mt').classList.contains('on')) await loadMT();
     };
+
+    // إشعار نجاح إضافة الشحنة
+    function showSuccessAlert(tn, sender, receiver, deliveryType, route) {
+        const old = document.getElementById('ship-success-alert');
+        if (old) old.remove();
+        const el = document.createElement('div');
+        el.id = 'ship-success-alert';
+        el.style.cssText = `
+            position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+            background:rgba(6,20,15,.98);border:2px solid rgba(16,185,129,.7);
+            border-radius:18px;padding:28px 32px;z-index:9999;
+            text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.8);
+            min-width:320px;max-width:460px;animation:tshow .4s cubic-bezier(.34,1.56,.64,1) both;`;
+        el.innerHTML = `
+            <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+            <div style="font-size:1.1rem;font-weight:900;color:#34d399;margin-bottom:8px;">
+                تمت إضافة الشحنة بنجاح!
+            </div>
+            <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);
+                border-radius:10px;padding:12px;margin:12px 0;">
+                <div style="font-size:.75rem;color:#6ee7b7;margin-bottom:4px;">رقم التتبع</div>
+                <div style="font-family:monospace;font-size:1.2rem;font-weight:900;color:#fff;
+                    letter-spacing:.1em;">${tn}</div>
+            </div>
+            <div style="font-size:.8rem;color:#94a3b8;margin-bottom:8px;line-height:1.8;text-align:right;">
+                <div>👤 المرسل: <strong style="color:#e2e8f0;">${sender}</strong></div>
+                <div>📥 المستلم: <strong style="color:#e2e8f0;">${receiver}</strong></div>
+                ${deliveryType?`<div>🚚 التسليم: <strong style="color:#e2e8f0;">${deliveryType}</strong></div>`:''}
+                ${route?`<div style="margin-top:6px;font-size:.72rem;">🗺️ المسار: <span style="color:#60a5fa;">${route}</span></div>`:''}
+            </div>
+            <button onclick="document.getElementById('ship-success-alert').remove()"
+                style="background:linear-gradient(135deg,#059669,#10b981);border:none;
+                border-radius:10px;color:#fff;padding:10px 28px;font-size:.9rem;
+                font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px;">
+                حسناً ✓
+            </button>`;
+        document.body.appendChild(el);
+        setTimeout(() => { if(el.parentNode) el.remove(); }, 10000);
+    }
 
     // عرض التفاصيل
     window.vD = async function(id){
@@ -1316,12 +1536,72 @@
         document.getElementById('dttrack').textContent='...';
         OM('m-dt');
         try{
-            const{data,error}=await sb.from('shipments').select(`id,tracking_number,sender_name,sender_phone,receiver_name,receiver_phone,receiver_address,status,created_at,shipping_cost,payment_method,notes,origin:origin_branch_id(name,city),destination:destination_branch_id(name,city),driver:driver_id(full_name,phone)`).eq('id',id).single();
+            const{data,error}=await sb.from('shipments').select(`
+                id,tracking_number,sender_name,sender_phone,receiver_name,receiver_phone,
+                receiver_address,status,created_at,shipping_cost,payment_method,notes,
+                delivery_type,route_notes,
+                origin:origin_branch_id(name,city),
+                destination:destination_branch_id(name,city),
+                driver:driver_id(full_name,phone)
+            `).eq('id',id).single();
             if(error||!data){document.getElementById('dt-loading').innerHTML='<div class="empty"><div class="eico">❌</div><p>فشل تحميل التفاصيل</p></div>';tst('فشل تحميل تفاصيل الشحنة','terr');return;}
             document.getElementById('dttrack').textContent=data.tracking_number;
+
             const plb={cash_sender:'نقد من المرسل',cash_receiver:'عند الاستلام',prepaid:'مدفوع مسبقاً'};
-            const rows=[['المرسل',data.sender_name],['جوال المرسل',data.sender_phone||'—'],['المستلم',data.receiver_name],['جوال المستلم',data.receiver_phone],['العنوان',data.receiver_address||'—'],['من فرع',`${data.origin?.name||'—'}${data.origin?.city?' - '+data.origin.city:''}`],['إلى فرع',`${data.destination?.name||'—'}${data.destination?.city?' - '+data.destination.city:''}`],['السائق',data.driver?`${data.driver.full_name}${data.driver.phone?' • '+data.driver.phone:''}`:'غير محدد'],['تكلفة الشحن',`<span style="color:#34d399;font-weight:700;">${(data.shipping_cost||0).toLocaleString()} ريال</span>`],['طريقة الدفع',plb[data.payment_method]||'—'],['ملاحظات',data.notes||'—'],['الحالة',bdg(data.status)],['تاريخ الإنشاء',fd(data.created_at)]];
-            document.getElementById('dtinfo').innerHTML=rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);font-size:.72rem;flex-shrink:0;">${k}</span><span style="font-size:.8rem;font-weight:600;text-align:left;max-width:58%;word-break:break-word;">${v}</span></div>`).join('');
+            const deliveryAr={branch:'استلام من الفرع 🏢',door:'توصيل للباب 🚪'};
+            const rows=[
+                ['المرسل',data.sender_name],
+                ['جوال المرسل',data.sender_phone||'—'],
+                ['المستلم',data.receiver_name],
+                ['جوال المستلم',data.receiver_phone],
+                ['العنوان',data.receiver_address||'—'],
+                ['من فرع',`${data.origin?.name||'—'}${data.origin?.city?' - '+data.origin.city:''}`],
+                ['إلى فرع',`${data.destination?.name||'—'}${data.destination?.city?' - '+data.destination.city:''}`],
+                ['طريقة التسليم',`<span style="color:#60a5fa;font-weight:700;">${deliveryAr[data.delivery_type]||'استلام من الفرع 🏢'}</span>`],
+                ['السائق',data.driver?`${data.driver.full_name}${data.driver.phone?' • '+data.driver.phone:''}`:'غير محدد'],
+                ['تكلفة الشحن',`<span style="color:#34d399;font-weight:700;">${(data.shipping_cost||0).toLocaleString()} ريال</span>`],
+                ['طريقة الدفع',plb[data.payment_method]||'—'],
+                ['ملاحظات',data.notes||'—'],
+                ['الحالة',bdg(data.status)],
+                ['تاريخ الإنشاء',fd(data.created_at)],
+            ];
+            document.getElementById('dtinfo').innerHTML=rows.map(([k,v])=>`
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);">
+                    <span style="color:var(--muted);font-size:.72rem;flex-shrink:0;">${k}</span>
+                    <span style="font-size:.8rem;font-weight:600;text-align:left;max-width:58%;word-break:break-word;">${v}</span>
+                </div>`).join('');
+
+            // عرض مسار الشحنة
+            if (data.route_notes) {
+                document.getElementById('dtinfo').innerHTML += `
+                    <div style="margin-top:10px;padding:10px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:8px;">
+                        <div style="font-size:.68rem;color:#64748b;margin-bottom:5px;font-weight:700;">🗺️ مسار الشحنة</div>
+                        <div style="font-size:.76rem;color:#60a5fa;font-weight:600;">${data.route_notes}</div>
+                    </div>`;
+            }
+
+            // عرض محطات المسار من الجدول
+            const{data:routeSteps}=await sb.from('shipment_routes')
+                .select('branch_name,sequence,status,arrived_at')
+                .eq('shipment_id',id)
+                .order('sequence');
+            if(routeSteps?.length){
+                const stepsHtml = routeSteps.map((r,i)=>`
+                    <div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);">
+                        <div style="width:22px;height:22px;border-radius:50%;background:${r.status==='done'?'rgba(16,185,129,.2)':r.status==='current'?'rgba(37,99,235,.2)':'rgba(255,255,255,.06)'};border:1px solid ${r.status==='done'?'#10b981':r.status==='current'?'#3b82f6':'#475569'};display:flex;align-items:center;justify-content:center;font-size:.65rem;color:${r.status==='done'?'#34d399':r.status==='current'?'#60a5fa':'#64748b'};font-weight:700;flex-shrink:0;">${i+1}</div>
+                        <div style="flex:1;">
+                            <div style="font-size:.76rem;font-weight:700;color:${r.status==='current'?'#60a5fa':'var(--text)'};">${r.branch_name}</div>
+                            <div style="font-size:.62rem;color:${r.status==='done'?'#34d399':r.status==='current'?'#60a5fa':'#64748b'};">${r.status==='done'?'✅ وصلت':r.status==='current'?'📍 هنا الآن':'⏳ في الانتظار'}</div>
+                        </div>
+                        ${i<routeSteps.length-1?'<span style="color:#64748b;">←</span>':''}
+                    </div>`).join('');
+                document.getElementById('dtinfo').innerHTML += `
+                    <div style="margin-top:10px;">
+                        <div style="font-size:.68rem;color:#64748b;margin-bottom:6px;font-weight:700;">📍 محطات المسار</div>
+                        ${stepsHtml}
+                    </div>`;
+            }
+
             const FL={pending:[{to:'picked_up',lbl:'✅ تأكيد الاستلام',cls:'bsucc'}],picked_up:[{to:'in_transit',lbl:'🚚 بدء التوصيل',cls:'bprim'}],in_transit:[{to:'delivered',lbl:'🏁 تأكيد التسليم',cls:'bgreen'},{to:'pending',lbl:'↩️ إرجاع',cls:'bsec'}],delivered:[],cancelled:[]};
             let ah=(FL[data.status]||[]).map(a=>`<button class="btn ${a.cls}" onclick="chSt('${id}','${a.to}')">${a.lbl}</button>`).join('');
             if(S.role==='admin'&&data.status!=='cancelled') ah+=`<button class="btn bdng bsm" onclick="chSt('${id}','cancelled')">❌ إلغاء</button>`;
@@ -1673,8 +1953,59 @@
     };
 
     // ══ سجل الحركات ══
+    // ترجمة تفاصيل السجل للعربية
+    function translateDetails(action, details) {
+        if (!details || typeof details !== 'object') return '—';
+        const d = details;
+        const statusAr = {pending:'قيد الانتظار',picked_up:'تم الاستلام',in_transit:'في الطريق',delivered:'تم التسليم',cancelled:'ملغية'};
+        const roleAr   = {admin:'مدير',staff:'موظف',driver:'سائق'};
+        const payAr    = {cash_sender:'نقد من المرسل',cash_receiver:'الدفع عند الاستلام',prepaid:'مدفوع مسبقاً',bank:'تحويل بنكي'};
+        switch(action) {
+            case 'create_shipment':
+                return `رقم التتبع: ${d.tracking||'—'} | المرسل: ${d.sender||'—'} | المستلم: ${d.receiver||'—'} | التكلفة: ${(d.cost||0).toLocaleString()} ريال | الدفع: ${payAr[d.pay]||d.pay||'—'}`;
+            case 'status_change':
+                return `تغيير الحالة إلى: ${statusAr[d.new_status]||d.new_status||'—'} | الشحنة: ${d.tracking||d.label||'—'}`;
+            case 'bulk_status_update':
+                return `تحديث ${d.count||0} شحنة إلى: ${statusAr[d.new_status]||d.new_status||'—'}`;
+            case 'delete_shipment':
+                return `حذف شحنة: ${d.tracking||d.id||'—'}`;
+            case 'create_invoice':
+                return `فاتورة للمرسل: ${d.sender||'—'} | المبلغ: ${(d.amount||0).toLocaleString()} ريال`;
+            case 'edit_invoice':
+                return `تعديل فاتورة | المبلغ الجديد: ${(d.amount||0).toLocaleString()} ريال`;
+            case 'delete_invoice':
+                return `حذف فاتورة رقم: ${d.number||d.id||'—'}`;
+            case 'mark_paid':
+                return `تسجيل تحصيل فاتورة`;
+            case 'print_invoice':
+                return `طباعة فاتورة الشحنة: ${d.tracking||'—'}`;
+            case 'add_note':
+                return `ملاحظة: "${d.note||'—'}" على حالة: ${statusAr[d.status]||d.status||'—'}`;
+            case 'assign_driver':
+                return `تعيين سائق للشحنة`;
+            case 'create_branch':
+                return `فرع جديد: ${d.name||d.city||'—'} | الرمز: ${d.code||'—'}`;
+            case 'toggle_branch':
+                return `${d.active?'تفعيل':'تعطيل'} الفرع`;
+            case 'delete_branch':
+                return `حذف الفرع: ${d.name||'—'}`;
+            case 'create_driver': case 'create_user': case 'create_admin': case 'create_staff':
+                return `مستخدم جديد: ${d.name||'—'} | الدور: ${roleAr[d.role]||d.role||'—'}`;
+            case 'change_role':
+                return `تغيير الدور إلى: ${roleAr[d.new_role]||d.new_role||'—'}`;
+            case 'delete_user':
+                return `حذف مستخدم`;
+            case 'login':
+                return `تسجيل دخول | الدور: ${roleAr[d.role]||d.role||'—'}`;
+            case 'logout': case 'auto_logout':
+                return d.reason === 'idle' ? 'خروج تلقائي بسبب عدم النشاط' : 'تسجيل خروج';
+            default:
+                return Object.entries(d).map(([k,v])=>`${k}: ${v}`).join(' | ').slice(0,120)||'—';
+        }
+    }
+
     async function loadActLog(){
-        document.getElementById('al-tbody').innerHTML='<tr><td colspan="6" style="text-align:center;padding:20px;"><div class="spin" style="margin:auto;"></div></td></tr>';
+        document.getElementById('al-tbody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:20px;"><div class="spin" style="margin:auto;"></div></td></tr>';
         let q=sb.from('activity_log').select('*');
         const f=S.alFlt;
         if(f.q) q=q.or(`action.ilike.%${f.q}%,user_name.ilike.%${f.q}%,entity_type.ilike.%${f.q}%`);
@@ -1683,21 +2014,67 @@
         const{data}=await q.order('created_at',{ascending:false}).limit(S.alPP);
         const all=data||[];
         sv('al-sub',`${all.length} حركة مسجلة`);
-        const actLbl={'create_shipment':'إنشاء شحنة','status_change':'تغيير الحالة','delete_shipment':'حذف شحنة','create_invoice':'إنشاء فاتورة','edit_invoice':'تعديل فاتورة','delete_invoice':'حذف فاتورة','mark_paid':'تسجيل تحصيل','print_invoice':'طباعة فاتورة','add_note':'إضافة ملاحظة','bulk_status_update':'تحديث جماعي','create_branch':'إنشاء فرع','toggle_branch':'تفعيل/تعطيل فرع','delete_branch':'حذف فرع','create_driver':'إضافة سائق','create_user':'إضافة مستخدم','change_role':'تغيير الصلاحية','delete_user':'حذف مستخدم','assign_driver':'تعيين سائق','login':'تسجيل دخول','logout':'تسجيل خروج','auto_logout':'خروج تلقائي'};
-        const typeClr={shipment:'color:#60a5fa',invoice:'color:#f59e0b',user:'color:#a78bfa',branch:'color:#34d399',driver:'color:#c084fc',login:'color:#34d399',logout:'color:#f87171',session:'color:#fbbf24'};
+        const actLbl={
+            'create_shipment':'📦 إنشاء شحنة',
+            'status_change':'🔄 تغيير الحالة',
+            'bulk_status_update':'📦 تحديث جماعي',
+            'delete_shipment':'🗑️ حذف شحنة',
+            'create_invoice':'🧾 إنشاء فاتورة',
+            'edit_invoice':'✏️ تعديل فاتورة',
+            'delete_invoice':'🗑️ حذف فاتورة',
+            'mark_paid':'💰 تسجيل تحصيل',
+            'print_invoice':'🖨️ طباعة فاتورة',
+            'add_note':'📝 إضافة ملاحظة',
+            'assign_driver':'🚛 تعيين سائق',
+            'create_branch':'🏢 إنشاء فرع',
+            'toggle_branch':'🔄 تفعيل/تعطيل فرع',
+            'delete_branch':'🗑️ حذف فرع',
+            'create_driver':'🚛 إضافة سائق',
+            'create_user':'👤 إضافة مستخدم',
+            'create_admin':'👑 إضافة مدير',
+            'create_staff':'👤 إضافة موظف',
+            'change_role':'🔄 تغيير الصلاحية',
+            'delete_user':'🗑️ حذف مستخدم',
+            'login':'🔑 تسجيل دخول',
+            'logout':'⏻ تسجيل خروج',
+            'auto_logout':'⏰ خروج تلقائي',
+        };
+        const typeClr={
+            shipment:'#60a5fa',invoice:'#f59e0b',user:'#a78bfa',
+            branch:'#34d399',driver:'#c084fc',login:'#34d399',logout:'#f87171',session:'#fbbf24'
+        };
+        const typeAr={
+            shipment:'شحنة',invoice:'فاتورة',branch:'فرع',
+            driver:'سائق',user:'مستخدم',session:'جلسة',sql:'قاعدة بيانات'
+        };
         document.getElementById('al-tbody').innerHTML=all.length?all.map((a,idx)=>`
-        <tr>
-          <td style="color:var(--muted);font-size:.68rem;">${all.length-idx}</td>
+        <tr style="cursor:default;">
+          <td style="color:var(--muted);font-size:.68rem;text-align:center;">${all.length-idx}</td>
           <td style="color:var(--muted);font-size:.7rem;white-space:nowrap;">${fd(a.created_at)}</td>
-          <td style="font-size:.76rem;font-weight:600;">${a.user_name||'—'}</td>
-          <td style="font-size:.75rem;">${actLbl[a.action]||a.action||'—'}</td>
-          <td><span style="font-size:.68rem;${typeClr[a.entity_type]||'color:var(--muted)'};">${({shipment:'شحنة',invoice:'فاتورة',branch:'فرع',driver:'سائق',user:'مستخدم',session:'جلسة'})[a.entity_type]||a.entity_type||'—'}</span></td>
-          <td style="font-size:.72rem;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.details?JSON.stringify(a.details).slice(0,80):'—'}</td>
-        </tr>`).join(''):'<tr><td colspan="6"><div class="empty"><div class="eico">📋</div><p>لا توجد سجلات</p></div></td></tr>';
+          <td>
+            <div style="font-size:.78rem;font-weight:700;color:var(--text);">${a.user_name||'—'}</div>
+            <div style="font-size:.64rem;color:var(--muted);">مُنفِّذ العملية</div>
+          </td>
+          <td style="font-size:.75rem;font-weight:600;">${actLbl[a.action]||a.action||'—'}</td>
+          <td><span style="font-size:.68rem;font-weight:700;color:${typeClr[a.entity_type]||'#64748b'};">${typeAr[a.entity_type]||a.entity_type||'—'}</span></td>
+          <td style="font-size:.72rem;color:#94a3b8;max-width:260px;">${translateDetails(a.action, a.details)}</td>
+          ${S.role==='admin'?`<td><button class="btn bdng bsm" onclick="dlLog('${a.id}')">حذف</button></td>`:'<td></td>'}
+        </tr>`).join(''):'<tr><td colspan="7"><div class="empty"><div class="eico">📋</div><p>لا توجد سجلات</p></div></td></tr>';
     }
 
+    // حذف سجل واحد — للمدير فقط
+    window.dlLog = async function(id) {
+        if (S.role !== 'admin') { tst('الحذف للمدير فقط', 'terr'); return; }
+        const ok = await cfm('حذف هذا السجل نهائياً؟', 'تأكيد', '🗑️', 'bdng');
+        if (!ok) return;
+        const { error } = await sb.from('activity_log').delete().eq('id', id);
+        if (error) tst('فشل الحذف — ' + ar(error), 'terr');
+        else { tst('✅ تم الحذف', 'tok'); loadActLog(); }
+    };
+
     window.clearOldLogs = async function(){
-        const ok=await cfm('حذف السجلات الأقدم من 30 يوم؟','تأكيد','🗑️','bdng'); if(!ok) return;
+        if (S.role !== 'admin') { tst('هذه العملية للمدير فقط', 'terr'); return; }
+        const ok=await cfm('حذف السجلات الأقدم من 30 يوم؟ (للمدير فقط)','تأكيد','🗑️','bdng'); if(!ok) return;
         const cutoff=new Date(Date.now()-30*864e5).toISOString();
         const{error}=await sb.from('activity_log').delete().lt('created_at',cutoff);
         if(error) tst('عملية فاشلة — '+ar(error),'terr');
