@@ -143,6 +143,42 @@ select.sfinp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
 #toast.warn{border-color:rgba(245,158,11,.4);color:#fbbf24;}
 .spin{display:inline-block;width:20px;height:20px;border:2.5px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg);}}
+/* نظام إثبات التسليم */
+#proof-sheet{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+#proof-sheet.on{opacity:1;pointer-events:all;}
+.proof-box{background:#0d1526;border:1px solid rgba(37,99,235,.3);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+#proof-sheet.on .proof-box{transform:translateY(0);}
+.proof-box::-webkit-scrollbar{width:3px;}
+.proof-box::-webkit-scrollbar-thumb{background:rgba(37,99,235,.2);border-radius:99px;}
+.proof-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.proof-hdr h3{font-size:.95rem;font-weight:700;color:#e2e8f0;}
+.proof-close{background:none;border:none;color:#64748b;font-size:1.4rem;cursor:pointer;line-height:1;}
+.proof-section{margin-bottom:16px;}
+.proof-section h4{font-size:.75rem;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
+/* منطقة الصورة */
+.photo-area{background:rgba(255,255,255,.04);border:2px dashed rgba(37,99,235,.3);border-radius:12px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
+.photo-area:hover{border-color:#3b82f6;background:rgba(37,99,235,.08);}
+.photo-area img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:10px;}
+.photo-area .photo-placeholder{text-align:center;color:#64748b;}
+.photo-area .photo-placeholder .ico{font-size:2rem;margin-bottom:6px;}
+.photo-area .photo-placeholder p{font-size:.75rem;}
+#photo-input{display:none;}
+/* منطقة التوقيع */
+.sig-wrap{background:rgba(255,255,255,.97);border-radius:12px;overflow:hidden;position:relative;}
+#sig-canvas{display:block;width:100%;touch-action:none;cursor:crosshair;}
+.sig-actions{display:flex;gap:6px;padding:8px;background:rgba(255,255,255,.05);border-top:1px solid rgba(37,99,235,.15);}
+.sig-btn{flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;}
+.sig-clear{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.sig-hint{font-size:.65rem;color:#64748b;text-align:center;padding:6px 0;}
+/* اسم المستلم */
+.proof-inp{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;margin-bottom:8px;}
+.proof-inp:focus{border-color:#3b82f6;}
+.proof-inp::placeholder{color:#475569;}
+/* زر التأكيد */
+.proof-submit{width:100%;padding:14px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:8px;}
+.proof-submit:disabled{opacity:.5;cursor:not-allowed;}
+/* معاينة الإثبات في كارد الشحنة */
+.proof-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.2);border-radius:99px;font-size:.64rem;color:#34d399;font-weight:700;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -337,6 +373,63 @@ select.sfinp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xml
   </div>
 </div>
 
+<!-- نافذة إثبات التسليم -->
+<div id="proof-sheet">
+  <div class="proof-box">
+    <div class="proof-hdr">
+      <h3>📸 إثبات التسليم</h3>
+      <button class="proof-close" onclick="closeProof()">×</button>
+    </div>
+
+    <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.75rem;color:#34d399;">
+      ✅ يجب تصوير الشحنة وأخذ توقيع المستلم لإتمام التسليم
+    </div>
+
+    <!-- اسم المستلم -->
+    <div class="proof-section">
+      <h4>👤 اسم المستلم</h4>
+      <input type="text" id="proof-receiver" class="proof-inp" placeholder="اسم الشخص الذي استلم الشحنة *">
+    </div>
+
+    <!-- صورة التسليم -->
+    <div class="proof-section">
+      <h4>📷 صورة الشحنة عند التسليم</h4>
+      <div class="photo-area" onclick="document.getElementById('photo-input').click()" id="photo-area">
+        <div class="photo-placeholder">
+          <div class="ico">📷</div>
+          <p>اضغط لتصوير الشحنة</p>
+          <p style="font-size:.62rem;margin-top:4px;color:#475569;">JPG/PNG — الكاميرا أو المعرض</p>
+        </div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="onPhotoSelected(event)">
+      <div id="photo-status" style="font-size:.7rem;color:#64748b;margin-top:4px;text-align:center;"></div>
+    </div>
+
+    <!-- توقيع المستلم -->
+    <div class="proof-section">
+      <h4>✍️ توقيع المستلم</h4>
+      <div class="sig-wrap">
+        <canvas id="sig-canvas" width="400" height="160"></canvas>
+      </div>
+      <div class="sig-actions">
+        <button class="sig-btn sig-clear" onclick="clearSignature()">🗑️ مسح التوقيع</button>
+        <span style="flex:1;font-size:.65rem;color:#64748b;text-align:center;align-self:center;">ضع إصبعك وارسم التوقيع</span>
+      </div>
+      <div id="sig-status" style="font-size:.7rem;color:#64748b;margin-top:4px;text-align:center;"></div>
+    </div>
+
+    <!-- ملاحظات -->
+    <div class="proof-section">
+      <h4>📝 ملاحظات (اختياري)</h4>
+      <input type="text" id="proof-notes" class="proof-inp" placeholder="حالة الشحنة، ملاحظات التسليم...">
+    </div>
+
+    <button class="proof-submit" id="proof-submit-btn" onclick="submitProof()">
+      ✅ تأكيد التسليم وحفظ الإثبات
+    </button>
+  </div>
+</div>
+
 <script type="module">
 const sb = window._sb;
 let S = { uid:'', uname:'', uemail:'', branchId:'', noteShipId:null, branches:[] };
@@ -479,6 +572,13 @@ window.loadStats = async function() {
 // ═══ تحديث الحالة ═══
 window.updateStatus = async function(id, newSt, tn) {
   const labels = { picked_up:'تأكيد الاستلام', in_transit:'بدء التوصيل', delivered:'تأكيد التسليم' };
+
+  // عند التسليم النهائي — افتح نافذة إثبات التسليم
+  if (newSt === 'delivered') {
+    openProof(id, tn);
+    return;
+  }
+
   const ok = confirm(`⚠️ تأكيد العملية\n\nالشحنة: ${tn}\nالإجراء: ${labels[newSt]||newSt}\n\nهل أنت متأكد؟`);
   if (!ok) return;
   showToast('⏳ جاري التحديث...','warn');
@@ -791,6 +891,289 @@ window.doLogout = async function() {
 };
 
 // ═══ Helpers ═══
+// ═══ نظام إثبات التسليم ═══
+let proofShipId  = null;
+let proofTrackNum = null;
+let photoBase64  = null;
+let sigDrawing   = false;
+let sigHasData   = false;
+let sigCtx       = null;
+let sigCanvas    = null;
+let sigLastX     = 0;
+let sigLastY     = 0;
+
+// فتح نافذة الإثبات
+window.openProof = function(id, tn) {
+  proofShipId   = id;
+  proofTrackNum = tn;
+  photoBase64   = null;
+  sigHasData    = false;
+
+  // إعادة ضبط الحقول
+  document.getElementById('proof-receiver').value = '';
+  document.getElementById('proof-notes').value    = '';
+  document.getElementById('photo-status').textContent = '';
+  document.getElementById('sig-status').textContent   = '';
+
+  // إعادة ضبط الصورة
+  const area = document.getElementById('photo-area');
+  area.innerHTML = `
+    <div class="photo-placeholder">
+      <div class="ico">📷</div>
+      <p>اضغط لتصوير الشحنة</p>
+      <p style="font-size:.62rem;margin-top:4px;color:#475569;">اضغط للتصوير أو اختيار صورة</p>
+    </div>`;
+
+  // إعداد canvas التوقيع
+  sigCanvas = document.getElementById('sig-canvas');
+  sigCtx    = sigCanvas.getContext('2d');
+  clearSignature();
+  setupSignatureEvents();
+
+  document.getElementById('proof-sheet').classList.add('on');
+};
+
+window.closeProof = function() {
+  document.getElementById('proof-sheet').classList.remove('on');
+  proofShipId = null; proofTrackNum = null;
+};
+
+// اختيار الصورة
+window.onPhotoSelected = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    // ضغط الصورة
+    const img = new Image();
+    img.onload = () => {
+      const canvas  = document.createElement('canvas');
+      const maxSize = 800;
+      let w = img.width, h = img.height;
+      if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+      if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      photoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+      // عرض الصورة
+      const area = document.getElementById('photo-area');
+      area.innerHTML = `<img src="${photoBase64}" alt="صورة التسليم">
+        <div style="position:absolute;bottom:6px;right:6px;background:rgba(16,185,129,.9);color:#fff;font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:700;">✅ تم اختيار الصورة</div>`;
+      document.getElementById('photo-status').textContent = '✅ تم تحميل الصورة بنجاح';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+// إعداد أحداث التوقيع
+function setupSignatureEvents() {
+  if (!sigCanvas) return;
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth   = 2.5;
+  sigCtx.lineCap     = 'round';
+  sigCtx.lineJoin    = 'round';
+
+  const getPos = (e) => {
+    const rect = sigCanvas.getBoundingClientRect();
+    const scaleX = sigCanvas.width  / rect.width;
+    const scaleY = sigCanvas.height / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - rect.left) * scaleX,
+      y: (src.clientY - rect.top)  * scaleY,
+    };
+  };
+
+  const start = (e) => {
+    e.preventDefault();
+    sigDrawing = true;
+    const p = getPos(e);
+    sigLastX = p.x; sigLastY = p.y;
+    sigCtx.beginPath();
+    sigCtx.moveTo(p.x, p.y);
+  };
+  const draw = (e) => {
+    e.preventDefault();
+    if (!sigDrawing) return;
+    const p = getPos(e);
+    sigCtx.lineTo(p.x, p.y);
+    sigCtx.stroke();
+    sigLastX = p.x; sigLastY = p.y;
+    sigHasData = true;
+    document.getElementById('sig-status').textContent = '✅ تم رسم التوقيع';
+  };
+  const end = (e) => { e.preventDefault(); sigDrawing = false; };
+
+  // إزالة المستمعين القدامى
+  const newCanvas = sigCanvas.cloneNode(true);
+  sigCanvas.parentNode.replaceChild(newCanvas, sigCanvas);
+  sigCanvas = newCanvas;
+  sigCtx    = sigCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth   = 2.5;
+  sigCtx.lineCap     = 'round';
+  sigCtx.lineJoin    = 'round';
+
+  // رسم خط إرشادي
+  sigCtx.strokeStyle = '#e2e8f0';
+  sigCtx.lineWidth   = 0.5;
+  sigCtx.beginPath();
+  sigCtx.moveTo(20, sigCanvas.height - 30);
+  sigCtx.lineTo(sigCanvas.width - 20, sigCanvas.height - 30);
+  sigCtx.stroke();
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth   = 2.5;
+
+  sigCanvas.addEventListener('mousedown',  start, { passive:false });
+  sigCanvas.addEventListener('mousemove',  draw,  { passive:false });
+  sigCanvas.addEventListener('mouseup',    end,   { passive:false });
+  sigCanvas.addEventListener('touchstart', start, { passive:false });
+  sigCanvas.addEventListener('touchmove',  draw,  { passive:false });
+  sigCanvas.addEventListener('touchend',   end,   { passive:false });
+}
+
+// مسح التوقيع
+window.clearSignature = function() {
+  if (!sigCtx || !sigCanvas) return;
+  sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  sigCtx.fillStyle = '#f8fafc';
+  sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+  // خط إرشادي
+  sigCtx.strokeStyle = '#cbd5e1';
+  sigCtx.lineWidth   = 0.5;
+  sigCtx.beginPath();
+  sigCtx.moveTo(20, sigCanvas.height - 30);
+  sigCtx.lineTo(sigCanvas.width - 20, sigCanvas.height - 30);
+  sigCtx.stroke();
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth   = 2.5;
+  sigHasData = false;
+  document.getElementById('sig-status').textContent = '';
+};
+
+// إرسال إثبات التسليم
+window.submitProof = async function() {
+  const receiver = document.getElementById('proof-receiver').value.trim();
+  const notes    = document.getElementById('proof-notes').value.trim();
+
+  // التحقق من البيانات
+  if (!receiver) {
+    showToast('⚠️ أدخل اسم المستلم', 'err');
+    document.getElementById('proof-receiver').focus();
+    return;
+  }
+  if (!photoBase64) {
+    showToast('⚠️ يجب تصوير الشحنة أولاً', 'err');
+    return;
+  }
+  if (!sigHasData) {
+    showToast('⚠️ يجب أخذ توقيع المستلم', 'err');
+    return;
+  }
+
+  const btn = document.getElementById('proof-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الحفظ...';
+  showToast('⏳ جاري حفظ إثبات التسليم...', 'warn');
+
+  try {
+    // الحصول على التوقيع كـ base64
+    const signatureBase64 = sigCanvas.toDataURL('image/png');
+
+    // حفظ إثبات التسليم
+    const { data: proof, error: proofErr } = await sb.from('delivery_proofs').insert([{
+      shipment_id:      proofShipId,
+      proof_type:       'both',
+      photo_base64:     photoBase64,
+      signature_base64: signatureBase64,
+      receiver_name:    receiver,
+      notes:            notes || null,
+      created_by:       S.uid,
+    }]).select().single();
+
+    if (proofErr) throw new Error(proofErr.message);
+
+    // تحديث حالة الشحنة
+    const { error: shipErr } = await sb.from('shipments').update({
+      status:            'delivered',
+      delivered_at:      new Date().toISOString(),
+      delivery_proof_id: proof.id,
+      updated_at:        new Date().toISOString(),
+    }).eq('id', proofShipId);
+
+    if (shipErr) throw new Error(shipErr.message);
+
+    // تسجيل في tracking_logs
+    await sb.from('tracking_logs').insert([{
+      shipment_id:   proofShipId,
+      status:        'delivered',
+      location_note: `تم التسليم لـ: ${receiver}${notes?' — '+notes:''}`,
+      created_by:    S.uid,
+    }]);
+
+    // تسجيل في activity_log
+    await sb.from('activity_log').insert([{
+      user_id:     S.uid,
+      user_name:   S.uname,
+      action:      'delivered_with_proof',
+      entity_type: 'shipment',
+      entity_id:   proofShipId,
+      details: {
+        tracking:  proofTrackNum,
+        receiver:  receiver,
+        has_photo: true,
+        has_sig:   true,
+      },
+    }]).catch(() => {});
+
+    // إغلاق النافذة وعرض النجاح
+    closeProof();
+    showDeliverySuccess(proofTrackNum, receiver);
+    await loadTasks();
+    await loadStats();
+
+  } catch(e) {
+    showToast('❌ فشل الحفظ: ' + e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = '✅ تأكيد التسليم وحفظ الإثبات';
+  }
+};
+
+// إشعار نجاح التسليم
+function showDeliverySuccess(tn, receiver) {
+  const el = document.createElement('div');
+  el.style.cssText = `
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:rgba(6,20,15,.98);border:2px solid rgba(16,185,129,.7);
+    border-radius:18px;padding:28px 24px;z-index:9999;text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.8);min-width:280px;max-width:360px;
+    animation:fadeIn .4s ease both;`;
+  el.innerHTML = `
+    <div style="font-size:3.5rem;margin-bottom:10px;">🎉</div>
+    <div style="font-size:1.1rem;font-weight:900;color:#34d399;margin-bottom:8px;">
+      تم التسليم بنجاح!
+    </div>
+    <div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);
+      border-radius:10px;padding:12px;margin:10px 0;">
+      <div style="font-family:monospace;font-size:1rem;font-weight:900;color:#fff;">${tn}</div>
+      <div style="font-size:.75rem;color:#6ee7b7;margin-top:4px;">تم التسليم لـ: ${receiver}</div>
+    </div>
+    <div style="font-size:.75rem;color:#6ee7b7;margin-bottom:14px;">
+      ✅ تم حفظ الصورة والتوقيع بنجاح
+    </div>
+    <button onclick="this.parentNode.remove()"
+      style="background:linear-gradient(135deg,#059669,#10b981);border:none;
+      border-radius:10px;color:#fff;padding:10px 28px;font-size:.9rem;
+      font-weight:700;cursor:pointer;font-family:inherit;">
+      ممتاز ✓
+    </button>`;
+  document.body.appendChild(el);
+  setTimeout(() => { if(el.parentNode) el.remove(); }, 8000);
+}
+
 function fmtDate(d) {
   if (!d) return '—';
   return new Date(d).toLocaleString('ar-YE',{ month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
