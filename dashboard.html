@@ -1738,6 +1738,39 @@
             document.getElementById('qrlbl').textContent=data.tracking_number;
             genQR(qrc,data.tracking_number);
             await loadLogs(id);
+
+            // ══ عرض إثبات التسليم إن وجد ══
+            if (data.status === 'delivered' && data.delivery_proof_id) {
+                const { data: proof } = await sb.from('delivery_proofs')
+                    .select('photo_base64,signature_base64,receiver_name,notes,created_at')
+                    .eq('id', data.delivery_proof_id).single();
+                if (proof) {
+                    const proofHtml = `
+                        <div style="margin-top:14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:12px;padding:14px;">
+                            <div style="font-size:.72rem;font-weight:700;color:#34d399;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+                                ✅ إثبات التسليم — ${proof.receiver_name||'—'}
+                                <span style="font-size:.62rem;color:#64748b;font-weight:400;">${fd(proof.created_at)}</span>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                                ${proof.photo_base64 ? `
+                                <div>
+                                    <div style="font-size:.64rem;color:#64748b;margin-bottom:4px;font-weight:600;">📷 صورة التسليم</div>
+                                    <img src="${proof.photo_base64}" alt="صورة التسليم"
+                                        style="width:100%;border-radius:8px;border:1px solid rgba(16,185,129,.3);cursor:pointer;"
+                                        onclick="this.style.position=this.style.position?'':'fixed';this.style.inset='0';this.style.zIndex='9999';this.style.objectFit='contain';this.style.background='rgba(0,0,0,.9)'">
+                                </div>` : ''}
+                                ${proof.signature_base64 ? `
+                                <div>
+                                    <div style="font-size:.64rem;color:#64748b;margin-bottom:4px;font-weight:600;">✍️ توقيع المستلم</div>
+                                    <img src="${proof.signature_base64}" alt="توقيع المستلم"
+                                        style="width:100%;border-radius:8px;border:1px solid rgba(37,99,235,.3);background:#f8fafc;">
+                                </div>` : ''}
+                            </div>
+                            ${proof.notes ? `<div style="font-size:.72rem;color:#94a3b8;margin-top:8px;">📝 ${proof.notes}</div>` : ''}
+                        </div>`;
+                    document.getElementById('dtlogs').insertAdjacentHTML('afterend', proofHtml);
+                }
+            }
             document.getElementById('dt-loading').style.display='none';
             document.getElementById('dt-content').style.display='block';
         }catch(err){document.getElementById('dt-loading').innerHTML='<div class="empty"><div class="eico">❌</div><p>خطأ في تحميل التفاصيل</p></div>';tst('خطأ: '+err.message,'terr');}
