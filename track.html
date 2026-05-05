@@ -214,15 +214,13 @@ async function searchByTracking(tn) {
     id,tracking_number,sender_name,sender_phone,
     receiver_name,receiver_phone,receiver_address,
     status,created_at,shipping_cost,payment_method,notes,
+    delivery_type,delivered_at,delivery_proof_id,
     origin:origin_branch_id(name,city),
     destination:destination_branch_id(name,city),
     driver:driver_id(full_name,phone)
   `).ilike('tracking_number', tn).single();
 
-  if (error || !data) {
-    showEmpty(tn);
-    return;
-  }
+  if (error || !data) { showEmpty(tn); return; }
 
   currentShip = data;
 
@@ -231,12 +229,21 @@ async function searchByTracking(tn) {
     .eq('shipment_id', data.id)
     .order('created_at', { ascending: false });
 
-  renderShipment(data, logs || []);
+  // جلب إثبات التسليم إن وجد
+  let proof = null;
+  if (data.status === 'delivered' && data.delivery_proof_id) {
+    const { data: p } = await sb.from('delivery_proofs')
+      .select('receiver_name,created_at,notes')
+      .eq('id', data.delivery_proof_id).single();
+    proof = p;
+  }
+
+  renderShipment(data, logs || [], proof);
   subscribeShipment(data.id);
 }
 
 // ═══ عرض الشحنة ═══
-function renderShipment(ship, logs) {
+function renderShipment(ship, logs, proof) {
   const meta    = STATUS_META[ship.status] || STATUS_META['pending'];
   const idx     = STATUS_FLOW.findIndex(s => s.key === ship.status);
   const fillPct = ship.status === 'cancelled' ? 0
@@ -326,6 +333,24 @@ function renderShipment(ship, logs) {
           <h4>📋 سجل التحركات</h4>
           ${logsHtml}
         </div>
+        ${proof ? `
+        <div style="margin-top:12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:12px;padding:14px;">
+          <div style="font-size:.72rem;font-weight:700;color:#34d399;margin-bottom:8px;">
+            ✅ تم التسليم بنجاح
+          </div>
+          <div style="font-size:.78rem;color:#e2e8f0;margin-bottom:4px;">
+            👤 استلم الشحنة: <strong>${proof.receiver_name||'—'}</strong>
+          </div>
+          <div style="font-size:.68rem;color:#64748b;">
+            🕐 ${fmtDate(proof.created_at)}
+          </div>
+          ${proof.notes ? `<div style="font-size:.72rem;color:#94a3b8;margin-top:6px;">📝 ${proof.notes}</div>` : ''}
+          <div style="margin-top:8px;display:flex;align-items:center;gap:6px;font-size:.7rem;color:#34d399;">
+            <span>📷 صورة محفوظة</span>
+            <span>•</span>
+            <span>✍️ توقيع محفوظ</span>
+          </div>
+        </div>` : ''}
         <div class="qr-box">
           <canvas id="qr-canvas"></canvas>
           <p>امسح للمشاركة الفورية</p>
@@ -357,7 +382,14 @@ function subscribeShipment(id) {
         .select('status,location_note,created_at')
         .eq('shipment_id', id)
         .order('created_at', { ascending: false });
-      renderShipment(currentShip, logs || []);
+      let proof = null;
+      if (currentShip.status === 'delivered' && currentShip.delivery_proof_id) {
+        const { data: p } = await sb.from('delivery_proofs')
+          .select('receiver_name,created_at,notes')
+          .eq('id', currentShip.delivery_proof_id).single();
+        proof = p;
+      }
+      renderShipment(currentShip, logs || [], proof);
     }).subscribe();
 }
 
