@@ -274,6 +274,7 @@
             <div class="ns" id="rptNav">
                 <div class="nl">التحليلات</div>
                 <div class="ni" data-p="rp"><span class="ni-ic">📈</span>التقارير</div>
+                <div class="ni" data-p="rt2"><span class="ni-ic">↩️</span>المرتجعات</div>
                 <div class="ni" data-p="al"><span class="ni-ic">📋</span>سجل الحركات</div>
             </div>
             <div class="ns" id="drvNav" style="display:none">
@@ -525,19 +526,38 @@
                     <option value="90">3 أشهر</option>
                 </select>
             </div>
+            <!-- نقطة 21: بطاقات موسّعة -->
             <div class="sgrid" style="margin-bottom:14px;">
                 <div class="scard cbl"><div class="sico">📦</div><div class="sval" id="rt">—</div><div class="slbl">إجمالي</div></div>
                 <div class="scard cgr"><div class="sico">✅</div><div class="sval" id="rd">—</div><div class="slbl">تسليم</div></div>
                 <div class="scard cam"><div class="sico">📊</div><div class="sval" id="rr">—</div><div class="slbl">نسبة التسليم</div></div>
                 <div class="scard crd"><div class="sico">❌</div><div class="sval" id="rc">—</div><div class="slbl">ملغية</div></div>
             </div>
+            <!-- إيرادات + متوسط وقت التسليم -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                <div class="scard cgr" style="border-radius:12px;padding:14px;">
+                    <div class="sico">💰</div>
+                    <div class="sval" id="r-revenue" style="font-size:1.1rem;">—</div>
+                    <div class="slbl">إيرادات الفترة</div>
+                </div>
+                <div class="scard cpu" style="border-radius:12px;padding:14px;">
+                    <div class="sico">⏱️</div>
+                    <div class="sval" id="r-avgtime" style="font-size:1.1rem;">—</div>
+                    <div class="slbl">متوسط وقت التسليم</div>
+                </div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;">
                 <div class="card"><div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:10px;">📊 الحالات</div><div class="chartbox"><canvas id="rs"></canvas></div></div>
-                <div class="card"><div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:10px;">📈 يومي</div><div class="chartbox"><canvas id="rdy"></canvas></div></div>
+                <div class="card"><div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:10px;">📈 يومي + إيرادات</div><div class="chartbox"><canvas id="rdy"></canvas></div></div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;">
                 <div class="card"><div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:10px;">🏆 أعلى المرسلين</div><div id="rsend"></div></div>
                 <div class="card"><div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:10px;">🏢 الفروع</div><div class="chartbox"><canvas id="rbr"></canvas></div></div>
+            </div>
+            <!-- نقطة 21: تقرير أداء السائقين -->
+            <div class="card">
+                <div style="font-size:.76rem;font-weight:700;color:#64748b;margin-bottom:12px;">🚛 أداء السائقين</div>
+                <div id="rdriver"><div style="text-align:center;color:#64748b;font-size:.78rem;padding:16px;">اختر فترة لعرض التقرير</div></div>
             </div>
         </section>
 
@@ -662,6 +682,113 @@
             </div>
         </section>
 
+        <!-- المرتجعات — نقطة 24 -->
+        <section id="pg-rt2" class="pg">
+            <div class="phdr">
+                <div><div class="ptitle">↩️ المرتجعات</div><div class="psub" id="rt2-sub">إدارة الشحنات المرفوضة والمرتجعة</div></div>
+                <div style="display:flex;gap:7px;">
+                    <button class="btn bprim bsm" onclick="openReturnModal()">➕ إنشاء مرتجع</button>
+                    <button class="btn bsec bsm" onclick="loadReturns()">🔄 تحديث</button>
+                </div>
+            </div>
+            <!-- إحصائيات سريعة -->
+            <div class="sgrid" style="margin-bottom:14px;">
+                <div class="scard cam"><div class="sico">↩️</div><div class="sval" id="rt2-total">—</div><div class="slbl">إجمالي المرتجعات</div></div>
+                <div class="scard cbl"><div class="sico">⏳</div><div class="sval" id="rt2-pending">—</div><div class="slbl">قيد المعالجة</div></div>
+                <div class="scard cgr"><div class="sico">✅</div><div class="sval" id="rt2-done">—</div><div class="slbl">مكتملة</div></div>
+                <div class="scard crd"><div class="sico">💰</div><div class="sval" id="rt2-refund">—</div><div class="slbl">إجمالي المسترد (﷼)</div></div>
+            </div>
+            <!-- فلتر -->
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <select id="rt2-status-filter" class="finp" style="max-width:160px;" onchange="loadReturns()">
+                    <option value="">جميع الحالات</option>
+                    <option value="pending">قيد المعالجة</option>
+                    <option value="approved">موافق عليه</option>
+                    <option value="in_transit">في الطريق</option>
+                    <option value="completed">مكتمل</option>
+                    <option value="rejected">مرفوض</option>
+                </select>
+                <input type="text" id="rt2-search" class="finp" placeholder="🔍 بحث برقم التتبع..." style="max-width:220px;" oninput="loadReturns()">
+            </div>
+            <div class="tw">
+                <table>
+                    <thead><tr><th>رقم المرتجع</th><th>الشحنة الأصلية</th><th>السبب</th><th>الحالة</th><th>المبلغ المسترد</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                    <tbody id="rt2-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Modal إنشاء مرتجع -->
+        <div class="mover" id="m-ret">
+            <div class="mbox mmd">
+                <div class="mhdr">
+                    <button class="back-btn" onclick="CM('m-ret')">← رجوع</button>
+                    <h3>↩️ إنشاء مرتجع جديد</h3>
+                    <button class="mclose" onclick="CM('m-ret')">×</button>
+                </div>
+                <div class="mbody">
+                    <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:.76rem;color:#fbbf24;">
+                        ⚠️ المرتجع يُنشأ فقط على شحنات بحالة "تم التسليم" أو "قيد الانتظار"
+                    </div>
+                    <div class="fgrp">
+                        <label class="flbl">رقم التتبع الأصلي *</label>
+                        <div style="display:flex;gap:8px;">
+                            <input id="ret-tracking" class="finp" placeholder="AD-SN-000001" style="flex:1;" oninput="this.value=this.value.toUpperCase()">
+                            <button class="btn bsec bsm" onclick="fetchReturnShip()">🔍 بحث</button>
+                        </div>
+                    </div>
+                    <!-- بيانات الشحنة الأصلية -->
+                    <div id="ret-ship-info" style="display:none;background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:10px;padding:12px;margin-bottom:12px;">
+                        <div style="font-size:.72rem;font-weight:700;color:#60a5fa;margin-bottom:8px;">📦 بيانات الشحنة</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.74rem;">
+                            <div><span style="color:#64748b;">المرسل:</span> <span id="ret-sender">—</span></div>
+                            <div><span style="color:#64748b;">المستلم:</span> <span id="ret-receiver">—</span></div>
+                            <div><span style="color:#64748b;">الحالة:</span> <span id="ret-status-lbl">—</span></div>
+                            <div><span style="color:#64748b;">التكلفة:</span> <span id="ret-cost-lbl">—</span></div>
+                        </div>
+                    </div>
+                    <div class="fgrp"><label class="flbl">سبب المرتجع *</label>
+                        <select id="ret-reason" class="finp">
+                            <option value="">اختر السبب...</option>
+                            <option value="refused">رفض المستلم الاستلام</option>
+                            <option value="wrong_address">عنوان خاطئ</option>
+                            <option value="damaged">البضاعة تالفة</option>
+                            <option value="wrong_item">بضاعة خاطئة</option>
+                            <option value="no_answer">لا يوجد رد</option>
+                            <option value="customer_request">طلب العميل</option>
+                            <option value="other">سبب آخر</option>
+                        </select>
+                    </div>
+                    <div class="fgrp"><label class="flbl">تفاصيل إضافية</label><input id="ret-notes" class="finp" placeholder="اكتب أي تفاصيل..."></div>
+                    <div class="frow">
+                        <div class="fgrp"><label class="flbl">المبلغ المسترد (ريال)</label><input id="ret-refund" class="finp" type="number" min="0" value="0"></div>
+                        <div class="fgrp"><label class="flbl">فرع الاسترجاع</label>
+                            <select id="ret-branch" class="finp"><option value="">اختر الفرع...</option></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mfoot">
+                    <button class="btn bsec" onclick="CM('m-ret')">إلغاء</button>
+                    <button class="btn bprim" onclick="subReturn()">💾 إنشاء المرتجع</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal تفاصيل المرتجع -->
+        <div class="mover" id="m-ret-view">
+            <div class="mbox mmd">
+                <div class="mhdr">
+                    <button class="back-btn" onclick="CM('m-ret-view')">← رجوع</button>
+                    <h3>↩️ تفاصيل المرتجع</h3>
+                    <button class="mclose" onclick="CM('m-ret-view')">×</button>
+                </div>
+                <div class="mbody" id="ret-view-body"></div>
+                <div class="mfoot">
+                    <button class="btn bsec" onclick="CM('m-ret-view')">إغلاق</button>
+                </div>
+            </div>
+        </div>
+
         <!-- النسخ الاحتياطي -->
         <section id="pg-bk" class="pg">
             <div class="phdr">
@@ -732,7 +859,7 @@
             <div class="frow">
                 <div class="fgrp">
                     <label class="flbl">فرع الإرسال *</label>
-                    <select id="for2" class="finp" onchange="buildRoute();calcAutoPrice()"><option value="">اختر الفرع...</option></select>
+                    <select id="for2" class="finp" onchange="buildRoute()"><option value="">اختر الفرع...</option></select>
                 </div>
                 <div class="fgrp">
                     <label class="flbl">فرع الاستلام النهائي *</label>
@@ -771,34 +898,6 @@
                         <div style="font-size:.65rem;color:#64748b;margin-top:3px;">يوصّل السائق للعنوان مباشرة</div>
                     </label>
                 </div>
-            </div>
-
-            <!-- الوزن والأبعاد -->
-            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin:12px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;">📦 الوزن والأبعاد</div>
-            <div class="frow">
-                <div class="fgrp"><label class="flbl">الوزن الفعلي (كجم) *</label><input id="fweight" class="finp" type="number" min="0" step="0.1" value="" placeholder="0.0" oninput="calcAutoPrice()"></div>
-                <div class="fgrp"><label class="flbl">الطول (سم)</label><input id="fdimL" class="finp" type="number" min="0" value="" placeholder="0" oninput="calcAutoPrice()"></div>
-            </div>
-            <div class="frow">
-                <div class="fgrp"><label class="flbl">العرض (سم)</label><input id="fdimW" class="finp" type="number" min="0" value="" placeholder="0" oninput="calcAutoPrice()"></div>
-                <div class="fgrp"><label class="flbl">الارتفاع (سم)</label><input id="fdimH" class="finp" type="number" min="0" value="" placeholder="0" oninput="calcAutoPrice()"></div>
-            </div>
-            <!-- بطاقة حساب السعر التلقائي -->
-            <div id="price-calc-card" style="display:none;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:10px;padding:11px 14px;margin-bottom:12px;">
-                <div style="font-size:.72rem;font-weight:700;color:#34d399;margin-bottom:7px;">🤖 السعر المحسوب تلقائياً</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:.71rem;">
-                    <div><span style="color:#64748b;">الوزن الفعلي:</span><br><strong id="pc-actual">—</strong></div>
-                    <div><span style="color:#64748b;">الوزن الحجمي:</span><br><strong id="pc-vol">—</strong></div>
-                    <div><span style="color:#64748b;">الوزن المعتمد:</span><br><strong id="pc-used" style="color:#fbbf24;">—</strong></div>
-                </div>
-                <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:space-between;">
-                    <span style="font-size:.76rem;color:#94a3b8;">السعر المقترح:</span>
-                    <strong id="pc-price" style="font-size:1.1rem;color:#34d399;">—</strong>
-                </div>
-                <button class="btn bsucc bsm" style="margin-top:8px;width:100%;" onclick="applyAutoPrice()">✅ تطبيق هذا السعر</button>
-            </div>
-            <div id="price-no-rules" style="display:none;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.72rem;color:#fbbf24;">
-                ⚠️ لا توجد قواعد تسعير لهذا الفرع — أدخل السعر يدوياً
             </div>
 
             <!-- المالية والسائق -->
@@ -920,15 +1019,13 @@
 </div>
 
 <div class="mover" id="m-br">
-    <div class="mbox mlg">
+    <div class="mbox mmd">
         <div class="mhdr">
             <button class="back-btn" onclick="CM('m-br')">← رجوع</button>
-            <h3 id="br-modal-title">🏢 فرع جديد</h3>
+            <h3>🏢 فرع جديد</h3>
             <button class="mclose" onclick="CM('m-br')">×</button>
         </div>
         <div class="mbody">
-            <!-- معلومات الفرع -->
-            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px;">🏢 معلومات الفرع</div>
             <div class="frow">
                 <div class="fgrp"><label class="flbl">اسم الفرع *</label><input id="bname" class="finp"></div>
                 <div class="fgrp"><label class="flbl">المدينة *</label><input id="bcity" class="finp"></div>
@@ -939,76 +1036,10 @@
             </div>
             <div class="fgrp"><label class="flbl">العنوان التفصيلي</label><input id="baddr" class="finp"></div>
             <div class="fgrp"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.8rem;color:#94a3b8;"><input type="checkbox" id="bhub"> فرع تجميعي (Hub)</label></div>
-
-            <!-- قواعد التسعير -->
-            <div style="font-size:.76rem;font-weight:700;color:#60a5fa;margin:16px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px;">💰 قواعد التسعير (DHL Style)</div>
-            <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.72rem;color:#93c5fd;">
-                ℹ️ الوزن الحجمي = (الطول × العرض × الارتفاع) ÷ القسمة الحجمية — يُطبَّق الأكبر بين الوزن الفعلي والحجمي
-            </div>
-
-            <!-- الإعدادات العامة للتسعير -->
-            <div class="frow">
-                <div class="fgrp"><label class="flbl">الحد الأدنى للشحنة (ريال)</label><input id="pr-mincharge" class="finp" type="number" min="0" value="0" placeholder="500"></div>
-                <div class="fgrp"><label class="flbl">القسمة الحجمية (DHL=5000)</label><input id="pr-voldiv" class="finp" type="number" min="1" value="5000" placeholder="5000"></div>
-            </div>
-
-            <!-- جدول الشرائح -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <span style="font-size:.74rem;font-weight:700;color:#94a3b8;">شرائح الأوزان والأسعار</span>
-                <button class="btn bsucc bsm" onclick="addPriceRow()">➕ إضافة شريحة</button>
-            </div>
-
-            <!-- رأس الجدول -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:6px;margin-bottom:6px;padding:0 4px;">
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">وزن من (كجم)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">وزن حتى (كجم)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">سعر ثابت (ريال)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">سعر/كجم إضافي</span>
-                <span></span>
-            </div>
-            <div id="price-rows" style="display:flex;flex-direction:column;gap:6px;">
-                <!-- تُملأ ديناميكياً -->
-            </div>
         </div>
         <div class="mfoot">
             <button class="btn bsec" onclick="CM('m-br')">إلغاء</button>
-            <button class="btn bprim" onclick="subBr()">💾 حفظ الفرع</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal تسعير الفرع (للتعديل اللاحق) -->
-<div class="mover" id="m-pricing">
-    <div class="mbox mlg">
-        <div class="mhdr">
-            <button class="back-btn" onclick="CM('m-pricing')">← رجوع</button>
-            <h3>💰 إدارة التسعير — <span id="pricing-br-name" style="color:#60a5fa;"></span></h3>
-            <button class="mclose" onclick="CM('m-pricing')">×</button>
-        </div>
-        <div class="mbody">
-            <div style="background:rgba(37,99,235,.06);border:1px solid rgba(37,99,235,.2);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:.72rem;color:#93c5fd;">
-                ℹ️ الوزن الحجمي = (الطول × العرض × الارتفاع) ÷ القسمة الحجمية — يُطبَّق الأكبر بين الوزن الفعلي والحجمي
-            </div>
-            <div class="frow">
-                <div class="fgrp"><label class="flbl">الحد الأدنى للشحنة (ريال)</label><input id="ep-mincharge" class="finp" type="number" min="0" value="0"></div>
-                <div class="fgrp"><label class="flbl">القسمة الحجمية</label><input id="ep-voldiv" class="finp" type="number" min="1" value="5000"></div>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <span style="font-size:.74rem;font-weight:700;color:#94a3b8;">شرائح الأوزان</span>
-                <button class="btn bsucc bsm" onclick="addEditPriceRow()">➕ إضافة شريحة</button>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:6px;margin-bottom:6px;padding:0 4px;">
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">وزن من (كجم)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">وزن حتى (كجم)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">سعر ثابت (ريال)</span>
-                <span style="font-size:.65rem;color:var(--muted);font-weight:700;">سعر/كجم إضافي</span>
-                <span></span>
-            </div>
-            <div id="edit-price-rows" style="display:flex;flex-direction:column;gap:6px;"></div>
-        </div>
-        <div class="mfoot">
-            <button class="btn bsec" onclick="CM('m-pricing')">إلغاء</button>
-            <button class="btn bprim" onclick="savePricing()">💾 حفظ التسعير</button>
+            <button class="btn bprim" onclick="subBr()">💾 إضافة</button>
         </div>
     </div>
 </div>
@@ -1294,7 +1325,7 @@
         document.querySelectorAll('.ni').forEach(e=>e.classList.remove('on'));
         const el = document.getElementById('pg-'+p); if (el) el.classList.add('on');
         const nav = document.querySelector(`[data-p="${p}"]`); if (nav) nav.classList.add('on');
-        const titles = {ov:'الرئيسية',sh:'إدارة الشحنات',tr:'تتبع شحنة',inv:'نظام الفواتير',fin:'الإحصائيات المالية',br:'إدارة الفروع',dr:'إدارة السائقين',us:'إدارة المستخدمين',rp:'التقارير',al:'سجل الحركات',mt:'شحناتي النشطة',cfg:'إعدادات النظام',bk:'النسخ الاحتياطي'};
+        const titles = {ov:'الرئيسية',sh:'إدارة الشحنات',tr:'تتبع شحنة',inv:'نظام الفواتير',fin:'الإحصائيات المالية',br:'إدارة الفروع',dr:'إدارة السائقين',us:'إدارة المستخدمين',rp:'التقارير',rt2:'المرتجعات',al:'سجل الحركات',mt:'شحناتي النشطة',cfg:'إعدادات النظام',bk:'النسخ الاحتياطي'};
         sv('ptitle', titles[p]||'');
         const backBtn = document.getElementById('back-top-btn');
         if (backBtn) backBtn.style.display = (p!=='ov'?'inline-flex':'none');
@@ -1463,11 +1494,6 @@
         // إعادة ضبط طريقة التسليم
         document.getElementById('del-branch').checked = true;
         toggleDeliveryType();
-        // إعادة ضبط الوزن والأبعاد
-        ['fweight','fdimL','fdimW','fdimH'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-        document.getElementById('price-calc-card').style.display='none';
-        document.getElementById('price-no-rules').style.display='none';
-        window._autoPrice=null;
         OM('m-as');
     };
 
@@ -1564,7 +1590,14 @@
     window.subShip = async function(){
         const sn=g('fsn'),rn=g('frn'),rp=g('frp'),or2=g('for2'),ds=g('fds');
         if(!sn||!rn){tst('أدخل أسماء المرسل والمستلم','terr');return;}
+        // نقطة 11: التحقق من رقم الهاتف اليمني
         if(!rp||rp.length!==9){document.getElementById('rpherr').style.display='block';document.getElementById('frp').classList.add('inv');return;}
+        if(!/^[7][0-9]{8}$/.test(rp)){
+            document.getElementById('rpherr').textContent='رقم الهاتف يجب أن يبدأ بـ 7 ويتكون من 9 أرقام';
+            document.getElementById('rpherr').style.display='block';
+            document.getElementById('frp').classList.add('inv');
+            return;
+        }
         document.getElementById('rpherr').style.display='none';document.getElementById('frp').classList.remove('inv');
         if(!or2||!ds){tst('اختر فرع الإرسال والاستلام','terr');return;}
 
@@ -1600,11 +1633,24 @@
         );
         if(!ok) return;
 
+        // نقطة 16: تأكيد مزدوج للشحنات عالية القيمة (أكثر من 100,000 ريال)
+        const HIGH_VALUE_THRESHOLD = 100000;
+        const shipCost = parseFloat(g('fcost'))||0;
+        if(shipCost >= HIGH_VALUE_THRESHOLD){
+            const ok2 = await cfm(
+                `⚠️ تنبيه — شحنة عالية القيمة\n\nالمبلغ: ${shipCost.toLocaleString()} ريال\n\nهذه الشحنة تتجاوز حد المبلغ العالي (${HIGH_VALUE_THRESHOLD.toLocaleString()} ريال)\n\nتأكيد المبلغ والمتابعة؟`,
+                'تأكيد الشحنة عالية القيمة','💰','bdng'
+            );
+            if(!ok2){tst('⚠️ تم إلغاء الشحنة — راجع المبلغ','warn');return;}
+        }
+
+        // نقطة 19: منع التكرار — قفل الزر فوراً
+        if(window._shipSubmitting){tst('⚠️ جاري الحفظ، انتظر لحظة...','warn');return;}
+        window._shipSubmitting = true;
+        const submitBtn = document.querySelector('#m-as .mfoot .bprim');
+        if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='⏳ جاري الحفظ...';}
+
         const sp=g('fsp'),cost=parseFloat(g('fcost'))||0,pay=g('fpay');
-        const weight=parseFloat(document.getElementById('fweight')?.value)||null;
-        const dimL=parseFloat(document.getElementById('fdimL')?.value)||null;
-        const dimW=parseFloat(document.getElementById('fdimW')?.value)||null;
-        const dimH=parseFloat(document.getElementById('fdimH')?.value)||null;
         const origBranch=S.branches.find(b=>b.id===or2);
         const destBranch=S.branches.find(b=>b.id===ds);
         const origCode=(origBranch?.branch_code||origBranch?.tracking_prefix||'XX').toUpperCase();
@@ -1653,13 +1699,16 @@
             notes:g('fnot'), status:'pending',
             delivery_type:deliveryType,
             route_notes:routeText,
-            weight_kg:weight,
-            dim_length:dimL, dim_width:dimW, dim_height:dimH,
             created_by:S.uid
         };
 
         const{data,error}=await sb.from('shipments').insert([pl]).select();
-        if(error){tst(ar(error),'terr');playSound('error');return;}
+        if(error){
+            tst(ar(error),'terr');playSound('error');
+            window._shipSubmitting=false;
+            if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='💾 حفظ الشحنة';}
+            return;
+        }
         const tn=data[0].tracking_number;
         const shipId=data[0].id;
 
@@ -1682,16 +1731,25 @@
             route:routeText
         });
 
-        await sb.from('invoices').insert([{
-            shipment_id:shipId, sender_name:sn, receiver_name:rn,
-            sender_phone:sp?'+967'+sp:null, receiver_phone:'+967'+rp,
-            shipping_cost:cost, tax_amount:0, discount_amount:0, total_amount:cost,
-            payment_method:pay, payment_status:pay==='prepaid'?'paid':'pending',
-            created_by:S.uid
-        }]).catch(()=>{});
+        // نقطة 2: الفاتورة تُنشأ تلقائياً مرتبطة بالشحنة
+        const { data: invData } = await sb.from('invoices').insert([{
+            shipment_id: shipId,
+            tracking_number: tn,
+            sender_name: sn, receiver_name: rn,
+            sender_phone: sp?'+967'+sp:null, receiver_phone: '+967'+rp,
+            origin_branch: S.branches.find(b=>b.id===or2)?.name||null,
+            destination_branch: S.branches.find(b=>b.id===ds)?.name||null,
+            shipping_cost: cost, tax_amount: 0, discount_amount: 0, total_amount: cost,
+            payment_method: pay, payment_status: pay==='prepaid'?'paid':'pending',
+            notes: `شحنة تلقائية — ${routeText}`,
+            created_by: S.uid
+        }]).select().catch(()=>({data:null}));
+        if(invData?.[0]) await log('create_invoice','invoice',invData[0].id,{auto:true,tracking:tn,amount:cost});
 
         CM('m-as');
         playSound('success');
+        window._shipSubmitting=false;
+        if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='💾 حفظ الشحنة';}
         document.getElementById('m-as').querySelectorAll('input:not([type=checkbox])').forEach(el=>el.value=el.type==='number'?'0':'');
         document.getElementById('route-preview').style.display='none';
         window._currentRoute = [];
@@ -1884,46 +1942,46 @@
     };
 
     window.chSt = async function(id, ns) {
-        // ══ فحص 1: إجبار تعيين سائق عند بدء التوصيل ══
-        if (ns === 'in_transit') {
-            const { data: ship } = await sb.from('shipments')
-                .select('driver_id, payment_method, shipping_cost, receiver_name')
-                .eq('id', id).single();
+        // نقطة 1: قفل الشحنة بعد التسليم — لا تعديل
+        const { data: curShip } = await sb.from('shipments')
+            .select('status,driver_id,payment_method,shipping_cost,receiver_name,tracking_number')
+            .eq('id', id).single();
 
-            if (!ship?.driver_id) {
-                tst('⚠️ يجب تعيين سائق أولاً قبل بدء التوصيل', 'terr');
-                // فتح نافذة تعيين السائق تلقائياً
-                setTimeout(() => opAsgn(id), 500);
-                return;
-            }
+        if (curShip?.status === 'delivered') {
+            tst('⛔ الشحنة مُسلَّمة ومقفلة — لا يمكن تعديل حالتها', 'terr');
+            return;
+        }
+        if (curShip?.status === 'cancelled' && ns !== 'cancelled') {
+            tst('⛔ الشحنة ملغاة ولا يمكن تغيير حالتها', 'terr');
+            return;
         }
 
-        // ══ فحص 2: إجبار تأكيد التحصيل عند التسليم (COD) ══
-        if (ns === 'delivered') {
-            const { data: ship } = await sb.from('shipments')
-                .select('payment_method, shipping_cost, receiver_name')
-                .eq('id', id).single();
+        // نقطة 3: تسلسل الحالات الإجباري (للداشبورد)
+        const FLOW_ORDER = { pending:0, picked_up:1, in_transit:2, delivered:3 };
+        const curOrder = FLOW_ORDER[curShip?.status] ?? -1;
+        const newOrder = FLOW_ORDER[ns] ?? 99;
+        if (ns !== 'cancelled' && newOrder < curOrder) {
+            tst('⛔ لا يمكن الرجوع لحالة سابقة', 'terr');
+            return;
+        }
 
-            if (ship?.payment_method === 'cash_receiver' && (ship?.shipping_cost || 0) > 0) {
-                // عرض نافذة تأكيد التحصيل
+        // ══ فحص: إجبار تعيين سائق عند بدء التوصيل ══
+        if (ns === 'in_transit' && !curShip?.driver_id) {
+            tst('⚠️ يجب تعيين سائق أولاً قبل بدء التوصيل', 'terr');
+            setTimeout(() => opAsgn(id), 500);
+            return;
+        }
+
+        // ══ فحص: إجبار تأكيد التحصيل عند التسليم (COD) ══
+        if (ns === 'delivered') {
+            if (curShip?.payment_method === 'cash_receiver' && (curShip?.shipping_cost || 0) > 0) {
                 const collected = await cfm(
-                    `هل تم استلام مبلغ ${(ship.shipping_cost).toLocaleString()} ريال من "${ship.receiver_name}"؟\n\nيجب تأكيد استلام المبلغ قبل إتمام التسليم.`,
-                    'تأكيد التحصيل النقدي',
-                    '💰',
-                    'bgreen'
+                    `هل تم استلام مبلغ ${(curShip.shipping_cost).toLocaleString()} ريال من "${curShip.receiver_name}"؟\n\nيجب تأكيد استلام المبلغ قبل إتمام التسليم.`,
+                    'تأكيد التحصيل النقدي', '💰', 'bgreen'
                 );
-                if (!collected) {
-                    tst('⚠️ يجب تأكيد استلام المبلغ أولاً', 'terr');
-                    return;
-                }
-                // تحديث الفاتورة كمحصّلة
-                await sb.from('invoices')
-                    .update({ payment_status: 'paid' })
-                    .eq('shipment_id', id);
-                await log('mark_paid', 'invoice', id, {
-                    reason: 'collected_on_delivery',
-                    amount: ship.shipping_cost
-                });
+                if (!collected) { tst('⚠️ يجب تأكيد استلام المبلغ أولاً', 'terr'); return; }
+                await sb.from('invoices').update({ payment_status: 'paid' }).eq('shipment_id', id);
+                await log('mark_paid', 'invoice', id, { reason: 'collected_on_delivery', amount: curShip.shipping_cost });
                 tst('✅ تم تسجيل التحصيل النقدي', 'tok');
             }
         }
@@ -1934,15 +1992,26 @@
         );
         if (!ok) return;
 
-        const { error } = await sb.from('shipments')
-            .update({ status: ns })
-            .eq('id', id);
+        const prevStatus = curShip?.status;
+        const updatePayload = { status: ns };
+        if (ns === 'delivered') updatePayload.delivered_at = new Date().toISOString();
+
+        const { error } = await sb.from('shipments').update(updatePayload).eq('id', id);
         if (error) { tst('فشل التحديث — ' + ar(error), 'terr'); return; }
 
+        // نقطة 9: audit trail كامل مع القيمة القديمة والجديدة
         await sb.from('tracking_logs').insert([{
-            shipment_id: id, status: ns, created_by: S.uid
+            shipment_id: id, status: ns, created_by: S.uid,
+            location_note: `تغيير الحالة من ${trs(prevStatus)} إلى ${trs(ns)}`
         }]);
-        await log('status_change', 'shipment', id, { new_status: ns, label: trs(ns) });
+        await log('status_change', 'shipment', id, {
+            tracking: curShip?.tracking_number,
+            prev_status: prevStatus,
+            new_status: ns,
+            label: trs(ns),
+            changed_by: S.uname,
+            changed_at: new Date().toISOString()
+        });
         tst('✅ تم تحديث الحالة إلى: ' + trs(ns), 'tok');
         playSound('success');
         vD(id); loadOv();
@@ -2411,7 +2480,7 @@
     window.loadRpt = async function(){
         const days=parseInt(document.getElementById('rpper').value)||30;
         const from=new Date(Date.now()-days*864e5).toISOString();
-        let q=sb.from('shipments').select('id,status,sender_name,origin_branch_id,created_at,shipping_cost').gte('created_at',from);
+        let q=sb.from('shipments').select('id,status,sender_name,receiver_name,origin_branch_id,destination_branch_id,created_at,shipping_cost,driver_id,delivered_at').gte('created_at',from);
         if(S.role==='driver') q=q.eq('driver_id',S.uid);
         const{data}=await q;
         if(!data) return;
@@ -2419,16 +2488,59 @@
         data.forEach(s=>{if(c.hasOwnProperty(s.status))c[s.status]++;});
         const total=data.length,del=c.delivered;
         sv('rt',total); sv('rd',del); sv('rr',total?Math.round(del/total*100)+'%':'0%'); sv('rc',c.cancelled);
+
+        // نقطة 21: إيرادات الفترة
+        const totalRevenue=data.filter(s=>s.status==='delivered').reduce((sum,s)=>sum+(s.shipping_cost||0),0);
+        const revenueEl=document.getElementById('r-revenue');
+        if(revenueEl) revenueEl.textContent=totalRevenue.toLocaleString()+' ﷼';
+
+        // نقطة 21: متوسط وقت التسليم
+        const deliveredWithTime=data.filter(s=>s.status==='delivered'&&s.delivered_at&&s.created_at);
+        if(deliveredWithTime.length){
+            const avgMs=deliveredWithTime.reduce((sum,s)=>sum+(new Date(s.delivered_at)-new Date(s.created_at)),0)/deliveredWithTime.length;
+            const avgHours=Math.round(avgMs/3600000);
+            const avgEl=document.getElementById('r-avgtime');
+            if(avgEl) avgEl.textContent=avgHours<24?avgHours+' ساعة':Math.round(avgHours/24)+' يوم';
+        }
+
         const c1=document.getElementById('rs'); if(S.charts.rs) S.charts.rs.destroy();
         S.charts.rs=new Chart(c1,{type:'pie',data:{labels:['انتظار','استلام','طريق','تسليم','ملغية'],datasets:[{data:[c.pending,c.picked_up,c.in_transit,del,c.cancelled],backgroundColor:['#fbbf24','#60a5fa','#a78bfa','#34d399','#f87171'],borderWidth:0,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},padding:7,boxWidth:9}}}}});
-        const show=Math.min(days,14); const lb=[],vl=[];
-        for(let i=show-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.toISOString().split('T')[0];lb.push(d.toLocaleDateString('ar',{month:'short',day:'numeric'}));vl.push(data.filter(s=>s.created_at.startsWith(k)).length);}
+
+        const show=Math.min(days,14); const lb=[],vl=[],rv=[];
+        for(let i=show-1;i>=0;i--){
+            const d=new Date();d.setDate(d.getDate()-i);
+            const k=d.toISOString().split('T')[0];
+            lb.push(d.toLocaleDateString('ar',{month:'short',day:'numeric'}));
+            vl.push(data.filter(s=>s.created_at.startsWith(k)).length);
+            rv.push(data.filter(s=>s.status==='delivered'&&s.delivered_at&&s.delivered_at.startsWith(k)).reduce((sum,s)=>sum+(s.shipping_cost||0),0));
+        }
         const c2=document.getElementById('rdy'); if(S.charts.rd) S.charts.rd.destroy();
-        S.charts.rd=new Chart(c2,{type:'bar',data:{labels:lb,datasets:[{data:vl,backgroundColor:'rgba(37,99,235,.6)',borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',precision:0},beginAtZero:true}}}});
+        S.charts.rd=new Chart(c2,{type:'bar',data:{labels:lb,datasets:[{label:'شحنات',data:vl,backgroundColor:'rgba(37,99,235,.6)',borderRadius:5,borderSkipped:false},{label:'إيرادات ÷1000',data:rv.map(v=>Math.round(v/1000)),backgroundColor:'rgba(16,185,129,.4)',borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#94a3b8',font:{size:9}}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',precision:0},beginAtZero:true}}}});
+
         const sm={};
         data.forEach(s=>sm[s.sender_name]=(sm[s.sender_name]||0)+1);
         const top5=Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,5);
         document.getElementById('rsend').innerHTML=top5.length?top5.map(([n,c2],i)=>`<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:.76rem;">${i+1}. ${n}<span style="color:var(--muted);">${c2}</span></div><div class="pbar"><div class="pfill" style="width:${Math.round(c2/top5[0][1]*100)}%;background:linear-gradient(90deg,#1d4ed8,#3b82f6);"></div></div></div>`).join(''):'<div class="empty"><p>لا بيانات</p></div>';
+
+        // نقطة 21: تقرير أداء السائقين
+        const driverStats={};
+        data.forEach(s=>{
+            if(!s.driver_id)return;
+            if(!driverStats[s.driver_id])driverStats[s.driver_id]={total:0,delivered:0,revenue:0};
+            driverStats[s.driver_id].total++;
+            if(s.status==='delivered'){driverStats[s.driver_id].delivered++;driverStats[s.driver_id].revenue+=(s.shipping_cost||0);}
+        });
+        const driverEl=document.getElementById('rdriver');
+        if(driverEl&&Object.keys(driverStats).length){
+            const{data:drivers}=await sb.from('profiles').select('id,full_name').in('id',Object.keys(driverStats));
+            const dMap={};drivers?.forEach(d=>dMap[d.id]=d.full_name);
+            const rows=Object.entries(driverStats).sort((a,b)=>b[1].delivered-a[1].delivered).slice(0,5);
+            driverEl.innerHTML=rows.map(([id,st])=>{
+                const rate=st.total?Math.round(st.delivered/st.total*100):0;
+                return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);"><div style="flex:1;"><div style="font-size:.78rem;font-weight:600;">${dMap[id]||'سائق'}</div><div style="font-size:.67rem;color:#64748b;margin-top:2px;">${st.delivered}/${st.total} شحنة • نسبة: ${rate}%</div></div><div style="font-size:.78rem;color:#34d399;font-weight:700;">${st.revenue.toLocaleString()} ﷼</div></div>`;
+            }).join('');
+        }
+
         const bm={};
         data.forEach(s=>bm[s.origin_branch_id]=(bm[s.origin_branch_id]||0)+1);
         const bN=S.branches.map(b=>b.name),bV=S.branches.map(b=>bm[b.id]||0);
@@ -2455,176 +2567,20 @@
           <td><code style="background:rgba(59,130,246,.1);color:#60a5fa;padding:2px 7px;border-radius:5px;font-size:.68rem;">${b.branch_code||b.tracking_prefix||'—'}</code></td>
           <td>${b.is_hub?'✅':'—'}</td><td style="color:var(--muted);">${bc[b.id]||0}</td>
           <td>${b.is_active!==false?'<span class="bdg bdeli">نشط</span>':'<span class="bdg bcanc">معطل</span>'}</td>
-          <td><div style="display:flex;gap:3px;"><button class="btn bprim bsm" onclick="openPricing('${b.id}','${b.name}')">💰 تسعير</button><button class="btn bsm ${b.is_active!==false?'bdng':'bsucc'}" onclick="togBr('${b.id}',${b.is_active!==false})">${b.is_active!==false?'تعطيل':'تفعيل'}</button>${S.role==='admin'?`<button class="btn bdng bsm" onclick="dlBr('${b.id}','${b.name}')">حذف</button>`:''}</div></td>
+          <td><div style="display:flex;gap:3px;"><button class="btn bsm ${b.is_active!==false?'bdng':'bsucc'}" onclick="togBr('${b.id}',${b.is_active!==false})">${b.is_active!==false?'تعطيل':'تفعيل'}</button>${S.role==='admin'?`<button class="btn bdng bsm" onclick="dlBr('${b.id}','${b.name}')">حذف</button>`:''}</div></td>
         </tr>`).join(''):'<tr><td colspan="8"><div class="empty"><div class="eico">🏢</div><p>لا توجد فروع</p></div></td></tr>';
     }
 
     window.subBr = async function(){
         const n=g('bname'),c=g('bcity'),cd=g('bcode').toUpperCase(); if(!n||!c||!cd){tst('أكمل الحقول','terr');return;}
         const ok=await cfm(`إضافة الفرع "${n}"؟`,'تأكيد','🏢','bprim'); if(!ok) return;
-        const{data:brData,error}=await sb.from('branches').insert([{name:n,city:c,region:g('breg'),address:g('baddr'),branch_code:cd,tracking_prefix:cd,is_hub:document.getElementById('bhub').checked,is_active:true}]).select().single();
+        const{error}=await sb.from('branches').insert([{name:n,city:c,region:g('breg'),address:g('baddr'),branch_code:cd,tracking_prefix:cd,is_hub:document.getElementById('bhub').checked,is_active:true}]);
         if(error){tst(ar(error),'terr');return;}
-        // حفظ قواعد التسعير
-        const brId=brData.id;
-        await savePricingRules(brId);
         await log('create_branch','branch',n,{city:c,code:cd});
         tst('✅ تمت إضافة الفرع بنجاح','tok'); playSound('success'); CM('m-br');
-        document.getElementById('m-br').querySelectorAll('input:not([type=checkbox])').forEach(el=>el.value='');
+        document.getElementById('m-br').querySelectorAll('input').forEach(el=>el.value='');
         document.getElementById('bhub').checked=false;
-        document.getElementById('price-rows').innerHTML='';
         await loadBranches(); loadBrsPage();
-    };
-
-    // ══ دوال التسعير ══
-
-    // إضافة صف شريحة جديدة (modal إنشاء فرع)
-    window.addPriceRow = function(wf='',wt='',bp='',ppk=''){
-        const c=document.getElementById('price-rows');
-        const idx=c.children.length;
-        const div=document.createElement('div');
-        div.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:6px;';
-        div.innerHTML=`
-            <input class="finp pr-wf" type="number" min="0" step="0.1" placeholder="0" value="${wf}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp pr-wt" type="number" min="0" step="0.1" placeholder="99" value="${wt}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp pr-bp" type="number" min="0" placeholder="1000" value="${bp}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp pr-ppk" type="number" min="0" step="0.1" placeholder="0" value="${ppk}" style="font-size:.75rem;padding:6px 8px;">
-            <button onclick="this.parentElement.remove()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:7px;cursor:pointer;font-size:.8rem;width:32px;">✕</button>`;
-        c.appendChild(div);
-    };
-
-    // إضافة صف في modal التعديل
-    window.addEditPriceRow = function(wf='',wt='',bp='',ppk=''){
-        const c=document.getElementById('edit-price-rows');
-        const div=document.createElement('div');
-        div.style.cssText='display:grid;grid-template-columns:1fr 1fr 1fr 1fr 32px;gap:6px;';
-        div.innerHTML=`
-            <input class="finp ep-wf" type="number" min="0" step="0.1" placeholder="0" value="${wf}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp ep-wt" type="number" min="0" step="0.1" placeholder="99" value="${wt}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp ep-bp" type="number" min="0" placeholder="1000" value="${bp}" style="font-size:.75rem;padding:6px 8px;">
-            <input class="finp ep-ppk" type="number" min="0" step="0.1" placeholder="0" value="${ppk}" style="font-size:.75rem;padding:6px 8px;">
-            <button onclick="this.parentElement.remove()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#f87171;border-radius:7px;cursor:pointer;font-size:.8rem;width:32px;">✕</button>`;
-        c.appendChild(div);
-    };
-
-    // جمع قواعد التسعير من modal الفرع الجديد
-    function collectPriceRows(wfClass, wtClass, bpClass, ppkClass, minId, vdId){
-        const rows=[...document.querySelectorAll(`#${wfClass.replace('.','')} .${wfClass.split('.')[0]}`)];
-        // نقرأ مباشرة
-        const wfs=[...document.querySelectorAll('.'+wfClass)];
-        const wts=[...document.querySelectorAll('.'+wtClass)];
-        const bps=[...document.querySelectorAll('.'+bpClass)];
-        const ppks=[...document.querySelectorAll('.'+ppkClass)];
-        const rules=[];
-        for(let i=0;i<wfs.length;i++){
-            const wf=parseFloat(wfs[i].value);
-            const wt=parseFloat(wts[i].value);
-            const bp=parseFloat(bps[i].value);
-            if(isNaN(wf)||isNaN(wt)||isNaN(bp)) continue;
-            rules.push({weight_from:wf,weight_to:wt,base_price:bp,price_per_kg:parseFloat(ppks[i].value)||0,min_charge:parseFloat(document.getElementById(minId)?.value)||0,volumetric_divisor:parseInt(document.getElementById(vdId)?.value)||5000});
-        }
-        return rules;
-    }
-
-    // حفظ قواعد التسعير لفرع معين
-    async function savePricingRules(branchId){
-        const minCharge=parseFloat(document.getElementById('pr-mincharge')?.value)||0;
-        const volDiv=parseInt(document.getElementById('pr-voldiv')?.value)||5000;
-        const wfs=[...document.querySelectorAll('#price-rows .pr-wf')];
-        const wts=[...document.querySelectorAll('#price-rows .pr-wt')];
-        const bps=[...document.querySelectorAll('#price-rows .pr-bp')];
-        const ppks=[...document.querySelectorAll('#price-rows .pr-ppk')];
-        if(!wfs.length) return; // لا قواعد
-        // حذف القديمة
-        await sb.from('pricing_rules').delete().eq('branch_id',branchId);
-        const rules=[];
-        for(let i=0;i<wfs.length;i++){
-            const wf=parseFloat(wfs[i].value);
-            const wt=parseFloat(wts[i].value);
-            const bp=parseFloat(bps[i].value);
-            if(isNaN(wf)||isNaN(wt)||isNaN(bp)) continue;
-            rules.push({branch_id:branchId,weight_from:wf,weight_to:wt,base_price:bp,price_per_kg:parseFloat(ppks[i].value)||0,min_charge:minCharge,volumetric_divisor:volDiv});
-        }
-        if(rules.length) await sb.from('pricing_rules').insert(rules);
-    }
-
-    // فتح modal تعديل تسعير فرع موجود
-    window.openPricing = async function(branchId, branchName){
-        S._editPricingBranchId = branchId;
-        document.getElementById('pricing-br-name').textContent = branchName;
-        document.getElementById('edit-price-rows').innerHTML='';
-        // جلب القواعد الحالية
-        const{data}=await sb.from('pricing_rules').select('*').eq('branch_id',branchId).order('weight_from');
-        if(data?.length){
-            document.getElementById('ep-mincharge').value=data[0].min_charge||0;
-            document.getElementById('ep-voldiv').value=data[0].volumetric_divisor||5000;
-            data.forEach(r=>addEditPriceRow(r.weight_from,r.weight_to,r.base_price,r.price_per_kg));
-        } else {
-            document.getElementById('ep-mincharge').value=0;
-            document.getElementById('ep-voldiv').value=5000;
-        }
-        OM('m-pricing');
-    };
-
-    // حفظ التسعير من modal التعديل
-    window.savePricing = async function(){
-        const branchId=S._editPricingBranchId; if(!branchId) return;
-        const minCharge=parseFloat(document.getElementById('ep-mincharge').value)||0;
-        const volDiv=parseInt(document.getElementById('ep-voldiv').value)||5000;
-        const wfs=[...document.querySelectorAll('#edit-price-rows .ep-wf')];
-        const wts=[...document.querySelectorAll('#edit-price-rows .ep-wt')];
-        const bps=[...document.querySelectorAll('#edit-price-rows .ep-bp')];
-        const ppks=[...document.querySelectorAll('#edit-price-rows .ep-ppk')];
-        await sb.from('pricing_rules').delete().eq('branch_id',branchId);
-        const rules=[];
-        for(let i=0;i<wfs.length;i++){
-            const wf=parseFloat(wfs[i].value);
-            const wt=parseFloat(wts[i].value);
-            const bp=parseFloat(bps[i].value);
-            if(isNaN(wf)||isNaN(wt)||isNaN(bp)) continue;
-            rules.push({branch_id:branchId,weight_from:wf,weight_to:wt,base_price:bp,price_per_kg:parseFloat(ppks[i].value)||0,min_charge:minCharge,volumetric_divisor:volDiv});
-        }
-        if(rules.length){const{error}=await sb.from('pricing_rules').insert(rules);if(error){tst('خطأ: '+ar(error),'terr');return;}}
-        await log('update_pricing','branch',branchId,{rules_count:rules.length});
-        tst('✅ تم حفظ التسعير بنجاح','tok'); playSound('success'); CM('m-pricing');
-    };
-
-    // حساب السعر التلقائي عند تغيير الوزن/الأبعاد
-    window.calcAutoPrice = async function(){
-        const weight=parseFloat(document.getElementById('fweight')?.value)||0;
-        const L=parseFloat(document.getElementById('fdimL')?.value)||0;
-        const W=parseFloat(document.getElementById('fdimW')?.value)||0;
-        const H=parseFloat(document.getElementById('fdimH')?.value)||0;
-        const branchId=document.getElementById('for2')?.value;
-        const card=document.getElementById('price-calc-card');
-        const noRules=document.getElementById('price-no-rules');
-        if(!branchId||weight<=0){card.style.display='none';noRules.style.display='none';return;}
-        // جلب قواعد الفرع
-        const{data:rules}=await sb.from('pricing_rules').select('*').eq('branch_id',branchId).order('weight_from');
-        if(!rules?.length){card.style.display='none';noRules.style.display='block';return;}
-        noRules.style.display='none';
-        const volDiv=rules[0].volumetric_divisor||5000;
-        const volWeight=(L*W*H)/volDiv;
-        const usedWeight=Math.max(weight,volWeight);
-        // إيجاد الشريحة المناسبة
-        const rule=rules.find(r=>usedWeight>=r.weight_from && usedWeight<=r.weight_to) || rules[rules.length-1];
-        const extra=Math.max(0,usedWeight-rule.weight_from);
-        let price=rule.base_price + (extra * (rule.price_per_kg||0));
-        price=Math.max(price, rule.min_charge||0);
-        price=Math.round(price/10)*10; // تقريب لأقرب 10
-        document.getElementById('pc-actual').textContent=weight.toFixed(2)+' كجم';
-        document.getElementById('pc-vol').textContent=volWeight>0?volWeight.toFixed(2)+' كجم':'—';
-        document.getElementById('pc-used').textContent=usedWeight.toFixed(2)+' كجم';
-        document.getElementById('pc-price').textContent=price.toLocaleString()+' ﷼';
-        card.style.display='block';
-        window._autoPrice=price;
-    };
-
-    // تطبيق السعر المحسوب
-    window.applyAutoPrice = function(){
-        if(window._autoPrice){
-            document.getElementById('fcost').value=window._autoPrice;
-            tst('✅ تم تطبيق السعر التلقائي','tok');
-        }
     };
     window.togBr = async function(id,cur){
         const ok=await cfm(`${cur?'تعطيل':'تفعيل'} هذا الفرع؟`,'تأكيد','⚠️',cur?'bdng':'bsucc'); if(!ok) return;
@@ -2633,10 +2589,25 @@
         tst(`تم ${!cur?'تفعيل':'تعطيل'} الفرع`,'tok'); await loadBranches(); loadBrsPage();
     };
     window.dlBr = async function(id,name){
-        const ok=await cfm(`حذف الفرع "${name}"؟`,'تأكيد عملية الحذف','🗑️','bdng'); if(!ok) return;
+        // نقطة 12: فحص الشحنات النشطة قبل الحذف
+        const{count:activeCount}=await sb.from('shipments')
+            .select('*',{count:'exact',head:true})
+            .or(`origin_branch_id.eq.${id},destination_branch_id.eq.${id}`)
+            .not('status','in','(delivered,cancelled)');
+        if(activeCount>0){
+            tst(`⛔ لا يمكن حذف الفرع — يوجد ${activeCount} شحنة نشطة مرتبطة به`,'terr');
+            return;
+        }
+        const{count:totalCount}=await sb.from('shipments')
+            .select('*',{count:'exact',head:true})
+            .or(`origin_branch_id.eq.${id},destination_branch_id.eq.${id}`);
+        const warnMsg = totalCount>0
+            ? `⚠️ تحذير: يوجد ${totalCount} شحنة مرتبطة بهذا الفرع (مكتملة/ملغاة)\n\nهل تريد حذف الفرع "${name}"؟`
+            : `حذف الفرع "${name}"؟`;
+        const ok=await cfm(warnMsg,'تأكيد عملية الحذف','🗑️','bdng'); if(!ok) return;
         const{error}=await sb.from('branches').delete().eq('id',id);
         if(error) tst(ar(error),'terr');
-        else{await log('delete_branch','branch',id,{name});tst('✅ تم الحذف بنجاح','tok');await loadBranches();loadBrsPage();}
+        else{await log('delete_branch','branch',id,{name,total_shipments:totalCount});tst('✅ تم الحذف بنجاح','tok');await loadBranches();loadBrsPage();}
     };
 
     // ══ السائقون ══
@@ -2868,13 +2839,48 @@
 
     // Realtime
     function setupRealtime(){
+        // مخزن الإشعارات غير المقروءة
+        if(!S.notifications) S.notifications=[];
+
         sb.channel('rt').on('postgres_changes',{event:'*',schema:'public',table:'shipments'},payload=>{
             loadOv();
             if(document.getElementById('pg-sh').classList.contains('on')) loadShips();
             if(document.getElementById('pg-mt').classList.contains('on')) loadMT();
-            if(payload.eventType==='INSERT'){const dot=document.getElementById('notdot');dot.style.display='flex';dot.textContent=parseInt(dot.textContent||0)+1;tst(`📦 شحنة جديدة: ${payload.new.tracking_number}`,'tinf');playSound('notify');}
+
+            // نقطة 20: إشعارات داخلية ذكية حسب نوع الحدث والفرع
+            if(payload.eventType==='INSERT'){
+                const ship=payload.new;
+                // تنبيه فقط إذا كانت الشحنة تخص فرع الموظف الحالي
+                const isMyBranch=!S.branchId||ship.origin_branch_id===S.branchId||ship.destination_branch_id===S.branchId;
+                if(isMyBranch||S.role==='admin'){
+                    const dot=document.getElementById('notdot');
+                    dot.style.display='flex';
+                    dot.textContent=parseInt(dot.textContent||0)+1;
+                    tst(`📦 شحنة جديدة: ${ship.tracking_number} — من ${ship.sender_name||'—'} إلى ${ship.receiver_name||'—'}`,'tinf');
+                    playSound('notify');
+                    // حفظ الإشعار
+                    S.notifications.unshift({type:'new_shipment',time:new Date(),data:ship});
+                    if(S.notifications.length>20) S.notifications.pop();
+                }
+            }
+            if(payload.eventType==='UPDATE'){
+                const ship=payload.new;
+                const isMyBranch=!S.branchId||ship.origin_branch_id===S.branchId||ship.destination_branch_id===S.branchId;
+                // تنبيه عند وصول شحنة للفرع
+                if(ship.status==='picked_up'&&isMyBranch){
+                    tst(`✅ تم استلام شحنة: ${ship.tracking_number}`,'tinf');
+                }
+                // تنبيه عند تسليم شحنة
+                if(ship.status==='delivered'&&(S.role==='admin'||S.role==='supervisor')){
+                    tst(`🏁 تم تسليم: ${ship.tracking_number}`,'tok');
+                    playSound('success');
+                }
+            }
         }).subscribe();
-        sb.channel('rt-inv').on('postgres_changes',{event:'*',schema:'public',table:'invoices'},()=>{if(document.getElementById('pg-inv').classList.contains('on'))loadInvoices();}).subscribe();
+
+        sb.channel('rt-inv').on('postgres_changes',{event:'*',schema:'public',table:'invoices'},()=>{
+            if(document.getElementById('pg-inv').classList.contains('on'))loadInvoices();
+        }).subscribe();
     }
 
     // تسجيل الخروج
@@ -2976,6 +2982,161 @@
     async function fillDSel(id){const el=document.getElementById(id);if(!el)return;const f=el.options[0].outerHTML;el.innerHTML=f+S.drivers.map(d=>`<option value="${d.id}">${d.full_name}</option>`).join('');}
 
     // بدء التشغيل
+    // ══ المرتجعات — نقطة 24 ══
+    const RETURN_REASONS = {refused:'رفض الاستلام',wrong_address:'عنوان خاطئ',damaged:'بضاعة تالفة',wrong_item:'بضاعة خاطئة',no_answer:'لا يوجد رد',customer_request:'طلب العميل',other:'سبب آخر'};
+    const RETURN_STATUS = {pending:{label:'قيد المعالجة',cls:'bpend'},approved:{label:'موافق عليه',cls:'bpick'},in_transit:{label:'في الطريق',cls:'btran'},completed:{label:'مكتمل',cls:'bdeli'},rejected:{label:'مرفوض',cls:'bcanc'}};
+    let S_ret = { shipId:null, shipData:null };
+
+    window.openReturnModal = function(){
+        S_ret = {shipId:null,shipData:null};
+        document.getElementById('ret-tracking').value='';
+        document.getElementById('ret-reason').value='';
+        document.getElementById('ret-notes').value='';
+        document.getElementById('ret-refund').value='0';
+        document.getElementById('ret-ship-info').style.display='none';
+        // ملء فروع الاسترجاع
+        const sel=document.getElementById('ret-branch');
+        sel.innerHTML='<option value="">اختر الفرع...</option>'+S.branches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+        OM('m-ret');
+    };
+
+    window.fetchReturnShip = async function(){
+        const tn=document.getElementById('ret-tracking').value.trim().toUpperCase();
+        if(!tn){tst('أدخل رقم التتبع','terr');return;}
+        const{data,error}=await sb.from('shipments').select('id,status,sender_name,receiver_name,shipping_cost,payment_method').ilike('tracking_number',tn).single();
+        if(error||!data){tst('لم يتم العثور على الشحنة','terr');return;}
+        // التحقق: المرتجع يُنشأ فقط على شحنات delivered أو pending
+        if(!['delivered','pending','in_transit'].includes(data.status)){
+            tst(`⛔ لا يمكن إنشاء مرتجع على شحنة بحالة "${trs(data.status)}"`, 'terr');
+            return;
+        }
+        S_ret.shipId=data.id; S_ret.shipData=data;
+        document.getElementById('ret-sender').textContent=data.sender_name||'—';
+        document.getElementById('ret-receiver').textContent=data.receiver_name||'—';
+        document.getElementById('ret-status-lbl').textContent=trs(data.status);
+        document.getElementById('ret-cost-lbl').textContent=(data.shipping_cost||0).toLocaleString()+' ﷼';
+        document.getElementById('ret-refund').value=data.shipping_cost||0;
+        document.getElementById('ret-ship-info').style.display='block';
+        tst('✅ تم العثور على الشحنة','tok');
+    };
+
+    window.subReturn = async function(){
+        if(!S_ret.shipId){tst('ابحث عن الشحنة أولاً','terr');return;}
+        const reason=document.getElementById('ret-reason').value;
+        const notes=document.getElementById('ret-notes').value.trim();
+        const refund=parseFloat(document.getElementById('ret-refund').value)||0;
+        const branch=document.getElementById('ret-branch').value;
+        if(!reason){tst('اختر سبب المرتجع','terr');return;}
+        const ok=await cfm(`إنشاء مرتجع للشحنة؟\n\nالسبب: ${RETURN_REASONS[reason]||reason}\nالمبلغ المسترد: ${refund.toLocaleString()} ﷼`,'تأكيد المرتجع','↩️','cam');
+        if(!ok) return;
+        // توليد رقم المرتجع
+        const retNum='RET-'+Date.now().toString().slice(-6);
+        const{data,error}=await sb.from('shipment_returns').insert([{
+            return_number:retNum,
+            original_shipment_id:S_ret.shipId,
+            reason,notes:notes||null,
+            refund_amount:refund,
+            return_branch_id:branch||null,
+            status:'pending',
+            created_by:S.uid,
+        }]).select().single();
+        if(error){tst('خطأ: '+ar(error),'terr');return;}
+        // تحديث حالة الشحنة إلى returned
+        await sb.from('shipments').update({status:'cancelled',notes:`مرتجع — ${RETURN_REASONS[reason]}`}).eq('id',S_ret.shipId);
+        await log('create_return','shipment',S_ret.shipId,{return_number:retNum,reason,refund});
+        tst(`✅ تم إنشاء المرتجع — ${retNum}`,'tok'); playSound('success');
+        CM('m-ret'); loadReturns();
+    };
+
+    window.loadReturns = async function(){
+        const statusFilter=document.getElementById('rt2-status-filter')?.value||'';
+        const search=document.getElementById('rt2-search')?.value.trim().toUpperCase()||'';
+        let q=sb.from('shipment_returns').select(`
+            id,return_number,status,reason,notes,refund_amount,created_at,
+            shipment:original_shipment_id(tracking_number,sender_name,receiver_name,status)
+        `).order('created_at',{ascending:false});
+        if(statusFilter) q=q.eq('status',statusFilter);
+        const{data}=await q;
+        if(!data) return;
+        // إحصائيات
+        const filtered=search?data.filter(r=>r.return_number?.includes(search)||r.shipment?.tracking_number?.includes(search)):data;
+        document.getElementById('rt2-total').textContent=filtered.length;
+        document.getElementById('rt2-pending').textContent=filtered.filter(r=>r.status==='pending').length;
+        document.getElementById('rt2-done').textContent=filtered.filter(r=>r.status==='completed').length;
+        document.getElementById('rt2-refund').textContent=filtered.filter(r=>r.status==='completed').reduce((s,r)=>s+(r.refund_amount||0),0).toLocaleString();
+        document.getElementById('rt2-sub').textContent=`${filtered.length} مرتجع`;
+        const tbody=document.getElementById('rt2-tbody');
+        if(!filtered.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty"><div class="eico">↩️</div><p>لا توجد مرتجعات</p></div></td></tr>';return;}
+        tbody.innerHTML=filtered.map(r=>{
+            const st=RETURN_STATUS[r.status]||{label:r.status,cls:'bpend'};
+            return`<tr>
+                <td><code style="font-size:.74rem;color:#60a5fa;">${r.return_number}</code></td>
+                <td><code style="font-size:.72rem;">${r.shipment?.tracking_number||'—'}</code></td>
+                <td style="font-size:.76rem;">${RETURN_REASONS[r.reason]||r.reason||'—'}</td>
+                <td><span class="bdg ${st.cls}">${st.label}</span></td>
+                <td style="color:#34d399;font-weight:700;">${(r.refund_amount||0).toLocaleString()} ﷼</td>
+                <td style="font-size:.72rem;color:var(--muted);">${fmtD(r.created_at)}</td>
+                <td><div style="display:flex;gap:4px;">
+                    <button class="btn bsec bsm" onclick="viewReturn('${r.id}')">عرض</button>
+                    ${r.status==='pending'?`<button class="btn bsucc bsm" onclick="approveReturn('${r.id}')">✅ قبول</button><button class="btn bdng bsm" onclick="rejectReturn('${r.id}')">❌ رفض</button>`:''}
+                    ${r.status==='approved'?`<button class="btn bprim bsm" onclick="completeReturn('${r.id}')">🏁 اكتمل</button>`:''}
+                </div></td>
+            </tr>`;
+        }).join('');
+    };
+
+    window.approveReturn = async function(id){
+        const ok=await cfm('الموافقة على هذا المرتجع؟','تأكيد','✅','bsucc'); if(!ok) return;
+        await sb.from('shipment_returns').update({status:'approved',updated_at:new Date().toISOString()}).eq('id',id);
+        await log('approve_return','return',id,{});
+        tst('✅ تم الموافقة على المرتجع','tok'); loadReturns();
+    };
+
+    window.rejectReturn = async function(id){
+        const ok=await cfm('رفض هذا المرتجع؟','تأكيد الرفض','❌','bdng'); if(!ok) return;
+        await sb.from('shipment_returns').update({status:'rejected',updated_at:new Date().toISOString()}).eq('id',id);
+        await log('reject_return','return',id,{});
+        tst('تم رفض المرتجع','tok'); loadReturns();
+    };
+
+    window.completeReturn = async function(id){
+        const ok=await cfm('تأكيد اكتمال المرتجع واسترداد البضاعة؟','تأكيد الاكتمال','🏁','bprim'); if(!ok) return;
+        await sb.from('shipment_returns').update({status:'completed',completed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id);
+        await log('complete_return','return',id,{});
+        tst('✅ تم اكتمال المرتجع','tok'); playSound('success'); loadReturns();
+    };
+
+    window.viewReturn = async function(id){
+        const{data}=await sb.from('shipment_returns').select(`
+            *,shipment:original_shipment_id(tracking_number,sender_name,receiver_name,shipping_cost,status)
+        `).eq('id',id).single();
+        if(!data) return;
+        const st=RETURN_STATUS[data.status]||{label:data.status,cls:'bpend'};
+        document.getElementById('ret-view-body').innerHTML=`
+            <div style="display:grid;gap:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <code style="font-size:1rem;font-weight:900;color:#60a5fa;">${data.return_number}</code>
+                    <span class="bdg ${st.cls}">${st.label}</span>
+                </div>
+                <div class="card" style="padding:12px;">
+                    <div style="font-size:.7rem;font-weight:700;color:#64748b;margin-bottom:8px;">📦 الشحنة الأصلية</div>
+                    <div style="font-size:.8rem;"><code>${data.shipment?.tracking_number||'—'}</code></div>
+                    <div style="font-size:.76rem;margin-top:6px;color:#94a3b8;">${data.shipment?.sender_name||'—'} ← ${data.shipment?.receiver_name||'—'}</div>
+                </div>
+                <div class="card" style="padding:12px;">
+                    <div style="font-size:.7rem;font-weight:700;color:#64748b;margin-bottom:8px;">↩️ تفاصيل المرتجع</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.76rem;">
+                        <div><span style="color:#64748b;">السبب:</span><br><strong>${RETURN_REASONS[data.reason]||data.reason}</strong></div>
+                        <div><span style="color:#64748b;">المبلغ المسترد:</span><br><strong style="color:#34d399;">${(data.refund_amount||0).toLocaleString()} ﷼</strong></div>
+                        <div><span style="color:#64748b;">تاريخ الإنشاء:</span><br>${fmtD(data.created_at)}</div>
+                        ${data.completed_at?`<div><span style="color:#64748b;">تاريخ الاكتمال:</span><br>${fmtD(data.completed_at)}</div>`:''}
+                    </div>
+                    ${data.notes?`<div style="margin-top:8px;padding:8px;background:rgba(255,255,255,.03);border-radius:8px;font-size:.74rem;color:#94a3b8;">📝 ${data.notes}</div>`:''}
+                </div>
+            </div>`;
+        OM('m-ret-view');
+    };
+
     init();
 </script>
 </body>
