@@ -159,13 +159,13 @@ const sb=window._sb;
 const QR=window.AlMasarQR;
 const STATUS_FLOW=[
   {key:'pending',icon:'⏳',label:'استلام',sub:'في انتظار الاستلام من المرسل'},
-  {key:'picked_up',icon:'✅',label:'بالفرع',sub:'تم استلام الشحنة في الفرع'},
+  {key:'picked_up',icon:'🏢',label:'بالفرع',sub:'الشحنة في الفرع — بانتظار التسليم للعميل أو الإرسال للفرع التالي'},
   {key:'in_transit',icon:'🚚',label:'بالطريق',sub:'الشحنة في طريقها إليك'},
   {key:'delivered',icon:'🏁',label:'تسليم',sub:'تم تسليم الشحنة بنجاح'},
 ];
 const STATUS_META={
   pending:{label:'قيد الانتظار',color:'#fbbf24',cls:'pending'},
-  picked_up:{label:'تم الاستلام',color:'#60a5fa',cls:'picked_up'},
+  picked_up:{label:'وصل الفرع / تم الاستلام',color:'#60a5fa',cls:'picked_up'},
   in_transit:{label:'في الطريق',color:'#c084fc',cls:'in_transit'},
   delivered:{label:'تم التسليم',color:'#34d399',cls:'delivered'},
   cancelled:{label:'ملغية',color:'#f87171',cls:'cancelled'},
