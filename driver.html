@@ -381,11 +381,39 @@ async function loadTasks(){
   if(!data?.length){el.innerHTML='<div class="empty"><div class="empty-ico">🎉</div><p>لا توجد شحنات نشطة الآن</p></div>';return;}
   const dAr={branch:'استلام من الفرع 🏢',door:'توصيل للباب 🚪'};
   el.innerHTML=data.map(s=>{
-    const nx=FLOW[s.status],meta=STATUS_META[s.status]||{label:s.status,cls:'bpend'};
+    const meta=STATUS_META[s.status]||{label:s.status,cls:'bpend'};
     const cod=s.payment_method==='cash_receiver'&&s.status==='in_transit'?`<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:6px 10px;font-size:.7rem;color:#fbbf24;margin-bottom:8px;">💰 استلم ${(s.shipping_cost||0).toLocaleString()} ريال عند التسليم</div>`:'';
-    return`<div class="ship-card"><div class="ship-card-hdr"><code class="ship-track">${s.tracking_number}</code><span class="bdg ${meta.cls}">${meta.label}</span></div><div class="ship-card-body">${cod}<div class="ship-info"><div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${s.receiver_name}</span></div><div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone||'—'}</span></div><div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address||'—'}</span></div><div class="ship-info-item"><span class="lbl">وجهة</span><span class="val">${s.destination?.name||'—'}</span></div><div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">التسليم</span><span class="val" style="color:#60a5fa;">${dAr[s.delivery_type]||'استلام من الفرع'}</span></div></div><div class="act-btns">${nx?`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','${nx.next}','${s.tracking_number}')">${nx.lbl}</button>`:''}<button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone||''}')">📱</button><button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝</button>${s.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️</button>`:''}</div></div></div>`;
+    // زر العمل حسب الحالة ونوع التسليم
+    let actionBtn='';
+    if(s.status==='pending'){
+      actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','picked_up','${s.tracking_number}')">✅ تأكيد الاستلام</button>`;
+    } else if(s.status==='picked_up'){
+      actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','in_transit','${s.tracking_number}')">🚚 بدء التوصيل</button>`;
+    } else if(s.status==='in_transit'){
+      if(s.delivery_type==='branch'){
+        // السائق يسلّم للفرع — ليس للعميل
+        actionBtn=`<button class="abtn abtn-prim" style="background:linear-gradient(135deg,#d97706,#f59e0b);" onclick="deliverToBranch('${s.id}','${s.tracking_number}','${s.destination?.name||''}')">🏢 تسليم للفرع</button>`;
+      } else {
+        // door — يسلّم للعميل مع إثبات
+        actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','delivered','${s.tracking_number}')">🏁 تأكيد التسليم</button>`;
+      }
+    }
+    return`<div class="ship-card"><div class="ship-card-hdr"><code class="ship-track">${s.tracking_number}</code><span class="bdg ${meta.cls}">${meta.label}</span></div><div class="ship-card-body">${cod}<div class="ship-info"><div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${s.receiver_name}</span></div><div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone||'—'}</span></div><div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address||'—'}</span></div><div class="ship-info-item"><span class="lbl">وجهة الشحنة</span><span class="val" style="color:#f59e0b;font-weight:700;">🏢 ${s.destination?.name||'—'}</span></div><div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">نوع التسليم</span><span class="val" style="color:#60a5fa;">${dAr[s.delivery_type]||'استلام من الفرع'}</span></div></div><div class="act-btns">${actionBtn}<button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone||''}')">📱</button><button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝</button>${s.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️</button>`:''}</div></div></div>`;
   }).join('');
 }
+
+// السائق يسلّم للفرع — ليس للعميل النهائي
+window.deliverToBranch=async function(id,tn,branchName){
+  const ok=confirm('🏢 تأكيد التسليم للفرع\n\nالشحنة: '+tn+'\nالفرع: '+branchName+'\n\nسيتولى موظف الفرع التسليم النهائي للعميل\n\nهل أنت متأكد؟');
+  if(!ok)return;
+  showToast('⏳ جاري التحديث...','warn');
+  const{error}=await sb.from('shipments').update({status:'picked_up',updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){showToast('❌ فشل التحديث','err');return;}
+  await sb.from('tracking_logs').insert([{shipment_id:id,status:'picked_up',location_note:'وصلت الفرع: '+branchName+' — بانتظار التسليم للعميل',created_by:S.uid}]);
+  await sb.from('activity_log').insert([{user_id:S.uid,user_name:S.uname,action:'delivered_to_branch',entity_type:'shipment',entity_id:id,details:{branch:branchName,tracking:tn,changed_at:new Date().toISOString()}}]).catch(()=>{});
+  showToast('✅ تم تسجيل وصول الشحنة للفرع');
+  await loadTasks();await loadStats();
+};
 
 window.loadStats=async function(){
   const{data}=await sb.from('shipments').select('status,created_at').eq('driver_id',S.uid);
