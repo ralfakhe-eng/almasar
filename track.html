@@ -173,7 +173,7 @@ const STATUS_META={
 const PAY_AR={cash_sender:'نقد من المرسل',cash_receiver:'الدفع عند الاستلام',prepaid:'مدفوع مسبقاً'};
 const DELIVERY_AR={branch:'استلام من الفرع',door:'توصيل للباب'};
 // نقطة 23: مدة صلاحية رابط التتبع بعد التسليم
-const TRACKING_EXPIRY_DAYS=90;
+const TRACKING_EXPIRY_HOURS=24; // نقطة 9: صلاحية 24 ساعة بعد التسليم
 
 let currentShip=null,realtimeCh=null;
 const urlP=new URLSearchParams(location.search);
@@ -205,7 +205,7 @@ async function searchByTracking(tn){
   // نقطة 23: فحص انتهاء صلاحية رابط التتبع للشحنات المُسلَّمة
   if(data.status==='delivered'&&data.delivered_at){
     const deliveredDate=new Date(data.delivered_at);
-    const expiryDate=new Date(deliveredDate.getTime()+TRACKING_EXPIRY_DAYS*24*60*60*1000);
+    const expiryDate=new Date(deliveredDate.getTime()+TRACKING_EXPIRY_HOURS*60*60*1000);
     if(new Date()>expiryDate){
       showExpired(tn,deliveredDate);return;
     }
@@ -379,7 +379,7 @@ function showExpired(tn,deliveredDate){
     <div class="expired-banner">
       <h3>🔒 انتهت صلاحية رابط التتبع</h3>
       <p>هذه الشحنة تم تسليمها في ${fmtDateShort(deliveredDate.toISOString())}</p>
-      <p style="margin-top:6px;font-size:.72rem;">صلاحية التتبع ${TRACKING_EXPIRY_DAYS} يوماً بعد التسليم</p>
+      <p style="margin-top:6px;font-size:.72rem;">صلاحية التتبع ${TRACKING_EXPIRY_HOURS} ساعة بعد التسليم النهائي</p>
     </div>
     <div class="empty-card"><div class="empty-ico">📦</div><h3>الشحنة مكتملة</h3><p>تم تسليم الشحنة بنجاح<br>وانتهت فترة التتبع المتاحة</p></div>`;
 }
