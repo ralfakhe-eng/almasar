@@ -441,11 +441,13 @@
             </div>
             <div class="card" style="max-width:500px;margin-bottom:16px;">
                 <div style="display:flex;gap:9px;">
-                    <input type="text" id="trin" class="finp" placeholder="رقم التتبع..." style="flex:1;text-transform:uppercase;">
+                    <input type="text" id="trin" class="finp" placeholder="رقم التتبع..." style="flex:1;text-transform:uppercase;" onkeydown="if(event.key==='Enter')doTrack()">
                     <button class="btn bprim" onclick="doTrack()">🔍 بحث</button>
                 </div>
+                <div style="font-size:.72rem;color:#64748b;margin-top:8px;">
+                    💡 سيفتح رابط التتبع في نافذة جديدة — نفس الرابط الذي يراه العميل
+                </div>
             </div>
-            <div id="trres" style="max-width:700px;"></div>
         </section>
 
         <!-- الفواتير -->
@@ -1312,11 +1314,28 @@
     }
 
     function setupUI() {
-        const rl = {admin:'مدير', staff:'موظف', driver:'سائق'};
-        sv('sname',S.uname); sv('srole',rl[S.role]||S.role);
+        const rl = {admin:'مدير', staff:'موظف', driver:'سائق', supervisor:'مشرف'};
+        // نقطة 8: اسم الفرع + الصلاحية واضحة
+        const branchName = S.branches.find(b=>b.id===S.branchId)?.name||'';
+        sv('sname',S.uname);
+        sv('srole', (rl[S.role]||S.role) + (branchName?' — '+branchName:''));
         document.getElementById('savt').textContent = S.uname[0]||'م';
-        if (S.role !== 'admin') { document.getElementById('admNav').style.display='none'; document.getElementById('rptNav').style.display='none'; }
-        if (S.role === 'driver') { document.getElementById('drvNav').style.display='block'; document.getElementById('ovAddBtn').style.display='none'; gp('mt'); }
+        if (S.role !== 'admin') {
+            document.getElementById('admNav').style.display='none';
+            document.getElementById('rptNav').style.display='none';
+        }
+        if (S.role === 'driver') {
+            document.getElementById('drvNav').style.display='block';
+            document.getElementById('ovAddBtn').style.display='none';
+            gp('mt');
+        }
+        // نقطة 4: النظرة العامة للمدير فقط
+        if (S.role !== 'admin') {
+            const ovNav = document.querySelector('.ni[data-p="ov"]');
+            if(ovNav) ovNav.style.display='none';
+        }
+        // نقطة 1: الموظف يذهب مباشرة لشحناته
+        if (S.role === 'staff') { gp('mt'); }
     }
 
     // التنقل
@@ -1732,18 +1751,25 @@
         });
 
         // نقطة 2: الفاتورة تُنشأ تلقائياً مرتبطة بالشحنة
+        // نقطة 3: الفاتورة تُنشأ تلقائياً مع الشحنة فوراً
+        const invNum = 'INV-' + tn;
         const { data: invData } = await sb.from('invoices').insert([{
+            invoice_number: invNum,
             shipment_id: shipId,
             tracking_number: tn,
             sender_name: sn, receiver_name: rn,
             sender_phone: sp?'+967'+sp:null, receiver_phone: '+967'+rp,
             origin_branch: S.branches.find(b=>b.id===or2)?.name||null,
             destination_branch: S.branches.find(b=>b.id===ds)?.name||null,
+            origin_branch_id: or2,
+            destination_branch_id: ds,
             shipping_cost: cost, tax_amount: 0, discount_amount: 0, total_amount: cost,
-            payment_method: pay, payment_status: pay==='prepaid'?'paid':'pending',
-            notes: `شحنة تلقائية — ${routeText}`,
+            payment_method: pay,
+            payment_status: pay==='prepaid'?'paid':'pending',
+            notes: `فاتورة تلقائية — ${routeText}`,
             created_by: S.uid
-        }]).select().catch(()=>({data:null}));
+        }]).select().catch(e=>{console.error('invoice error',e);return{data:null};});
+        if(invData?.[0]) await log('create_invoice','invoice',invData[0].id,{auto:true,tracking:tn,amount:cost,status:pay==='prepaid'?'paid':'pending'});
         if(invData?.[0]) await log('create_invoice','invoice',invData[0].id,{auto:true,tracking:tn,amount:cost});
 
         CM('m-as');
@@ -1965,6 +1991,11 @@
             return;
         }
 
+        // ══ نقطة 2: بدء التوصيل للسائق والمدير فقط ══
+        if (ns === 'in_transit' && S.role === 'staff') {
+            tst('⛔ صلاحية "بدء التوصيل" للسائق والمدير فقط', 'terr');
+            return;
+        }
         // ══ فحص: إجبار تعيين سائق عند بدء التوصيل ══
         if (ns === 'in_transit' && !curShip?.driver_id) {
             tst('⚠️ يجب تعيين سائق أولاً قبل بدء التوصيل', 'terr');
@@ -2098,31 +2129,23 @@
     };
 
     // تتبع
-    window.doTrack = async function(){
-        const q=document.getElementById('trin').value.trim().toUpperCase(); if(!q) return;
-        const el=document.getElementById('trres');
-        el.innerHTML='<div style="display:flex;justify-content:center;padding:22px;"><div class="spin"></div></div>';
-        const{data}=await sb.from('shipments').select(`id,tracking_number,sender_name,receiver_name,receiver_phone,receiver_address,status,created_at,shipping_cost,origin:origin_branch_id(name),destination:destination_branch_id(name),driver:driver_id(full_name,phone)`).ilike('tracking_number',q).limit(5);
-        if(!data?.length){el.innerHTML=`<div class="card" style="text-align:center;padding:30px;"><div style="font-size:2rem;margin-bottom:10px;">🔍</div><div style="font-weight:700;">لم يتم العثور على نتائج</div><div style="color:var(--muted);font-size:.78rem;margin-top:4px;">"${q}"</div></div>`;return;}
-        el.innerHTML=data.map(s=>`<div class="card" style="margin-bottom:11px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;flex-wrap:wrap;gap:7px;"><code style="font-size:.95rem;color:#60a5fa;font-weight:900;">${s.tracking_number}</code>${bdg(s.status)}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:.77rem;margin-bottom:9px;">
-        <div><span style="color:var(--muted)">المرسل:</span> ${s.sender_name}</div><div><span style="color:var(--muted)">المستلم:</span> ${s.receiver_name}</div>
-        <div><span style="color:var(--muted)">من:</span> ${s.origin?.name||'—'}</div><div><span style="color:var(--muted)">إلى:</span> ${s.destination?.name||'—'}</div>
-        <div><span style="color:var(--muted)">التكلفة:</span> <span style="color:#34d399;">${(s.shipping_cost||0).toLocaleString()} ﷼</span></div>
-      </div>
-      <div style="display:flex;gap:7px;">
-        <button class="btn bprim bsm" onclick="vD('${s.id}')">📂 التفاصيل الكاملة</button>
-        <button class="btn bsec bsm" onclick="window.open('barcode.html?t='+encodeURIComponent('${s.tracking_number}'),'_blank')">🏷️ ستيكر</button>
-        <button class="btn bsec bsm" onclick="window.open('track.html?t='+encodeURIComponent('${s.tracking_number}'),'_blank')">📡 تتبع عام</button>
-      </div>
-    </div>`).join('');
+    // نقطة 9: التتبع يفتح track.html مباشرة — رابط موحد للموظف والعميل
+    window.doTrack = function(){
+        const q=document.getElementById('trin').value.trim().toUpperCase();
+        if(!q){tst('أدخل رقم التتبع','terr');return;}
+        window.open('track.html?t='+encodeURIComponent(q),'_blank');
     };
 
     // ══ الفواتير ══
     async function loadInvoices(){
         document.getElementById('inv-tbody').innerHTML='<tr><td colspan="12" style="text-align:center;padding:20px;"><div class="spin" style="margin:auto;"></div></td></tr>';
         let q=sb.from('invoices').select('*');
+        // نقطة 1: الموظف يرى فواتير فرعه فقط
+        if(S.role==='staff'&&S.branchId){
+            q=q.or(`origin_branch_id.eq.${S.branchId},destination_branch_id.eq.${S.branchId}`);
+        } else if(S.role==='driver'){
+            q=q.eq('created_by',S.uid);
+        }
         const f=S.invFlt;
         if(f.q) q=q.or(`invoice_number.ilike.%${f.q}%,sender_name.ilike.%${f.q}%,receiver_name.ilike.%${f.q}%`);
         if(f.status) q=q.eq('payment_status',f.status);
@@ -2457,22 +2480,14 @@
         </tr>`).join(''):'<tr><td colspan="7"><div class="empty"><div class="eico">📋</div><p>لا توجد سجلات</p></div></td></tr>';
     }
 
-    // حذف سجل واحد — للمدير فقط
+    // نقطة 10: السجل دائم — لا حذف أبداً
     window.dlLog = async function(id) {
-        if (S.role !== 'admin') { tst('الحذف للمدير فقط', 'terr'); return; }
-        const ok = await cfm('حذف هذا السجل نهائياً؟', 'تأكيد', '🗑️', 'bdng');
-        if (!ok) return;
-        const { error } = await sb.from('activity_log').delete().eq('id', id);
-        if (error) tst('فشل الحذف — ' + ar(error), 'terr');
-        else { tst('✅ تم الحذف', 'tok'); loadActLog(); }
+        tst('⛔ حذف السجل غير مسموح — السجل دائم ولا يُحذف', 'terr');
     };
 
     window.clearOldLogs = async function(){
-        if (S.role !== 'admin') { tst('هذه العملية للمدير فقط', 'terr'); return; }
-        const ok=await cfm('حذف السجلات الأقدم من 30 يوم؟ (للمدير فقط)','تأكيد','🗑️','bdng'); if(!ok) return;
-        const cutoff=new Date(Date.now()-30*864e5).toISOString();
-        const{error}=await sb.from('activity_log').delete().lt('created_at',cutoff);
-        if(error) tst('عملية فاشلة — '+ar(error),'terr');
+        tst('⛔ حذف السجلات القديمة غير مسموح — السجل دائم إلى ما لا نهاية', 'terr');
+    };
         else{tst('تم حذف السجلات القديمة','tok');loadActLog();}
     };
 
@@ -2854,7 +2869,10 @@
                 }
             } else {
                 if(isMyBranch&&s.status==='picked_up'){
-                    actionBtn=`<button class="btn bsucc bsm" style="flex:1;" onclick="openBranchDeliverToClient('${s.id}','${s.tracking_number}')">✅ تسليم للعميل</button><button class="btn bprim bsm" style="flex:1;" onclick="openBranchForward('${s.id}','${s.tracking_number}')">🚚 إرسال للتالي</button>`;
+                    // نقطة 11: إخفاء "إرسال للتالي" إذا الفرع الحالي هو الوجهة النهائية
+                    const isFinalDest = s.destination?.id === S.branchId;
+                    const forwardBtn = isFinalDest ? '' : `<button class="btn bprim bsm" style="flex:1;" onclick="openBranchForward('${s.id}','${s.tracking_number}')">🚚 إرسال للتالي</button>`;
+                    actionBtn=`<button class="btn bsucc bsm" style="flex:${isFinalDest?'2':'1'};" onclick="openBranchDeliverToClient('${s.id}','${s.tracking_number}')">✅ تسليم للعميل</button>${forwardBtn}`;
                 } else if(isFromMyBranch&&s.status==='pending'){
                     actionBtn=`<button class="btn bsec bsm" style="flex:2;" onclick="opAsgn('${s.id}')">🚛 تعيين سائق</button>`;
                 }
@@ -2983,14 +3001,52 @@
     window.clearCache = function(){ localStorage.clear(); tst('✅ تم مسح الكاش','tok'); };
 
     // تصدير البيانات
+    // نقطة 13: ترجمة أسماء الأعمدة للعربية
+    const COL_NAMES_AR = {
+        id:'المعرف', created_at:'تاريخ الإنشاء', updated_at:'تاريخ التحديث',
+        tracking_number:'رقم التتبع', status:'الحالة', sender_name:'اسم المرسل',
+        sender_phone:'جوال المرسل', receiver_name:'اسم المستلم', receiver_phone:'جوال المستلم',
+        receiver_address:'عنوان المستلم', shipping_cost:'تكلفة الشحن', payment_method:'طريقة الدفع',
+        payment_status:'حالة الدفع', notes:'ملاحظات', delivery_type:'نوع التسليم',
+        origin_branch_id:'فرع الإرسال', destination_branch_id:'فرع الاستلام',
+        driver_id:'السائق', created_by:'أُنشئ بواسطة', delivered_at:'تاريخ التسليم',
+        invoice_number:'رقم الفاتورة', shipment_id:'رقم الشحنة', total_amount:'المبلغ الإجمالي',
+        tax_amount:'الضريبة', discount_amount:'الخصم', name:'الاسم', city:'المدينة',
+        region:'المنطقة', address:'العنوان', branch_code:'رمز الفرع', is_active:'نشط',
+        is_hub:'فرع رئيسي', full_name:'الاسم الكامل', email:'البريد الإلكتروني',
+        role:'الصلاحية', branch_id:'الفرع', phone:'الهاتف',
+        action:'الإجراء', entity_type:'نوع العنصر', entity_id:'معرف العنصر',
+        user_name:'اسم المستخدم', user_id:'معرف المستخدم', details:'التفاصيل',
+        shipment_id:'معرف الشحنة', location_note:'ملاحظة الموقع',
+        weight_kg:'الوزن (كجم)', dim_length:'الطول', dim_width:'العرض', dim_height:'الارتفاع',
+        route_notes:'ملاحظات المسار', delivery_proof_id:'إثبات التسليم',
+    };
+    const STATUS_AR = {
+        pending:'قيد الانتظار', picked_up:'تم الاستلام', in_transit:'في الطريق',
+        delivered:'تم التسليم', cancelled:'ملغية',
+        paid:'محصّل', unpaid:'غير محصّل',
+        cash_sender:'نقد من المرسل', cash_receiver:'الدفع عند الاستلام', prepaid:'مدفوع مسبقاً',
+        branch:'استلام من الفرع', door:'توصيل للباب',
+        admin:'مدير', staff:'موظف', driver:'سائق', supervisor:'مشرف',
+        true:'نعم', false:'لا',
+    };
+
     window.expTable = async function(table,nameAr){
         tst('⏳ جاري تصدير '+nameAr+'...','tinf');
         const{data,error}=await sb.from(table).select('*').order('created_at',{ascending:false}).limit(10000);
         if(error){tst('فشل تصدير '+nameAr+': '+ar(error),'terr');return;}
         if(!data?.length){tst('لا توجد بيانات في '+nameAr,'tinf');return;}
         const keys=Object.keys(data[0]);
-        const rows=[keys,...data.map(r=>keys.map(k=>r[k]===null?'':String(r[k])))];
-        downloadCSV(rows,`almasar-${table}-${new Date().toISOString().split('T')[0]}.csv`);
+        // نقطة 13: رؤوس عربية + ترجمة القيم
+        const arHeaders=keys.map(k=>COL_NAMES_AR[k]||k);
+        const rows=[arHeaders,...data.map(r=>keys.map(k=>{
+            const v=r[k];
+            if(v===null||v===undefined) return '';
+            if(typeof v==='boolean') return v?'نعم':'لا';
+            const strV=String(v);
+            return STATUS_AR[strV]||strV;
+        }))];
+        downloadCSV(rows,`almasar-${nameAr}-${new Date().toISOString().split('T')[0]}.csv`);
         const logEl=document.getElementById('bk-log');
         if(logEl){
             if(logEl.textContent.includes('لم يتم')) logEl.innerHTML='';
