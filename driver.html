@@ -360,6 +360,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 (async()=>{const ok=await checkSession();if(ok){const{data:p}=await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();if(p?.role==='driver'){S.uname=p.full_name||'سائق';S.uemail=p.email||'';S.branchId=p.branch_id||'';startApp();}}})();
 
 async function startApp(){
+  // نقطة 1: السائق فقط — أي شخص آخر يُخرَج فوراً
+  const{data:roleCheck}=await sb.from('profiles').select('role').eq('id',S.uid).single();
+  if(roleCheck?.role&&roleCheck.role!=='driver'){
+    await sb.auth.signOut();
+    document.getElementById('lerr').textContent='هذا التطبيق للسائقين فقط — استخدم الداشبورد';
+    document.getElementById('lerr').style.display='block';
+    return;
+  }
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='flex';
   // نقطة 8: اسم المستخدم + الفرع + الصلاحية واضحة
