@@ -646,7 +646,8 @@ window.submitAddShip=async function(){
   document.getElementById('as-from').value='';document.getElementById('as-to').value='';
   document.getElementById('as-pickup-tn').value='';
   await loadTasks();await loadStats();
-  return; // نهاية — لا نكمل الكود القديم
+  return;
+};
 
 window.openNote=function(id){S.noteShipId=id;document.getElementById('note-txt').value='';document.getElementById('note-modal').classList.add('on');setTimeout(()=>document.getElementById('note-txt').focus(),300);};
 window.closeNote=function(){document.getElementById('note-modal').classList.remove('on');};
