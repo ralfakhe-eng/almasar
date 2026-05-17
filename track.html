@@ -2,16 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#070d1c">
 <title>تتبع شحنتك — المسار السريع</title>
 <script src="qr-barcode.js"></script>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-window._sb = createClient(
-  'https://flkqflnhiphrvizxopak.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ'
-);
+<script>
+window._sb = supabase.createClient('https://flkqflnhiphrvizxopak.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ');
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -154,7 +151,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;back
   <div id="result-area"></div>
   <div class="site-ftr">المسار السريع — جميع الحقوق محفوظة © 2025</div>
 </div>
-<script type="module">
+<script>
 const sb=window._sb;
 const QR=window.AlMasarQR;
 const STATUS_FLOW=[
@@ -181,7 +178,7 @@ const paramT=urlP.get('t')||urlP.get('tracking');
 if(paramT){document.getElementById('sinp').value=paramT.toUpperCase();doSearch();}
 document.getElementById('sinp').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 
-window.doSearch=async function(){
+window.doSearch=async function(){if(!window._sb){const{createClient}=supabase;window._sb=createClient('https://flkqflnhiphrvizxopak.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ');}
   const q=document.getElementById('sinp').value.trim().toUpperCase();if(!q)return;
   const btn=document.getElementById('sbtn');btn.disabled=true;btn.textContent='...';
   showLoading();
@@ -387,6 +384,12 @@ function showExpired(tn,deliveredDate){
 function showToast(msg){const old=document.querySelector('.toast-pop');if(old)old.remove();const el=document.createElement('div');el.className='toast-pop';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000);}
 function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleString('ar-YE',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 function fmtDateShort(d){if(!d)return'—';return new Date(d).toLocaleDateString('ar-YE',{month:'short',day:'numeric',year:'numeric'});}
+</script>
+
+<script>
+function doSearch(){ window.doSearch && window.doSearch(); }
+function shareWA(tn,name){ window.shareWA && window.shareWA(tn,name); }
+function copyLink(tn){ window.copyLink && window.copyLink(tn); }
 </script>
 </body>
 </html>
