@@ -3,18 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>تطبيق السائق - المسار السريع</title>
-<script src="qr-barcode.js"></script>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-window._sb = createClient('https://flkqflnhiphrvizxopak.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ');
-</script>
+<title>تطبيق السائق — المسار السريع</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Cairo',sans-serif;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
-/* نقطة 14: تحذير انتهاء الجلسة */
-#session-warning{position:fixed;top:0;left:0;right:0;background:rgba(245,158,11,.95);color:#111;padding:10px 16px;font-size:.78rem;font-weight:700;text-align:center;z-index:9999;display:none;}
 #login-screen{position:fixed;inset:0;background:#0a0f1e;display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;}
 .login-box{background:rgba(13,21,40,.95);border:1px solid rgba(37,99,235,.3);border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center;}
 .login-ico{font-size:3rem;margin-bottom:12px;}
@@ -25,7 +18,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .finp::placeholder{color:#475569;}
 .lbtn{width:100%;padding:13px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:11px;color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:4px;}
 .lerr{color:#f87171;font-size:.78rem;margin-top:8px;display:none;}
-#app{height:100%;display:flex;flex-direction:column;display:none;}
+#app{height:100%;display:flex;flex-direction:column;}
 .topbar{background:rgba(11,18,36,.97);border-bottom:1px solid rgba(37,99,235,.18);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .topbar-brand{display:flex;align-items:center;gap:8px;}
 .topbar-brand .ico{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1d4ed8,#2563eb);display:flex;align-items:center;justify-content:center;font-size:.95rem;}
@@ -34,7 +27,7 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .topbar-acts{display:flex;gap:8px;}
 .icbtn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(37,99,235,.2);color:#94a3b8;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
 .bottom-nav{background:rgba(11,18,36,.97);border-top:1px solid rgba(37,99,235,.18);display:flex;flex-shrink:0;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;cursor:pointer;color:#64748b;font-size:.6rem;font-weight:600;gap:3px;border:none;background:none;font-family:inherit;transition:color .2s;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;cursor:pointer;color:#64748b;font-size:.6rem;font-weight:600;gap:3px;border:none;background:none;font-family:inherit;}
 .nav-item .nav-ico{font-size:1.3rem;}
 .nav-item.on{color:#60a5fa;}
 .page{flex:1;overflow-y:auto;display:none;-webkit-overflow-scrolling:touch;}
@@ -55,14 +48,14 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .bdeli{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2);}
 .bcanc{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
 .act-btns{display:flex;gap:7px;flex-wrap:wrap;}
-.abtn{flex:1;min-width:80px;padding:10px 6px;border-radius:9px;font-size:.75rem;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:all .15s;text-align:center;}
-.abtn:active{transform:scale(.96);}
+.abtn{flex:1;min-width:80px;padding:10px 6px;border-radius:9px;font-size:.75rem;font-weight:700;font-family:inherit;cursor:pointer;border:none;text-align:center;}
 .abtn:disabled{opacity:.4;cursor:not-allowed;}
 .abtn-prim{background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;}
 .abtn-sec{background:rgba(255,255,255,.06);color:#94a3b8;border:1px solid rgba(255,255,255,.1);}
 .abtn-wa{background:#25D366;color:#fff;}
 .abtn-map{background:rgba(16,185,129,.12);color:#34d399;border:1px solid rgba(16,185,129,.2);}
-.locked-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:99px;font-size:.65rem;color:#34d399;font-weight:700;margin-top:6px;}
+.abtn-branch{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;}
+.locked-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:99px;font-size:.65rem;color:#34d399;font-weight:700;}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;}
 .stat-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.18);border-radius:12px;padding:14px;text-align:center;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;right:0;left:0;height:2px;border-radius:12px 12px 0 0;}
@@ -81,84 +74,68 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
 .scanner-body{padding:16px;}
 .scan-btns-row{display:flex;gap:8px;margin-bottom:10px;}
 .scan-inp{flex:1;padding:11px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:monospace;font-size:.9rem;outline:none;text-transform:uppercase;}
-.scan-inp:focus{border-color:#3b82f6;}
 .scan-inp::placeholder{color:#475569;}
-.scan-btn{padding:11px 14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
-.cam-btn{padding:11px 14px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+.scan-btn,.cam-btn{padding:11px 14px;border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+.scan-btn{background:linear-gradient(135deg,#1d4ed8,#2563eb);}
+.cam-btn{background:linear-gradient(135deg,#7c3aed,#a855f7);}
 #cam-wrap{display:none;margin-bottom:12px;border-radius:12px;overflow:hidden;background:#000;position:relative;}
 #cam-wrap.on{display:block;}
 #cam-video{width:100%;max-height:260px;object-fit:cover;display:block;}
 #cam-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;border:3px solid #a855f7;border-radius:12px;box-shadow:0 0 0 4000px rgba(0,0,0,.5);}
 #cam-status{padding:8px 12px;background:rgba(13,21,40,.9);color:#94a3b8;font-size:.75rem;text-align:center;}
-#cam-status.scanning{color:#a855f7;}
-#cam-status.found{color:#34d399;}
-#add-ship-sheet{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
-#add-ship-sheet.on{opacity:1;pointer-events:all;}
-.sheet-box{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
-#add-ship-sheet.on .sheet-box{transform:translateY(0);}
-.sheet-box::-webkit-scrollbar{width:3px;}
-.sheet-box::-webkit-scrollbar-thumb{background:rgba(37,99,235,.2);border-radius:99px;}
-.sheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.sheet-hdr h3{font-size:.95rem;font-weight:700;}
-.sheet-close{background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;padding:4px;line-height:1;}
+.pickup-info{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:12px;margin:10px 0;display:none;}
 .sfinp{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;margin-bottom:10px;}
-.sfinp:focus{border-color:#3b82f6;}
 .sfinp::placeholder{color:#475569;}
 .sfinp.inv{border-color:#ef4444;}
 .sflbl{font-size:.72rem;font-weight:600;color:#94a3b8;margin-bottom:4px;display:block;}
 .sfrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.sheet-btns{display:flex;gap:8px;margin-top:4px;}
-.ph-err{color:#f87171;font-size:.7rem;margin-top:-8px;margin-bottom:8px;display:none;}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
-.modal-bg.on{opacity:1;pointer-events:all;}
-.modal-sheet{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
-.modal-bg.on .modal-sheet{transform:translateY(0);}
-.modal-sheet h3{font-size:.95rem;font-weight:700;margin-bottom:14px;}
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.sheet-overlay.on{opacity:1;pointer-events:all;}
+.sheet-box{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.sheet-overlay.on .sheet-box{transform:translateY(0);}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sheet-hdr h3{font-size:.95rem;font-weight:700;}
+.sheet-close{background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;line-height:1;}
+.sheet-btns{display:flex;gap:8px;margin-top:12px;}
+.note-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.note-overlay.on{opacity:1;pointer-events:all;}
+.note-sheet{background:#111d35;border:1px solid rgba(37,99,235,.2);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.note-overlay.on .note-sheet{transform:translateY(0);}
 .mnote{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;resize:none;height:90px;}
-.modal-btns{display:flex;gap:8px;margin-top:12px;}
 .profile-card{background:rgba(13,21,40,.9);border:1px solid rgba(37,99,235,.18);border-radius:14px;margin:12px;padding:20px;text-align:center;}
 .profile-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#1e40af,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;margin:0 auto 12px;}
 .empty{text-align:center;padding:48px 24px;color:#64748b;}
 .empty-ico{font-size:2.5rem;margin-bottom:10px;}
-.empty p{font-size:.82rem;}
 #toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(13,21,40,.97);border:2px solid rgba(16,185,129,.4);color:#34d399;padding:12px 22px;border-radius:12px;font-size:.85rem;font-weight:700;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5);}
 #toast.show{opacity:1;}
-#toast.err{border-color:rgba(239,68,68,.4);color:#f87171;}
-#toast.warn{border-color:rgba(245,158,11,.4);color:#fbbf24;}
+#toast.terr{border-color:rgba(239,68,68,.4);color:#f87171;}
+#toast.twarn{border-color:rgba(245,158,11,.4);color:#fbbf24;}
 .spin{display:inline-block;width:20px;height:20px;border:2.5px solid rgba(59,130,246,.2);border-top-color:#3b82f6;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg);}}
-#proof-sheet{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
-#proof-sheet.on{opacity:1;pointer-events:all;}
+#proof-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+#proof-overlay.on{opacity:1;pointer-events:all;}
 .proof-box{background:#0d1526;border:1px solid rgba(37,99,235,.3);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
-#proof-sheet.on .proof-box{transform:translateY(0);}
-.proof-box::-webkit-scrollbar{width:3px;}
-.proof-box::-webkit-scrollbar-thumb{background:rgba(37,99,235,.2);border-radius:99px;}
-.proof-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.proof-hdr h3{font-size:.95rem;font-weight:700;color:#e2e8f0;}
-.proof-close{background:none;border:none;color:#64748b;font-size:1.4rem;cursor:pointer;line-height:1;}
+#proof-overlay.on .proof-box{transform:translateY(0);}
 .proof-section{margin-bottom:16px;}
-.proof-section h4{font-size:.75rem;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em;}
-.photo-area{background:rgba(255,255,255,.04);border:2px dashed rgba(37,99,235,.3);border-radius:12px;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:all .2s;}
-.photo-area img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:10px;}
+.proof-section h4{font-size:.75rem;font-weight:700;color:#64748b;margin-bottom:8px;text-transform:uppercase;}
+.photo-area{background:rgba(255,255,255,.04);border:2px dashed rgba(37,99,235,.3);border-radius:12px;min-height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;}
+.photo-area img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
 .photo-placeholder{text-align:center;color:#64748b;}
 .photo-placeholder .ico{font-size:2rem;margin-bottom:6px;}
 .photo-placeholder p{font-size:.75rem;}
 #photo-input{display:none;}
-.sig-wrap{background:rgba(255,255,255,.97);border-radius:12px;overflow:hidden;}
+.sig-wrap{background:#f8fafc;border-radius:12px;overflow:hidden;}
 #sig-canvas{display:block;width:100%;touch-action:none;cursor:crosshair;}
-.sig-actions{display:flex;gap:6px;padding:8px;background:rgba(255,255,255,.05);border-top:1px solid rgba(37,99,235,.15);}
-.sig-btn{flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;}
-.sig-clear{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.sig-actions{display:flex;gap:6px;padding:8px;border-top:1px solid rgba(37,99,235,.1);}
+.sig-btn{flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;background:rgba(239,68,68,.1);color:#f87171;}
 .proof-inp{width:100%;padding:10px 13px;background:rgba(255,255,255,.05);border:1.5px solid rgba(37,99,235,.2);border-radius:10px;color:#e2e8f0;font-family:inherit;font-size:.85rem;outline:none;margin-bottom:8px;}
-.proof-inp:focus{border-color:#3b82f6;}
 .proof-inp::placeholder{color:#475569;}
 .proof-submit{width:100%;padding:14px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:8px;}
 .proof-submit:disabled{opacity:.5;cursor:not-allowed;}
-.photo-size-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:6px 10px;font-size:.68rem;color:#fbbf24;margin-top:6px;display:none;}
 </style>
 </head>
 <body>
-<div id="session-warning">⚠️ ستنتهي جلستك خلال 5 دقائق — سجّل الدخول مجدداً للحفاظ على عملك</div>
+
 <div id="login-screen">
   <div class="login-box">
     <div class="login-ico">🚛</div>
@@ -166,144 +143,110 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
     <p>سجّل دخولك للوصول إلى شحناتك</p>
     <input type="email" id="l-email" class="finp" placeholder="البريد الإلكتروني" autocomplete="email">
     <input type="password" id="l-pass" class="finp" placeholder="كلمة المرور" autocomplete="current-password">
-    <button class="lbtn" onclick="doLogin()">🔑 دخول</button>
-    <div class="lerr" id="lerr">بيانات غير صحيحة</div>
+    <button class="lbtn" id="login-btn">🔑 دخول</button>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
+
 <div id="toast"></div>
-<div id="app">
+
+<div id="app" style="display:none;">
   <div class="topbar">
     <div class="topbar-brand">
       <div class="ico">🚛</div>
       <div><h1>تطبيق السائق</h1><p id="driver-name">—</p></div>
     </div>
     <div class="topbar-acts">
-      <div class="icbtn" onclick="loadAll()">🔄</div>
-      <div class="icbtn" onclick="doLogout()" style="color:#f87171;">⏻</div>
+      <div class="icbtn" id="btn-refresh">🔄</div>
+      <div class="icbtn" id="btn-logout" style="color:#f87171;">⏻</div>
     </div>
   </div>
+
   <div class="page on" id="pg-tasks">
     <div class="section-title">📦 شحناتي النشطة</div>
     <div id="tasks-list"><div class="empty"><div class="spin"></div></div></div>
   </div>
+
   <div class="page" id="pg-stats">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px;">
-      <span style="font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;">📊 إحصائياتي</span>
-      <button onclick="loadStats()" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.25);color:#60a5fa;border-radius:8px;padding:6px 12px;font-size:.72rem;font-family:inherit;cursor:pointer;font-weight:600;">🔄 تحديث</button>
+      <span style="font-size:.72rem;font-weight:700;color:#64748b;">📊 إحصائياتي</span>
+      <button id="btn-stats-refresh" style="background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.25);color:#60a5fa;border-radius:8px;padding:6px 12px;font-size:.72rem;font-family:inherit;cursor:pointer;font-weight:600;">🔄</button>
     </div>
     <div class="stats-grid">
-      <div class="stat-card cbl"><div class="stat-ico">📦</div><div class="stat-val" id="s-total">—</div><div class="stat-lbl">إجمالي شحناتي</div></div>
-      <div class="stat-card cgr"><div class="stat-ico">✅</div><div class="stat-val" id="s-done">—</div><div class="stat-lbl">تم تسليمها</div></div>
-      <div class="stat-card cam"><div class="stat-ico">🚚</div><div class="stat-val" id="s-active">—</div><div class="stat-lbl">نشطة الآن</div></div>
+      <div class="stat-card cbl"><div class="stat-ico">📦</div><div class="stat-val" id="s-total">—</div><div class="stat-lbl">إجمالي</div></div>
+      <div class="stat-card cgr"><div class="stat-ico">✅</div><div class="stat-val" id="s-done">—</div><div class="stat-lbl">مسلّمة</div></div>
+      <div class="stat-card cam"><div class="stat-ico">🚚</div><div class="stat-val" id="s-active">—</div><div class="stat-lbl">نشطة</div></div>
       <div class="stat-card cpu"><div class="stat-ico">📅</div><div class="stat-val" id="s-today">—</div><div class="stat-lbl">اليوم</div></div>
     </div>
-    <div class="section-title" style="margin-top:8px;">📋 آخر الشحنات المسلّمة</div>
+    <div class="section-title">📋 آخر المسلّمة</div>
     <div id="done-list"></div>
   </div>
+
   <div class="page" id="pg-scan">
     <div class="scanner-wrap">
       <div class="scanner-box">
-        <div class="scanner-hdr"><h3>📷 مسح / بحث عن شحنة</h3><p>امسح QR أو أدخل رقم التتبع</p></div>
+        <div class="scanner-hdr">
+          <h3>📷 استلام شحنة من فرع</h3>
+          <p>أدخل رقم التتبع أو امسح الباركود</p>
+        </div>
         <div class="scanner-body">
           <div class="scan-btns-row">
-            <input type="text" id="scan-inp" class="scan-inp" placeholder="رقم التتبع..." autocomplete="off" autocorrect="off" spellcheck="false">
-            <button class="cam-btn" onclick="toggleCamera()" id="cam-btn">📷</button>
-            <button class="scan-btn" onclick="doScan()">🔍</button>
+            <input type="text" id="scan-inp" class="scan-inp" placeholder="رقم التتبع..." autocomplete="off">
+            <button class="cam-btn" id="cam-toggle-btn">📷</button>
+            <button class="scan-btn" id="scan-go-btn">🔍</button>
           </div>
-          <button onclick="openPickupShip()" style="width:100%;padding:12px;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-bottom:12px;">📦 استلام شحنة من فرع</button>
           <div id="cam-wrap">
             <video id="cam-video" autoplay playsinline muted></video>
             <div id="cam-overlay"></div>
-            <div id="cam-status" class="scanning">📷 جاري تشغيل الكاميرا...</div>
+            <div id="cam-status">📷 جاري تشغيل الكاميرا...</div>
           </div>
           <div id="scan-result"></div>
         </div>
       </div>
     </div>
   </div>
+
   <div class="page" id="pg-profile">
     <div class="profile-card">
       <div class="profile-avatar" id="p-avatar">م</div>
-      <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;" id="p-name">—</div>
-      <div style="font-size:.78rem;color:#64748b;" id="p-email">—</div>
-      <div style="font-size:.78rem;color:#60a5fa;margin-top:6px;">🚛 سائق</div>
+      <div style="font-size:1.1rem;font-weight:700;" id="p-name">—</div>
+      <div style="font-size:.78rem;color:#64748b;margin-top:4px;" id="p-email">—</div>
+      <div style="font-size:.78rem;color:#60a5fa;margin-top:6px;" id="p-role">🚛 سائق</div>
     </div>
     <div style="padding:0 12px;">
-      <button onclick="doLogout()" style="width:100%;padding:12px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:11px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:12px;">⏻ تسجيل الخروج</button>
+      <button id="btn-profile-logout" style="width:100%;padding:12px;background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);border-radius:11px;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;margin-top:12px;">⏻ تسجيل الخروج</button>
     </div>
   </div>
+
   <div class="bottom-nav">
-    <button class="nav-item on" data-pg="tasks" onclick="navTo('tasks',this)"><span class="nav-ico">📦</span>شحناتي</button>
-    <button class="nav-item" data-pg="stats" onclick="navTo('stats',this)"><span class="nav-ico">📊</span>إحصائيات</button>
-    <button class="nav-item" data-pg="scan" onclick="navTo('scan',this)"><span class="nav-ico">📷</span>مسح</button>
-    <button class="nav-item" data-pg="profile" onclick="navTo('profile',this)"><span class="nav-ico">👤</span>حسابي</button>
+    <button class="nav-item on" id="nav-tasks"><span class="nav-ico">📦</span>شحناتي</button>
+    <button class="nav-item" id="nav-stats"><span class="nav-ico">📊</span>إحصائيات</button>
+    <button class="nav-item" id="nav-scan"><span class="nav-ico">📷</span>استلام</button>
+    <button class="nav-item" id="nav-profile"><span class="nav-ico">👤</span>حسابي</button>
   </div>
 </div>
-<div class="modal-bg" id="note-modal">
-  <div class="modal-sheet">
-    <h3>📝 إضافة ملاحظة</h3>
+
+<!-- Note Sheet -->
+<div class="note-overlay" id="note-overlay">
+  <div class="note-sheet">
+    <h3 style="font-size:.95rem;font-weight:700;margin-bottom:14px;">📝 إضافة ملاحظة</h3>
     <textarea id="note-txt" class="mnote" placeholder="اكتب ملاحظة على الشحنة..."></textarea>
-    <div class="modal-btns">
-      <button class="abtn abtn-sec" style="flex:1;padding:10px;" onclick="closeNote()">إلغاء</button>
-      <button class="abtn abtn-prim" style="flex:2;padding:10px;" onclick="submitNote()">✅ حفظ</button>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button id="note-cancel" style="flex:1;padding:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:10px;font-family:inherit;cursor:pointer;">إلغاء</button>
+      <button id="note-save" style="flex:2;padding:10px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-weight:700;cursor:pointer;">✅ حفظ</button>
     </div>
   </div>
 </div>
-<div id="add-ship-sheet">
-  <div class="sheet-box">
-    <div class="sheet-hdr"><h3>📦 استلام شحنة من فرع</h3><button class="sheet-close" onclick="closeAddShip()">×</button></div>
-    <!-- نقطة 5: البحث عن شحنة موجودة -->
-    <div style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.2);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.74rem;color:#c084fc;">
-      📦 أدخل رقم التتبع أو امسح الباركود — تُعيَّن الشحنة عليك تلقائياً
-    </div>
-    <span class="sflbl">رقم التتبع *</span>
-    <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <input type="text" id="as-pickup-tn" class="sfinp" placeholder="AD-SN-000001" style="flex:1;margin-bottom:0;text-transform:uppercase;" onkeydown="if(event.key==='Enter')fetchShipForPickup()">
-      <button onclick="fetchShipForPickup()" style="padding:10px 14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;">🔍 بحث</button>
-    </div>
-    <div id="pickup-ship-info" style="display:none;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:11px;margin-bottom:12px;font-size:.75rem;">
-      <div style="font-weight:700;color:#34d399;margin-bottom:6px;">✅ تفاصيل الشحنة</div>
-      <div id="pickup-details"></div>
-    </div>
-    <span class="sflbl">اسم المرسل</span>
-    <input type="text" id="as-sender" class="sfinp" placeholder="يُملأ تلقائياً" readonly style="opacity:.7;">
-    <span class="sflbl">جوال المرسل</span>
-    <input type="text" id="as-sender-ph" class="sfinp" placeholder="يُملأ تلقائياً" readonly style="opacity:.7;">
-    <div id="as-sender-ph-err" class="ph-err">رقم غير صحيح</div>
-    <span class="sflbl">اسم المستلم *</span>
-    <input type="text" id="as-receiver" class="sfinp" placeholder="اسم المستلم الكامل">
-    <span class="sflbl">جوال المستلم * (9 أرقام تبدأ بـ 7)</span>
-    <input type="text" id="as-receiver-ph" class="sfinp" placeholder="7XXXXXXXX" inputmode="numeric" maxlength="9">
-    <div id="as-receiver-ph-err" class="ph-err">رقم غير صحيح — يجب أن يبدأ بـ 7 ويتكون من 9 أرقام</div>
-    <span class="sflbl">العنوان</span>
-    <input type="text" id="as-addr" class="sfinp" placeholder="الحي، الشارع...">
-    <div class="sfrow" style="margin-bottom:10px;">
-      <div><span class="sflbl">فرع الإرسال *</span><select id="as-from" class="sfinp" style="margin-bottom:0;"></select></div>
-      <div><span class="sflbl">فرع الاستلام *</span><select id="as-to" class="sfinp" style="margin-bottom:0;"></select></div>
-    </div>
-    <div class="sfrow" style="margin-bottom:10px;">
-      <div><span class="sflbl">التكلفة (ريال)</span><input type="number" id="as-cost" class="sfinp" style="margin-bottom:0;" value="0" min="0"></div>
-      <div><span class="sflbl">طريقة الدفع</span>
-        <select id="as-pay" class="sfinp" style="margin-bottom:0;">
-          <option value="cash_sender">نقد/مرسل</option>
-          <option value="cash_receiver">عند الاستلام</option>
-          <option value="prepaid">مدفوع</option>
-        </select>
-      </div>
-    </div>
-    <span class="sflbl">ملاحظات</span>
-    <input type="text" id="as-notes" class="sfinp" placeholder="وصف البضاعة...">
-    <div class="sheet-btns">
-      <button onclick="closeAddShip()" style="flex:1;padding:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:10px;font-family:inherit;font-size:.85rem;cursor:pointer;">إلغاء</button>
-      <button onclick="submitAddShip()" id="add-ship-btn" style="flex:2;padding:12px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:10px;color:#fff;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;">✅ استلام الشحنة</button>
-    </div>
-  </div>
-</div>
-<div id="proof-sheet">
+
+<!-- Proof Sheet -->
+<div id="proof-overlay">
   <div class="proof-box">
-    <div class="proof-hdr"><h3>📸 إثبات التسليم</h3><button class="proof-close" onclick="closeProof()">×</button></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h3 style="font-size:.95rem;font-weight:700;">📸 إثبات التسليم</h3>
+      <button id="proof-close-btn" style="background:none;border:none;color:#64748b;font-size:1.4rem;cursor:pointer;">×</button>
+    </div>
     <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.75rem;color:#34d399;">
-      ✅ جميع الحقول إلزامية — الاسم والصورة والتوقيع
+      ✅ الاسم + الصورة + التوقيع — جميعها إلزامية
     </div>
     <div class="proof-section">
       <h4>👤 اسم المستلم *</h4>
@@ -311,469 +254,696 @@ html,body{height:100%;background:#0a0f1e;color:#e2e8f0;overflow:hidden;}
     </div>
     <div class="proof-section">
       <h4>📷 صورة الشحنة *</h4>
-      <div class="photo-area" onclick="document.getElementById('photo-input').click()" id="photo-area">
-        <div class="photo-placeholder"><div class="ico">📷</div><p>اضغط لتصوير الشحنة</p><p style="font-size:.62rem;margin-top:4px;color:#475569;">الصورة إلزامية</p></div>
+      <div class="photo-area" id="photo-area">
+        <div class="photo-placeholder"><div class="ico">📷</div><p>اضغط لتصوير الشحنة</p></div>
       </div>
-      <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="onPhotoSelected(event)">
-      <div class="photo-size-warn" id="photo-size-warn">⚠️ الصورة كبيرة — يتم ضغطها تلقائياً</div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment">
       <div id="photo-status" style="font-size:.7rem;color:#64748b;margin-top:4px;text-align:center;"></div>
     </div>
     <div class="proof-section">
       <h4>✍️ توقيع المستلم *</h4>
-      <div class="sig-wrap"><canvas id="sig-canvas" width="400" height="160"></canvas></div>
+      <div class="sig-wrap"><canvas id="sig-canvas" width="400" height="150"></canvas></div>
       <div class="sig-actions">
-        <button class="sig-btn sig-clear" onclick="clearSignature()">🗑️ مسح التوقيع</button>
-        <span style="flex:1;font-size:.65rem;color:#64748b;text-align:center;align-self:center;">ضع إصبعك وارسم التوقيع</span>
+        <button id="sig-clear-btn" class="sig-btn">🗑️ مسح</button>
+        <span style="flex:1;font-size:.65rem;color:#64748b;text-align:center;align-self:center;">ارسم التوقيع بإصبعك</span>
       </div>
       <div id="sig-status" style="font-size:.7rem;color:#64748b;margin-top:4px;text-align:center;"></div>
     </div>
     <div class="proof-section">
       <h4>📝 ملاحظات (اختياري)</h4>
-      <input type="text" id="proof-notes" class="proof-inp" placeholder="حالة الشحنة، ملاحظات التسليم...">
+      <input type="text" id="proof-notes" class="proof-inp" placeholder="حالة الشحنة...">
     </div>
-    <button class="proof-submit" id="proof-submit-btn" onclick="submitProof()">✅ تأكيد التسليم وحفظ الإثبات</button>
+    <button class="proof-submit" id="proof-submit-btn">✅ تأكيد التسليم</button>
   </div>
 </div>
-<script type="module">
-const sb=window._sb;
-let S={uid:'',uname:'',uemail:'',branchId:'',noteShipId:null,branches:[]};
-let camStream=null,camActive=false,scanInterval=null,sessionTimer=null,sessionWarnTimer=null;
-const STATUS_META={pending:{label:'قيد الانتظار',cls:'bpend'},picked_up:{label:'تم الاستلام',cls:'bpick'},in_transit:{label:'في الطريق',cls:'btran'},delivered:{label:'تم التسليم',cls:'bdeli'},cancelled:{label:'ملغية',cls:'bcanc'}};
-// نقطة 3: تسلسل الحالات
-const FLOW_ORDER={pending:0,picked_up:1,in_transit:2,delivered:3};
-const FLOW={pending:{next:'picked_up',lbl:'✅ تأكيد الاستلام'},picked_up:{next:'in_transit',lbl:'🚚 بدء التوصيل'},in_transit:{next:'delivered',lbl:'🏁 تأكيد التسليم'}};
 
-async function checkSession(){const{data}=await sb.auth.getSession();if(!data?.session)return false;S.uid=data.session.user.id;return true;}
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="qr-barcode.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// المسار السريع — تطبيق السائق
+// ═══════════════════════════════════════════
+const SUPA_URL = 'https://flkqflnhiphrvizxopak.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZsa3FmbG5oaXBocnZpenhvcGFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE4NjcsImV4cCI6MjA5MDY3Nzg2N30.X8JUPF5z1lv0ic6y7WMkNi_u9wpQBjmnSLdkti2i9nQ';
+let sb;
 
-window.doLogin=async function(){
-  const email=document.getElementById('l-email').value.trim(),pass=document.getElementById('l-pass').value;
-  const err=document.getElementById('lerr');err.style.display='none';
-  if(!email||!pass){err.textContent='أدخل البريد وكلمة المرور';err.style.display='block';return;}
-  const{data,error}=await sb.auth.signInWithPassword({email,password:pass});
-  if(error||!data?.user){err.textContent='بيانات غير صحيحة';err.style.display='block';return;}
-  S.uid=data.user.id;
-  const{data:p}=await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();
-  if(p?.role!=='driver'){err.textContent='هذا التطبيق للسائقين فقط';err.style.display='block';await sb.auth.signOut();return;}
-  S.uname=p.full_name||email;S.uemail=email;S.branchId=p.branch_id||'';startApp();
+const STATUS_META = {
+  pending:    {label:'قيد الانتظار', cls:'bpend'},
+  picked_up:  {label:'تم الاستلام',  cls:'bpick'},
+  in_transit: {label:'في الطريق',    cls:'btran'},
+  delivered:  {label:'تم التسليم',   cls:'bdeli'},
+  cancelled:  {label:'ملغية',        cls:'bcanc'},
 };
-document.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-(async()=>{const ok=await checkSession();if(ok){const{data:p}=await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();if(p?.role==='driver'){S.uname=p.full_name||'سائق';S.uemail=p.email||'';S.branchId=p.branch_id||'';startApp();}}})();
+const STATUS_ORDER = {pending:0,picked_up:1,in_transit:2,delivered:3};
 
-async function startApp(){
-  // نقطة 1: السائق فقط — أي شخص آخر يُخرَج فوراً
-  const{data:roleCheck}=await sb.from('profiles').select('role').eq('id',S.uid).single();
-  if(roleCheck?.role&&roleCheck.role!=='driver'){
-    await sb.auth.signOut();
-    document.getElementById('lerr').textContent='هذا التطبيق للسائقين فقط — استخدم الداشبورد';
-    document.getElementById('lerr').style.display='block';
+let S = {uid:'',uname:'',uemail:'',branchId:'',role:'',branches:[]};
+let currentNoteShipId = null;
+let currentProofId = null;
+let currentProofTn = null;
+let photoBase64 = null;
+let sigHasData = false;
+let sigCtx = null;
+let sigCanvas = null;
+let sigDrawing = false;
+let camStream = null;
+let camActive = false;
+let scanInterval = null;
+
+// ═══ Init ═══
+window.addEventListener('load', async function() {
+  // تهيئة Supabase
+  if (typeof supabase !== 'undefined' && supabase.createClient) {
+    sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  } else {
+    showErr('فشل تحميل المكتبة — تحقق من الاتصال');
     return;
   }
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='flex';
-  // نقطة 8: اسم المستخدم + الفرع + الصلاحية واضحة
-  const branchInfo = S.branches?.find(b=>b.id===S.branchId)?.name||'';
-  document.getElementById('driver-name').textContent=S.uname+(branchInfo?' — '+branchInfo:'');
-  document.getElementById('p-name').textContent=S.uname;
-  document.getElementById('p-email').textContent=S.uemail;
-  document.getElementById('p-avatar').textContent=S.uname[0]||'م';
-  // بطاقة معلومات المستخدم في الملف الشخصي
-  const roleAr={driver:'🚛 سائق',staff:'👤 موظف',admin:'👑 مدير',supervisor:'🔍 مشرف'};
-  const roleEl=document.querySelector('#pg-profile .profile-card div[style*="color:#60a5fa"]');
-  if(roleEl) roleEl.textContent=(roleAr[S.role]||S.role)+(branchInfo?' | فرع: '+branchInfo:'');
-  await loadBranches();loadAll();setupRealtime();startSessionMonitor();
+
+  // ربط الأحداث
+  document.getElementById('login-btn').addEventListener('click', doLogin);
+  document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('btn-refresh').addEventListener('click', loadAll);
+  document.getElementById('btn-logout').addEventListener('click', doLogout);
+  document.getElementById('btn-profile-logout').addEventListener('click', doLogout);
+  document.getElementById('btn-stats-refresh').addEventListener('click', loadStats);
+  document.getElementById('cam-toggle-btn').addEventListener('click', toggleCamera);
+  document.getElementById('scan-go-btn').addEventListener('click', doScan);
+  document.getElementById('scan-inp').addEventListener('keydown', e => { if(e.key==='Enter') doScan(); });
+  document.getElementById('note-cancel').addEventListener('click', closeNote);
+  document.getElementById('note-save').addEventListener('click', saveNote);
+  document.getElementById('note-overlay').addEventListener('click', e => { if(e.target===document.getElementById('note-overlay')) closeNote(); });
+  document.getElementById('proof-close-btn').addEventListener('click', closeProof);
+  document.getElementById('sig-clear-btn').addEventListener('click', clearSignature);
+  document.getElementById('photo-area').addEventListener('click', () => document.getElementById('photo-input').click());
+  document.getElementById('photo-input').addEventListener('change', onPhotoSelected);
+  document.getElementById('proof-submit-btn').addEventListener('click', submitProof);
+
+  // nav
+  document.getElementById('nav-tasks').addEventListener('click', () => navTo('tasks'));
+  document.getElementById('nav-stats').addEventListener('click', () => navTo('stats'));
+  document.getElementById('nav-scan').addEventListener('click', () => navTo('scan'));
+  document.getElementById('nav-profile').addEventListener('click', () => navTo('profile'));
+
+  // فحص جلسة موجودة
+  const {data} = await sb.auth.getSession();
+  if (data?.session) {
+    S.uid = data.session.user.id;
+    const {data:p} = await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();
+    if (p?.role === 'driver') {
+      S.uname = p.full_name||'سائق'; S.uemail = p.email||''; S.branchId = p.branch_id||''; S.role = p.role;
+      startApp();
+    } else {
+      await sb.auth.signOut();
+    }
+  }
+});
+
+// ═══ تسجيل الدخول ═══
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const pass  = document.getElementById('l-pass').value;
+  const err   = document.getElementById('lerr');
+  err.style.display = 'none';
+
+  if (!email || !pass) { showErr('أدخل البريد وكلمة المرور'); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = '⏳ جاري الدخول...';
+
+  const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+
+  btn.disabled = false; btn.textContent = '🔑 دخول';
+
+  if (error || !data?.user) { showErr('بيانات غير صحيحة'); return; }
+
+  S.uid = data.user.id;
+  const {data:p} = await sb.from('profiles').select('full_name,email,role,branch_id').eq('id',S.uid).single();
+
+  if (p?.role !== 'driver') {
+    await sb.auth.signOut();
+    showErr('هذا التطبيق للسائقين فقط');
+    return;
+  }
+
+  S.uname = p.full_name||email; S.uemail = p.email||email; S.branchId = p.branch_id||''; S.role = p.role;
+  startApp();
 }
 
-// نقطة 14: مراقبة الجلسة
-function startSessionMonitor(){
-  const DUR=8*60*60*1000,WARN=5*60*1000;
-  sessionWarnTimer=setTimeout(()=>{document.getElementById('session-warning').style.display='block';},DUR-WARN);
-  sessionTimer=setTimeout(async()=>{showToast('⏰ انتهت جلستك','warn');await new Promise(r=>setTimeout(r,3000));doLogout();},DUR);
+function showErr(msg) {
+  const err = document.getElementById('lerr');
+  err.textContent = msg;
+  err.style.display = 'block';
 }
 
-window.loadAll=function(){loadTasks();loadStats();};
+// ═══ بدء التطبيق ═══
+async function startApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
 
-async function loadBranches(){
-  const{data}=await sb.from('branches').select('id,name,city,branch_code').eq('is_active',true).order('name');
-  S.branches=data||[];
-  ['as-from','as-to'].forEach(id=>{
-    const el=document.getElementById(id);if(!el)return;
-    el.innerHTML='<option value="">اختر الفرع...</option>'+S.branches.map(b=>`<option value="${b.id}">${b.name}${b.city?' - '+b.city:''}</option>`).join('');
-  });
+  // جلب بيانات الفرع
+  const {data:branches} = await sb.from('branches').select('id,name,city,branch_code').eq('is_active',true).order('name');
+  S.branches = branches || [];
+  const branchName = S.branches.find(b=>b.id===S.branchId)?.name || '';
+
+  document.getElementById('driver-name').textContent = S.uname + (branchName ? ' — ' + branchName : '');
+  document.getElementById('p-name').textContent = S.uname;
+  document.getElementById('p-email').textContent = S.uemail;
+  document.getElementById('p-role').textContent = '🚛 سائق' + (branchName ? ' | ' + branchName : '');
+  document.getElementById('p-avatar').textContent = S.uname[0] || 'م';
+
+  loadAll();
+  setupRealtime();
 }
 
-// نقطة 10: السائق يرى فقط شحناته
-async function loadTasks(){
-  const{data}=await sb.from('shipments').select('id,tracking_number,status,receiver_name,receiver_phone,receiver_address,delivery_type,payment_method,shipping_cost,destination:destination_branch_id(name,city)').eq('driver_id',S.uid).not('status','in','(delivered,cancelled)').order('created_at',{ascending:false});
-  const el=document.getElementById('tasks-list');
-  if(!data?.length){el.innerHTML='<div class="empty"><div class="empty-ico">🎉</div><p>لا توجد شحنات نشطة الآن</p></div>';return;}
-  const dAr={branch:'استلام من الفرع 🏢',door:'توصيل للباب 🚪'};
-  el.innerHTML=data.map(s=>{
-    const meta=STATUS_META[s.status]||{label:s.status,cls:'bpend'};
-    const cod=s.payment_method==='cash_receiver'&&s.status==='in_transit'?`<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:6px 10px;font-size:.7rem;color:#fbbf24;margin-bottom:8px;">💰 استلم ${(s.shipping_cost||0).toLocaleString()} ريال عند التسليم</div>`:'';
-    // زر العمل حسب الحالة ونوع التسليم
-    let actionBtn='';
-    if(s.status==='pending'){
-      actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','picked_up','${s.tracking_number}')">✅ تأكيد الاستلام</button>`;
-    } else if(s.status==='picked_up'){
-      actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','in_transit','${s.tracking_number}')">🚚 بدء التوصيل</button>`;
-    } else if(s.status==='in_transit'){
-      if(s.delivery_type==='branch'){
-        // السائق يسلّم للفرع — ليس للعميل
-        actionBtn=`<button class="abtn abtn-prim" style="background:linear-gradient(135deg,#d97706,#f59e0b);" onclick="deliverToBranch('${s.id}','${s.tracking_number}','${s.destination?.name||''}')">🏢 تسليم للفرع</button>`;
+function loadAll() { loadTasks(); loadStats(); }
+
+// ═══ الشحنات النشطة ═══
+async function loadTasks() {
+  const {data} = await sb.from('shipments').select(`
+    id,tracking_number,status,receiver_name,receiver_phone,
+    receiver_address,delivery_type,payment_method,shipping_cost,
+    destination:destination_branch_id(id,name)
+  `).eq('driver_id',S.uid).not('status','in','(delivered,cancelled)').order('created_at',{ascending:false});
+
+  const el = document.getElementById('tasks-list');
+  if (!data?.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-ico">🎉</div><p>لا توجد شحنات نشطة</p></div>';
+    return;
+  }
+
+  el.innerHTML = data.map(s => {
+    const meta = STATUS_META[s.status] || {label:s.status,cls:'bpend'};
+    const isBranch = s.delivery_type === 'branch';
+    const isCOD = s.payment_method === 'cash_receiver' && s.status === 'in_transit';
+
+    let actionBtn = '';
+    if (s.status === 'pending') {
+      actionBtn = `<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','picked_up','${s.tracking_number}')">✅ تأكيد الاستلام</button>`;
+    } else if (s.status === 'picked_up') {
+      actionBtn = `<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','in_transit','${s.tracking_number}')">🚚 بدء التوصيل</button>`;
+    } else if (s.status === 'in_transit') {
+      if (isBranch) {
+        actionBtn = `<button class="abtn abtn-branch" onclick="deliverToBranch('${s.id}','${s.tracking_number}','${(s.destination?.name||'').replace(/'/g,"\\'")}')">🏢 تسليم للفرع</button>`;
       } else {
-        // door — يسلّم للعميل مع إثبات
-        actionBtn=`<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','delivered','${s.tracking_number}')">🏁 تأكيد التسليم</button>`;
+        actionBtn = `<button class="abtn abtn-prim" onclick="updateStatus('${s.id}','delivered','${s.tracking_number}')">🏁 تأكيد التسليم</button>`;
       }
     }
-    return`<div class="ship-card"><div class="ship-card-hdr"><code class="ship-track">${s.tracking_number}</code><span class="bdg ${meta.cls}">${meta.label}</span></div><div class="ship-card-body">${cod}<div class="ship-info"><div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${s.receiver_name}</span></div><div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone||'—'}</span></div><div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address||'—'}</span></div><div class="ship-info-item"><span class="lbl">وجهة الشحنة</span><span class="val" style="color:#f59e0b;font-weight:700;">🏢 ${s.destination?.name||'—'}</span></div><div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">نوع التسليم</span><span class="val" style="color:#60a5fa;">${dAr[s.delivery_type]||'استلام من الفرع'}</span></div></div><div class="act-btns">${actionBtn}<button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone||''}')">📱</button><button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝</button>${s.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️</button>`:''}</div></div></div>`;
+
+    return `<div class="ship-card">
+      <div class="ship-card-hdr">
+        <code class="ship-track">${s.tracking_number}</code>
+        <span class="bdg ${meta.cls}">${meta.label}</span>
+      </div>
+      <div class="ship-card-body">
+        ${isCOD ? `<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:6px 10px;font-size:.7rem;color:#fbbf24;margin-bottom:8px;">💰 استلم ${(s.shipping_cost||0).toLocaleString()} ريال عند التسليم</div>` : ''}
+        <div class="ship-info">
+          <div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${s.receiver_name}</span></div>
+          <div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${s.receiver_phone||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">العنوان</span><span class="val">${s.receiver_address||'—'}</span></div>
+          <div class="ship-info-item"><span class="lbl">الوجهة</span><span class="val" style="color:#f59e0b;">${s.destination?.name||'—'}</span></div>
+          <div class="ship-info-item" style="grid-column:1/-1;"><span class="lbl">نوع التسليم</span><span class="val" style="color:#60a5fa;">${isBranch?'🏢 استلام من الفرع':'🚪 توصيل للباب'}</span></div>
+        </div>
+        <div class="act-btns">
+          ${actionBtn}
+          <button class="abtn abtn-wa" onclick="callWA('${s.receiver_phone||''}')">📱</button>
+          <button class="abtn abtn-sec" onclick="openNote('${s.id}')">📝</button>
+          ${s.receiver_address ? `<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(s.receiver_address)}')">🗺️</button>` : ''}
+        </div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-// السائق يسلّم للفرع — ليس للعميل النهائي
-window.deliverToBranch=async function(id,tn,branchName){
-  const ok=confirm('🏢 تأكيد التسليم للفرع\n\nالشحنة: '+tn+'\nالفرع: '+branchName+'\n\nسيتولى موظف الفرع التسليم النهائي للعميل\n\nهل أنت متأكد؟');
-  if(!ok)return;
-  showToast('⏳ جاري التحديث...','warn');
-  const{error}=await sb.from('shipments').update({status:'picked_up',updated_at:new Date().toISOString()}).eq('id',id);
-  if(error){showToast('❌ فشل التحديث','err');return;}
-  await sb.from('tracking_logs').insert([{shipment_id:id,status:'picked_up',location_note:'وصلت الفرع: '+branchName+' — بانتظار التسليم للعميل',created_by:S.uid}]);
-  await sb.from('activity_log').insert([{user_id:S.uid,user_name:S.uname,action:'delivered_to_branch',entity_type:'shipment',entity_id:id,details:{branch:branchName,tracking:tn,changed_at:new Date().toISOString()}}]).catch(()=>{});
-  // نقطة 7: إزالة السائق من الشحنة — تختفي من واجهته وتبقى عند الفرع
-  await sb.from('shipments').update({driver_id:null}).eq('id',id);
-  showToast('✅ تم تسليم الشحنة للفرع — اختفت من قائمتك');
-  await loadTasks();await loadStats();
-};
+// ═══ تحديث الحالة ═══
+function updateStatus(id, newSt, tn) {
+  // فحص التسلسل
+  const labels = {picked_up:'تأكيد الاستلام',in_transit:'بدء التوصيل',delivered:'تأكيد التسليم'};
 
-window.loadStats=async function(){
-  const{data}=await sb.from('shipments').select('status,created_at').eq('driver_id',S.uid);
-  if(!data)return;
-  const td=new Date().toISOString().split('T')[0];
-  document.getElementById('s-total').textContent=data.length;
-  document.getElementById('s-done').textContent=data.filter(s=>s.status==='delivered').length;
-  document.getElementById('s-active').textContent=data.filter(s=>!['delivered','cancelled'].includes(s.status)).length;
-  document.getElementById('s-today').textContent=data.filter(s=>s.created_at.startsWith(td)).length;
-  const{data:done}=await sb.from('shipments').select('tracking_number,receiver_name,created_at').eq('driver_id',S.uid).eq('status','delivered').order('created_at',{ascending:false}).limit(10);
-  document.getElementById('done-list').innerHTML=done?.length?done.map(s=>`<div class="ship-card"><div class="ship-card-hdr"><code class="ship-track" style="font-size:.75rem;">${s.tracking_number}</code><span class="bdg bdeli">تم التسليم</span></div><div class="ship-card-body"><div style="font-size:.78rem;"><span style="color:#64748b">المستلم:</span> ${s.receiver_name}</div><div style="font-size:.7rem;color:#64748b;margin-top:3px;">${fmtDate(s.created_at)}</div></div></div>`).join(''):'<div class="empty"><p>لا توجد شحنات مسلّمة بعد</p></div>';
-};
-// نقاط 1+3+4+8+9: تحديث الحالة
-window.updateStatus=async function(id,newSt,tn){
-  const labels={picked_up:'تأكيد الاستلام',in_transit:'بدء التوصيل',delivered:'تأكيد التسليم'};
-  const{data:cur}=await sb.from('shipments').select('status,payment_method,shipping_cost,receiver_name').eq('id',id).single();
-  // نقطة 1: قفل المُسلَّمة
-  if(cur?.status==='delivered'){showToast('⛔ الشحنة مُسلَّمة ومقفلة','err');return;}
-  if(cur?.status==='cancelled'){showToast('⛔ الشحنة ملغاة','err');return;}
-  // نقطة 3: تسلسل إجباري
-  const co=FLOW_ORDER[cur?.status]??-1,no=FLOW_ORDER[newSt]??99;
-  if(no<=co){showToast('⛔ لا يمكن الرجوع لحالة سابقة','err');return;}
-  // نقطة 4: إثبات التسليم إلزامي
-  if(newSt==='delivered'){openProof(id,tn);return;}
-  // نقطة 8: تذكير COD
-  if(newSt==='in_transit'&&cur?.payment_method==='cash_receiver'){
-    if(!confirm('💰 تذكير COD\n\nهذه الشحنة بالدفع عند الاستلام\nالمبلغ: '+(cur.shipping_cost||0).toLocaleString()+' ريال\n\nاستلم المبلغ عند التسليم\n\nمتابعة؟'))return;
-  }
-  if(!confirm('⚠️ تأكيد\n\nالشحنة: '+tn+'\nالإجراء: '+(labels[newSt]||newSt)+'\n\nهل أنت متأكد؟'))return;
-  showToast('⏳ جاري التحديث...','warn');
-  const{error}=await sb.from('shipments').update({status:newSt,updated_at:new Date().toISOString()}).eq('id',id);
-  if(error){showToast('❌ فشل التحديث','err');return;}
-  // نقطة 9: audit trail كامل
-  await sb.from('tracking_logs').insert([{shipment_id:id,status:newSt,location_note:'السائق: '+S.uname+' — من '+cur?.status+' إلى '+newSt,created_by:S.uid}]);
-  await sb.from('activity_log').insert([{user_id:S.uid,user_name:S.uname,action:'status_change',entity_type:'shipment',entity_id:id,details:{prev_status:cur?.status,new_status:newSt,tracking:tn,changed_at:new Date().toISOString()}}]).catch(()=>{});
-  showToast('✅ '+(labels[newSt]||newSt));
-  await loadTasks();await loadStats();
-};
+  // جلب الحالة الحالية
+  sb.from('shipments').select('status,payment_method,shipping_cost').eq('id',id).single()
+    .then(({data:cur}) => {
+      if (!cur) return;
+      if (cur.status === 'delivered') { showToast('⛔ الشحنة مُسلَّمة ومقفلة','terr'); return; }
 
-window.toggleCamera=async function(){
-  const wrap=document.getElementById('cam-wrap'),btn=document.getElementById('cam-btn'),stat=document.getElementById('cam-status');
-  if(camActive){stopCamera();wrap.classList.remove('on');btn.textContent='📷';return;}
-  wrap.classList.add('on');btn.textContent='⏹️';stat.textContent='📷 جاري تشغيل الكاميرا...';stat.className='scanning';
-  try{
-    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
-    const video=document.getElementById('cam-video');video.srcObject=camStream;camActive=true;
-    stat.textContent='📷 امسح QR الشحنة...';
-    startQRScan(video,stat,async(code)=>{
-      let tn=code;if(code.includes('?t='))tn=decodeURIComponent(code.split('?t=')[1].split('&')[0]);
-      stat.textContent='✅ تم المسح: '+tn;stat.className='found';
-      document.getElementById('scan-inp').value=tn.toUpperCase();
-      stopCamera();wrap.classList.remove('on');btn.textContent='📷';
-      showToast('📷 تم المسح بنجاح');await processScan(tn.toUpperCase());
+      const curOrder = STATUS_ORDER[cur.status] ?? -1;
+      const newOrder = STATUS_ORDER[newSt] ?? 99;
+      if (newOrder <= curOrder) { showToast('⛔ لا يمكن الرجوع لحالة سابقة','terr'); return; }
+
+      if (newSt === 'delivered') { openProof(id, tn); return; }
+
+      if (!confirm('تأكيد: ' + (labels[newSt]||newSt) + '\nالشحنة: ' + tn)) return;
+
+      showToast('⏳ جاري التحديث...','twarn');
+      sb.from('shipments').update({status:newSt,updated_at:new Date().toISOString()}).eq('id',id)
+        .then(({error}) => {
+          if (error) { showToast('❌ فشل التحديث','terr'); return; }
+          sb.from('tracking_logs').insert([{
+            shipment_id:id, status:newSt,
+            location_note:'السائق: '+S.uname+' — '+( labels[newSt]||newSt),
+            created_by:S.uid
+          }]);
+          showToast('✅ ' + (labels[newSt]||newSt));
+          loadTasks(); loadStats();
+        });
     });
-  }catch(e){stat.textContent='❌ تعذّر الوصول للكاميرا';stat.className='';showToast('❌ تعذّر تشغيل الكاميرا','err');camActive=false;wrap.classList.remove('on');btn.textContent='📷';}
-};
-function stopCamera(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}if(scanInterval){clearInterval(scanInterval);scanInterval=null;}camActive=false;}
-function startQRScan(video,statusEl,onFound){
-  const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');let found=false;
-  scanInterval=setInterval(()=>{
-    if(!video.videoWidth||found)return;canvas.width=video.videoWidth;canvas.height=video.videoHeight;ctx.drawImage(video,0,0);
-    if('BarcodeDetector' in window){const det=new BarcodeDetector({formats:['qr_code','code_128','code_39']});det.detect(canvas).then(c=>{if(c.length>0&&!found){found=true;clearInterval(scanInterval);onFound(c[0].rawValue);}}).catch(()=>{});}
-  },300);
 }
-window.doScan=async function(){const q=document.getElementById('scan-inp').value.trim().toUpperCase();if(!q)return;await processScan(q);};
-document.getElementById('scan-inp').addEventListener('keydown',e=>{if(e.key==='Enter')doScan();});
 
-// نقطة 10: السائق يرى فقط شحناته في المسح أيضاً
-async function processScan(trackNum){
-  const el=document.getElementById('scan-result');
-  el.innerHTML='<div style="text-align:center;padding:20px;"><div class="spin"></div></div>';
-  const{data}=await sb.from('shipments').select('id,tracking_number,status,receiver_name,receiver_phone,receiver_address,driver_id,delivery_type,origin:origin_branch_id(name,city),destination:destination_branch_id(id,name,city)').ilike('tracking_number',trackNum).single();
-  if(!data){el.innerHTML='<div style="text-align:center;padding:20px;color:#f87171;">⚠️ لم يتم العثور على الشحنة</div>';return;}
-  let alert='';
-  if(data.driver_id&&data.driver_id!==S.uid)alert='<div class="route-warn"><h4>⚠️ تحذير — شحنة مُعيَّنة لسائق آخر</h4><p>الرجاء التواصل مع المشرف.</p></div>';
-  else if(data.driver_id===S.uid)alert='<div class="route-ok"><h4>✅ الشحنة في مسارك الصحيح</h4></div>';
-  const nx=FLOW[data.status],meta=STATUS_META[data.status]||{label:data.status,cls:'bpend'};
-  const dAr={branch:'استلام من الفرع 🏢',door:'توصيل للباب 🚪'};
-  const isLocked=['delivered','cancelled'].includes(data.status);
-  el.innerHTML=`${alert}<div class="ship-card" style="margin:0 0 10px;"><div class="ship-card-hdr"><code class="ship-track">${data.tracking_number}</code><span class="bdg ${meta.cls}">${meta.label}</span></div><div class="ship-card-body"><div class="ship-info"><div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${data.receiver_name}</span></div><div class="ship-info-item"><span class="lbl">الجوال</span><span class="val">${data.receiver_phone||'—'}</span></div><div class="ship-info-item"><span class="lbl">من</span><span class="val">${data.origin?.name||'—'}</span></div><div class="ship-info-item"><span class="lbl">إلى</span><span class="val">${data.destination?.name||'—'}</span></div></div>${isLocked?'<div class="locked-badge">🔒 '+meta.label+'</div>':''}<div class="act-btns" style="margin-top:8px;">${nx&&!isLocked?`<button class="abtn abtn-prim" onclick="updateStatus('${data.id}','${nx.next}','${data.tracking_number}')">${nx.lbl}</button>`:''}<button class="abtn abtn-sec" onclick="openNote('${data.id}')">📝</button>${data.receiver_address?`<button class="abtn abtn-map" onclick="openMaps('${encodeURIComponent(data.receiver_address)}')">🗺️</button>`:''}</div></div></div>`;
+// ═══ تسليم للفرع ═══
+function deliverToBranch(id, tn, branchName) {
+  if (!confirm('تأكيد تسليم الشحنة للفرع؟\n\n' + tn + '\nالفرع: ' + branchName + '\n\nسيتولى موظف الفرع التسليم للعميل')) return;
+
+  showToast('⏳ جاري التحديث...','twarn');
+  sb.from('shipments').update({
+    status:'picked_up',
+    driver_id: null, // الشحنة تختفي من قائمة السائق
+    updated_at: new Date().toISOString()
+  }).eq('id',id).then(({error}) => {
+    if (error) { showToast('❌ فشل','terr'); return; }
+    sb.from('tracking_logs').insert([{
+      shipment_id:id, status:'picked_up',
+      location_note:'وصلت الفرع: '+branchName+' — بانتظار التسليم للعميل',
+      created_by:S.uid
+    }]);
+    showToast('✅ تم تسليم الشحنة للفرع — اختفت من قائمتك');
+    loadTasks(); loadStats();
+  });
 }
-// نقاط 11+19: إضافة شحنة مع التحقق من الهاتف ومنع التكرار
-// نقطة 5: استلام شحنة موجودة فقط — لا إنشاء شحنة جديدة
-window.openPickupShip=function(){
-  // مسح الحقول
-  document.getElementById('as-sender').value='';
-  document.getElementById('as-sender-ph').value='';
-  document.getElementById('as-receiver').value='';
-  document.getElementById('as-receiver-ph').value='';
-  document.getElementById('as-addr').value='';
-  document.getElementById('as-cost').value='0';
-  document.getElementById('as-from').value='';
-  document.getElementById('as-to').value='';
-  document.getElementById('as-notes').value='';
-  document.getElementById('add-ship-sheet').classList.add('on');
-};
-window.openAddShip=window.openPickupShip;
-window.closeAddShip=function(){document.getElementById('add-ship-sheet').classList.remove('on');};
-function validateYemeniPhone(v){return/^7[0-9]{8}$/.test(v);}
-// نقطة 5: البحث عن شحنة موجودة وملء البيانات
-window.fetchShipForPickup=async function(){
-  const tn=document.getElementById('as-pickup-tn').value.trim().toUpperCase();
-  if(!tn){showToast('أدخل رقم التتبع','err');return;}
-  showToast('⏳ جاري البحث...','warn');
-  const{data,error}=await sb.from('shipments').select(`
-    id,tracking_number,status,sender_name,sender_phone,
-    receiver_name,receiver_phone,receiver_address,
-    shipping_cost,payment_method,notes,driver_id,
+
+// ═══ الإحصائيات ═══
+async function loadStats() {
+  const {data} = await sb.from('shipments').select('status,created_at').eq('driver_id',S.uid);
+  if (!data) return;
+  const td = new Date().toISOString().split('T')[0];
+  document.getElementById('s-total').textContent  = data.length;
+  document.getElementById('s-done').textContent   = data.filter(s=>s.status==='delivered').length;
+  document.getElementById('s-active').textContent = data.filter(s=>!['delivered','cancelled'].includes(s.status)).length;
+  document.getElementById('s-today').textContent  = data.filter(s=>s.created_at.startsWith(td)).length;
+
+  const {data:done} = await sb.from('shipments')
+    .select('tracking_number,receiver_name,created_at')
+    .eq('driver_id',S.uid).eq('status','delivered')
+    .order('created_at',{ascending:false}).limit(10);
+
+  document.getElementById('done-list').innerHTML = done?.length ? done.map(s=>`
+    <div class="ship-card">
+      <div class="ship-card-hdr">
+        <code class="ship-track" style="font-size:.75rem;">${s.tracking_number}</code>
+        <span class="bdg bdeli">تم التسليم</span>
+      </div>
+      <div class="ship-card-body">
+        <div style="font-size:.78rem;"><span style="color:#64748b;">المستلم:</span> ${s.receiver_name}</div>
+        <div style="font-size:.7rem;color:#64748b;margin-top:3px;">${fmtDate(s.created_at)}</div>
+      </div>
+    </div>`).join('') : '<div class="empty"><p>لا توجد شحنات مسلّمة بعد</p></div>';
+}
+
+// ═══ البحث / الاستلام ═══
+function doScan() {
+  const q = document.getElementById('scan-inp').value.trim().toUpperCase();
+  if (!q) return;
+  searchShipment(q);
+}
+
+async function searchShipment(tn) {
+  const el = document.getElementById('scan-result');
+  el.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spin"></div></div>';
+
+  const {data} = await sb.from('shipments').select(`
+    id,tracking_number,status,sender_name,receiver_name,receiver_phone,
+    receiver_address,delivery_type,driver_id,shipping_cost,payment_method,notes,
     origin:origin_branch_id(id,name,branch_code),
     destination:destination_branch_id(id,name,branch_code)
   `).ilike('tracking_number',tn).single();
-  if(error||!data){showToast('⚠️ لم يتم العثور على الشحنة','err');return;}
-  if(data.status==='delivered'||data.status==='cancelled'){showToast('⛔ الشحنة '+data.status+' — لا يمكن استلامها','err');return;}
-  if(data.driver_id&&data.driver_id!==S.uid){
-    const ok=confirm('⚠️ تحذير
 
-هذه الشحنة مُعيَّنة لسائق آخر
-هل تريد استلامها على مسؤوليتك؟');
-    if(!ok)return;
-  }
-  // تحقق من تضارب المسار مع شحنات أخرى
-  const{data:myShips}=await sb.from('shipments').select('destination:destination_branch_id(id,name)').eq('driver_id',S.uid).not('status','in','(delivered,cancelled)');
-  if(myShips?.length){
-    const myDests=new Set(myShips.map(s=>s.destination?.id).filter(Boolean));
-    if(data.destination?.id&&!myDests.has(data.destination.id)&&myDests.size>0){
-      const destNames=[...new Set(myShips.map(s=>s.destination?.name).filter(Boolean))].join('، ');
-      const ok=confirm('⚠️ تنبيه — تضارب في المسار
+  if (!data) { el.innerHTML='<div style="text-align:center;padding:20px;color:#f87171;">⚠️ لم يتم العثور على الشحنة</div>'; return; }
 
-شحناتك الحالية تتجه إلى: '+destNames+'
-هذه الشحنة تتجه إلى: '+data.destination?.name+'
+  const meta = STATUS_META[data.status] || {label:data.status,cls:'bpend'};
+  const isLocked = ['delivered','cancelled'].includes(data.status);
 
-هل تريد الاستمرار؟');
-      if(!ok)return;
+  let actionHtml = '';
+  if (!isLocked) {
+    if (!data.driver_id || data.driver_id === S.uid) {
+      // يمكن استلامها
+      actionHtml = `<button class="abtn abtn-prim" style="width:100%;margin-top:8px;"
+        onclick="pickupShipment('${data.id}','${data.tracking_number}','${(data.destination?.name||'').replace(/'/g,"\\'")}')">
+        📦 استلام هذه الشحنة</button>`;
+    } else {
+      actionHtml = `<div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:8px;margin-top:8px;font-size:.74rem;color:#fbbf24;">
+        ⚠️ هذه الشحنة مع سائق آخر<br>
+        <button class="abtn abtn-sec" style="margin-top:6px;width:100%;"
+          onclick="forcePickup('${data.id}','${data.tracking_number}')">استلام على مسؤوليتي</button>
+      </div>`;
     }
   }
-  // ملء البيانات
-  document.getElementById('as-sender').value=data.sender_name||'';
-  document.getElementById('as-sender-ph').value=(data.sender_phone||'').replace('+967','');
-  document.getElementById('as-receiver').value=data.receiver_name||'';
-  document.getElementById('as-receiver-ph').value=(data.receiver_phone||'').replace('+967','');
-  document.getElementById('as-addr').value=data.receiver_address||'';
-  document.getElementById('as-cost').value=data.shipping_cost||0;
-  document.getElementById('as-notes').value=data.notes||'';
-  if(data.origin?.id) document.getElementById('as-from').value=data.origin.id;
-  if(data.destination?.id) document.getElementById('as-to').value=data.destination.id;
-  // حفظ ID الشحنة
-  const sheet=document.getElementById('add-ship-sheet');
-  sheet.dataset.shipId=data.id;
-  sheet.dataset.trackingNum=data.tracking_number;
-  // إظهار تفاصيل الشحنة
-  const infoEl=document.getElementById('pickup-ship-info');
-  const detailsEl=document.getElementById('pickup-details');
-  if(infoEl&&detailsEl){
-    const statusAr={pending:'قيد الانتظار',picked_up:'تم الاستلام',in_transit:'في الطريق',delivered:'تم التسليم',cancelled:'ملغية'};
-    detailsEl.innerHTML=`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-        <div><span style="color:#64748b;">المرسل:</span> ${data.sender_name||'—'}</div>
-        <div><span style="color:#64748b;">المستلم:</span> ${data.receiver_name||'—'}</div>
-        <div><span style="color:#64748b;">من:</span> ${data.origin?.name||'—'}</div>
-        <div><span style="color:#64748b;">إلى:</span> <strong style="color:#34d399;">${data.destination?.name||'—'}</strong></div>
-        <div><span style="color:#64748b;">التكلفة:</span> ${(data.shipping_cost||0).toLocaleString()} ﷼</div>
-        <div><span style="color:#64748b;">الحالة:</span> ${statusAr[data.status]||data.status}</div>
-      </div>`;
-    infoEl.style.display='block';
+
+  el.innerHTML = `<div class="ship-card" style="margin:0 0 10px;">
+    <div class="ship-card-hdr">
+      <code class="ship-track">${data.tracking_number}</code>
+      <span class="bdg ${meta.cls}">${meta.label}</span>
+    </div>
+    <div class="ship-card-body">
+      <div class="ship-info">
+        <div class="ship-info-item"><span class="lbl">المرسل</span><span class="val">${data.sender_name}</span></div>
+        <div class="ship-info-item"><span class="lbl">المستلم</span><span class="val">${data.receiver_name}</span></div>
+        <div class="ship-info-item"><span class="lbl">من</span><span class="val">${data.origin?.name||'—'}</span></div>
+        <div class="ship-info-item"><span class="lbl">إلى</span><span class="val" style="color:#f59e0b;">${data.destination?.name||'—'}</span></div>
+        <div class="ship-info-item"><span class="lbl">التكلفة</span><span class="val">${(data.shipping_cost||0).toLocaleString()} ﷼</span></div>
+        <div class="ship-info-item"><span class="lbl">الدفع</span><span class="val">${data.payment_method==='cash_receiver'?'عند الاستلام':data.payment_method==='prepaid'?'مدفوع':'من المرسل'}</span></div>
+      </div>
+      ${isLocked ? `<div class="locked-badge">🔒 ${meta.label}</div>` : ''}
+      ${actionHtml}
+    </div>
+  </div>`;
+}
+
+async function pickupShipment(id, tn, destName) {
+  // فحص تضارب المسار
+  const {data:myShips} = await sb.from('shipments')
+    .select('destination:destination_branch_id(id,name)')
+    .eq('driver_id',S.uid).not('status','in','(delivered,cancelled)');
+
+  if (myShips?.length) {
+    const myDests = [...new Set(myShips.map(s=>s.destination?.id).filter(Boolean))];
+    const {data:shipDest} = await sb.from('shipments').select('destination_branch_id').eq('id',id).single();
+    if (shipDest?.destination_branch_id && !myDests.includes(shipDest.destination_branch_id) && myDests.length > 0) {
+      const destNames = [...new Set(myShips.map(s=>s.destination?.name).filter(Boolean))].join('، ');
+      if (!confirm('تنبيه — تضارب في المسار\n\nشحناتك تتجه إلى: ' + destNames + '\nهذه الشحنة تتجه إلى: ' + destName + '\n\nهل تريد الاستمرار؟')) return;
+    }
   }
-  showToast('✅ تم العثور على الشحنة — اضغط استلام للتأكيد');
-};
 
-window.submitAddShip=async function(){
-  const sheet=document.getElementById('add-ship-sheet');
-  const existingShipId=sheet.dataset.shipId;
-  const existingTn=sheet.dataset.trackingNum;
+  doPickup(id, tn);
+}
 
-  // نقطة 5: يجب البحث عن شحنة أولاً
-  if(!existingShipId){showToast('⚠️ ابحث عن الشحنة أولاً برقم التتبع','err');return;}
+async function forcePickup(id, tn) {
+  if (!confirm('استلام الشحنة من سائق آخر؟\nالشحنة: ' + tn + '\n\nهل أنت متأكد؟')) return;
+  doPickup(id, tn);
+}
 
-  const btn=document.getElementById('add-ship-btn');
-  if(btn.disabled)return;
-  btn.disabled=true;btn.textContent='⏳ جاري الاستلام...';
-  showToast('⏳ جاري استلام الشحنة...','warn');
+async function doPickup(id, tn) {
+  showToast('⏳ جاري الاستلام...','twarn');
+  const {error} = await sb.from('shipments').update({
+    driver_id: S.uid,
+    status: 'picked_up',
+    updated_at: new Date().toISOString()
+  }).eq('id',id);
 
-  // تعيين السائق على الشحنة الموجودة
-  const{error}=await sb.from('shipments').update({
-    driver_id:S.uid,
-    status:'picked_up',
-    updated_at:new Date().toISOString()
-  }).eq('id',existingShipId);
-
-  btn.disabled=false;btn.textContent='✅ استلام الشحنة';
-  if(error){showToast('❌ فشل الاستلام: '+error.message,'err');return;}
+  if (error) { showToast('❌ فشل الاستلام: '+error.message,'terr'); return; }
 
   await sb.from('tracking_logs').insert([{
-    shipment_id:existingShipId,status:'picked_up',
+    shipment_id:id, status:'picked_up',
     location_note:'استلمها السائق: '+S.uname,
     created_by:S.uid
   }]);
-  await sb.from('activity_log').insert([{
-    user_id:S.uid,user_name:S.uname,
-    action:'driver_pickup',entity_type:'shipment',entity_id:existingShipId,
-    details:{tracking:existingTn,picked_at:new Date().toISOString()}
-  }]).catch(()=>{});
 
-  showToast('✅ تم استلام الشحنة — '+existingTn);
-  closeAddShip();
-  // مسح البيانات
-  sheet.dataset.shipId='';sheet.dataset.trackingNum='';
-  ['as-sender','as-sender-ph','as-receiver','as-receiver-ph','as-addr','as-notes'].forEach(id=>{document.getElementById(id).value='';});
-  document.getElementById('as-cost').value='0';
-  document.getElementById('as-from').value='';document.getElementById('as-to').value='';
-  document.getElementById('as-pickup-tn').value='';
-  await loadTasks();await loadStats();
-  return;
-};
+  showToast('✅ تم استلام الشحنة — '+tn);
+  document.getElementById('scan-inp').value = '';
+  document.getElementById('scan-result').innerHTML = '';
+  loadTasks(); loadStats();
+  navTo('tasks');
+}
 
-window.openNote=function(id){S.noteShipId=id;document.getElementById('note-txt').value='';document.getElementById('note-modal').classList.add('on');setTimeout(()=>document.getElementById('note-txt').focus(),300);};
-window.closeNote=function(){document.getElementById('note-modal').classList.remove('on');};
-window.submitNote=async function(){
-  const note=document.getElementById('note-txt').value.trim();if(!note||!S.noteShipId)return;
-  const{data:sh}=await sb.from('shipments').select('status').eq('id',S.noteShipId).single();
-  await sb.from('tracking_logs').insert([{shipment_id:S.noteShipId,status:sh.status,location_note:note,created_by:S.uid}]);
-  closeNote();showToast('✅ تمت إضافة الملاحظة');
-};
-document.getElementById('note-modal').addEventListener('click',e=>{if(e.target===document.getElementById('note-modal'))closeNote();});
-document.getElementById('add-ship-sheet').addEventListener('click',e=>{if(e.target===document.getElementById('add-ship-sheet'))closeAddShip();});
-window.openMaps=function(addr){if(!addr)return;const isA=/Android/.test(navigator.userAgent),isI=/iPad|iPhone|iPod/.test(navigator.userAgent);if(isA)window.open('geo:0,0?q='+addr);else if(isI)window.open('maps://maps.apple.com/?q='+addr);else window.open('https://maps.google.com/?q='+addr);};
-window.callWA=function(ph){if(!ph)return;window.open('https://wa.me/'+ph.replace(/^\+/,'').replace(/^00/,''));};
-function setupRealtime(){const chName='driver-rt-'+S.uid+'-'+Date.now();sb.channel(chName).on('postgres_changes',{event:'*',schema:'public',table:'shipments',filter:'driver_id=eq.'+S.uid},()=>{loadAll();}).subscribe();}
-window.navTo=function(pg,btn){
-  if(camActive&&pg!=='scan'){stopCamera();document.getElementById('cam-wrap').classList.remove('on');document.getElementById('cam-btn').textContent='📷';}
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
-  document.getElementById('pg-'+pg).classList.add('on');btn.classList.add('on');
-  if(pg==='stats')loadStats();
-};
-window.doLogout=async function(){
-  stopCamera();
-  if(sessionTimer)clearTimeout(sessionTimer);if(sessionWarnTimer)clearTimeout(sessionWarnTimer);
-  await sb.auth.signOut();
-  document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';
-  document.getElementById('l-email').value='';document.getElementById('l-pass').value='';
-};
-// نقاط 4+15: إثبات التسليم الإلزامي
-let proofShipId=null,proofTrackNum=null,photoBase64=null,sigDrawing=false,sigHasData=false,sigCtx=null,sigCanvas=null;
-window.openProof=function(id,tn){
-  proofShipId=id;proofTrackNum=tn;photoBase64=null;sigHasData=false;
-  document.getElementById('proof-receiver').value='';document.getElementById('proof-notes').value='';
-  document.getElementById('photo-status').textContent='';document.getElementById('sig-status').textContent='';
-  document.getElementById('photo-size-warn').style.display='none';
-  const area=document.getElementById('photo-area');
-  area.innerHTML='<div class="photo-placeholder"><div class="ico">📷</div><p>اضغط لتصوير الشحنة</p><p style="font-size:.62rem;margin-top:4px;color:#475569;">الصورة إلزامية</p></div>';
-  sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');
-  clearSignature();setupSignatureEvents();
-  document.getElementById('proof-sheet').classList.add('on');
-};
-window.closeProof=function(){document.getElementById('proof-sheet').classList.remove('on');proofShipId=null;proofTrackNum=null;};
-// نقطة 15: ضغط + فحص حجم الصورة
-window.onPhotoSelected=function(e){
-  const file=e.target.files[0];if(!file)return;
-  if(file.size>5*1024*1024)document.getElementById('photo-size-warn').style.display='block';
-  const reader=new FileReader();
-  reader.onload=(ev)=>{
-    const img=new Image();
-    img.onload=()=>{
-      const canvas=document.createElement('canvas'),maxSize=800;
-      let w=img.width,h=img.height;
-      if(w>maxSize){h=Math.round(h*maxSize/w);w=maxSize;}
-      if(h>maxSize){w=Math.round(w*maxSize/h);h=maxSize;}
-      canvas.width=w;canvas.height=h;
-      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);
-      photoBase64=canvas.toDataURL('image/jpeg',0.7);
-      const sizeKB=Math.round(photoBase64.length*0.75/1024);
-      const area=document.getElementById('photo-area');
-      area.innerHTML=`<img src="${photoBase64}" alt="صورة التسليم"><div style="position:absolute;bottom:6px;right:6px;background:rgba(16,185,129,.9);color:#fff;font-size:.65rem;padding:3px 8px;border-radius:6px;font-weight:700;">✅ ${sizeKB}KB</div>`;
-      document.getElementById('photo-status').textContent='✅ تم تحميل الصورة ('+sizeKB+' KB)';
-      document.getElementById('photo-size-warn').style.display='none';
+// ═══ الكاميرا ═══
+async function toggleCamera() {
+  const wrap = document.getElementById('cam-wrap');
+  const btn  = document.getElementById('cam-toggle-btn');
+  const stat = document.getElementById('cam-status');
+
+  if (camActive) {
+    stopCamera();
+    wrap.classList.remove('on');
+    btn.textContent = '📷';
+    return;
+  }
+
+  wrap.classList.add('on');
+  btn.textContent = '⏹️';
+  stat.textContent = '📷 جاري تشغيل الكاميرا...';
+
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+    const video = document.getElementById('cam-video');
+    video.srcObject = camStream;
+    camActive = true;
+    stat.textContent = '📷 امسح QR أو الباركود...';
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    scanInterval = setInterval(() => {
+      if (!video.videoWidth) return;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0);
+      if ('BarcodeDetector' in window) {
+        new BarcodeDetector({formats:['qr_code','code_128','code_39']})
+          .detect(canvas).then(codes => {
+            if (codes.length > 0) {
+              let tn = codes[0].rawValue;
+              if (tn.includes('?t=')) tn = decodeURIComponent(tn.split('?t=')[1].split('&')[0]);
+              stopCamera();
+              wrap.classList.remove('on');
+              btn.textContent = '📷';
+              document.getElementById('scan-inp').value = tn.toUpperCase();
+              showToast('📷 تم المسح');
+              searchShipment(tn.toUpperCase());
+            }
+          }).catch(()=>{});
+      }
+    }, 300);
+  } catch(e) {
+    showToast('❌ تعذّر تشغيل الكاميرا','terr');
+    wrap.classList.remove('on');
+    btn.textContent = '📷';
+    camActive = false;
+  }
+}
+
+function stopCamera() {
+  if (camStream) { camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  if (scanInterval) { clearInterval(scanInterval); scanInterval=null; }
+  camActive = false;
+}
+
+// ═══ الملاحظة ═══
+function openNote(id) {
+  currentNoteShipId = id;
+  document.getElementById('note-txt').value = '';
+  document.getElementById('note-overlay').classList.add('on');
+  setTimeout(() => document.getElementById('note-txt').focus(), 300);
+}
+
+function closeNote() {
+  document.getElementById('note-overlay').classList.remove('on');
+}
+
+async function saveNote() {
+  const note = document.getElementById('note-txt').value.trim();
+  if (!note || !currentNoteShipId) return;
+  const {data:sh} = await sb.from('shipments').select('status').eq('id',currentNoteShipId).single();
+  await sb.from('tracking_logs').insert([{
+    shipment_id:currentNoteShipId, status:sh.status,
+    location_note:note, created_by:S.uid
+  }]);
+  closeNote();
+  showToast('✅ تمت إضافة الملاحظة');
+}
+
+// ═══ إثبات التسليم ═══
+function openProof(id, tn) {
+  currentProofId = id;
+  currentProofTn = tn;
+  photoBase64 = null;
+  sigHasData = false;
+  document.getElementById('proof-receiver').value = '';
+  document.getElementById('proof-notes').value = '';
+  document.getElementById('photo-status').textContent = '';
+  document.getElementById('sig-status').textContent = '';
+  document.getElementById('proof-submit-btn').disabled = false;
+  document.getElementById('proof-submit-btn').textContent = '✅ تأكيد التسليم';
+  // إعادة ضبط الصورة
+  document.getElementById('photo-area').innerHTML = '<div class="photo-placeholder"><div class="ico">📷</div><p>اضغط لتصوير الشحنة</p></div>';
+  // إعداد التوقيع
+  sigCanvas = document.getElementById('sig-canvas');
+  sigCtx = sigCanvas.getContext('2d');
+  clearSignature();
+  setupSig();
+  document.getElementById('proof-overlay').classList.add('on');
+}
+
+function closeProof() {
+  document.getElementById('proof-overlay').classList.remove('on');
+}
+
+function onPhotoSelected(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      const max = 800;
+      if (w > max) { h = Math.round(h*max/w); w = max; }
+      if (h > max) { w = Math.round(w*max/h); h = max; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      photoBase64 = canvas.toDataURL('image/jpeg',0.7);
+      const sizeKB = Math.round(photoBase64.length*0.75/1024);
+      document.getElementById('photo-area').innerHTML = `<img src="${photoBase64}" alt="صورة"><div style="position:absolute;bottom:6px;right:6px;background:rgba(16,185,129,.9);color:#fff;font-size:.65rem;padding:3px 8px;border-radius:6px;">✅ ${sizeKB}KB</div>`;
+      document.getElementById('photo-status').textContent = '✅ تم تحميل الصورة ('+sizeKB+' KB)';
     };
-    img.src=ev.target.result;
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
-};
-function setupSignatureEvents(){
-  if(!sigCanvas)return;
-  sigCtx.strokeStyle='#1d4ed8';sigCtx.lineWidth=2.5;sigCtx.lineCap='round';sigCtx.lineJoin='round';
-  const getPos=(e)=>{const rect=sigCanvas.getBoundingClientRect(),sx=sigCanvas.width/rect.width,sy=sigCanvas.height/rect.height,src=e.touches?e.touches[0]:e;return{x:(src.clientX-rect.left)*sx,y:(src.clientY-rect.top)*sy};};
-  const start=(e)=>{e.preventDefault();sigDrawing=true;const p=getPos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};
-  const draw=(e)=>{e.preventDefault();if(!sigDrawing)return;const p=getPos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();sigHasData=true;document.getElementById('sig-status').textContent='✅ تم رسم التوقيع';};
-  const end=(e)=>{e.preventDefault();sigDrawing=false;};
-  const nc=sigCanvas.cloneNode(true);sigCanvas.parentNode.replaceChild(nc,sigCanvas);sigCanvas=nc;sigCtx=sigCanvas.getContext('2d');
-  sigCtx.strokeStyle='#1d4ed8';sigCtx.lineWidth=2.5;sigCtx.lineCap='round';sigCtx.lineJoin='round';
-  sigCtx.strokeStyle='#e2e8f0';sigCtx.lineWidth=0.5;sigCtx.beginPath();sigCtx.moveTo(20,sigCanvas.height-30);sigCtx.lineTo(sigCanvas.width-20,sigCanvas.height-30);sigCtx.stroke();
-  sigCtx.strokeStyle='#1d4ed8';sigCtx.lineWidth=2.5;
-  sigCanvas.addEventListener('mousedown',start,{passive:false});sigCanvas.addEventListener('mousemove',draw,{passive:false});sigCanvas.addEventListener('mouseup',end,{passive:false});
-  sigCanvas.addEventListener('touchstart',start,{passive:false});sigCanvas.addEventListener('touchmove',draw,{passive:false});sigCanvas.addEventListener('touchend',end,{passive:false});
 }
-window.clearSignature=function(){
-  if(!sigCtx||!sigCanvas)return;
-  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.fillStyle='#f8fafc';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);
-  sigCtx.strokeStyle='#cbd5e1';sigCtx.lineWidth=0.5;sigCtx.beginPath();sigCtx.moveTo(20,sigCanvas.height-30);sigCtx.lineTo(sigCanvas.width-20,sigCanvas.height-30);sigCtx.stroke();
-  sigCtx.strokeStyle='#1d4ed8';sigCtx.lineWidth=2.5;sigHasData=false;document.getElementById('sig-status').textContent='';
-};
-// نقطة 4: إثبات التسليم إلزامي — لا تسليم بدون صورة + توقيع + اسم
-window.submitProof=async function(){
-  const receiver=document.getElementById('proof-receiver').value.trim();
-  const notes=document.getElementById('proof-notes').value.trim();
-  if(!receiver){showToast('⚠️ أدخل اسم المستلم','err');document.getElementById('proof-receiver').focus();return;}
-  if(!photoBase64){showToast('⚠️ الصورة إلزامية — صوّر الشحنة أولاً','err');return;}
-  if(!sigHasData){showToast('⚠️ التوقيع إلزامي — اطلب توقيع المستلم','err');return;}
-  const btn=document.getElementById('proof-submit-btn');
-  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
-  showToast('⏳ جاري حفظ إثبات التسليم...','warn');
-  try{
-    const sig=sigCanvas.toDataURL('image/png');
-    const{data:proof,error:pe}=await sb.from('delivery_proofs').insert([{shipment_id:proofShipId,proof_type:'both',photo_base64:photoBase64,signature_base64:sig,receiver_name:receiver,notes:notes||null,created_by:S.uid}]).select().single();
-    if(pe)throw new Error(pe.message);
-    const{error:se}=await sb.from('shipments').update({status:'delivered',delivered_at:new Date().toISOString(),delivery_proof_id:proof.id,updated_at:new Date().toISOString()}).eq('id',proofShipId);
-    if(se)throw new Error(se.message);
-    // نقطة 9: audit trail كامل
-    await sb.from('tracking_logs').insert([{shipment_id:proofShipId,status:'delivered',location_note:'تم التسليم لـ: '+receiver+(notes?' — '+notes:''),created_by:S.uid}]);
-    await sb.from('activity_log').insert([{user_id:S.uid,user_name:S.uname,action:'delivered_with_proof',entity_type:'shipment',entity_id:proofShipId,details:{tracking:proofTrackNum,receiver,has_photo:true,has_sig:true,delivered_at:new Date().toISOString()}}]).catch(()=>{});
-    closeProof();showDeliverySuccess(proofTrackNum,receiver);
-    await loadTasks();await loadStats();
-  }catch(e){showToast('❌ فشل الحفظ: '+e.message,'err');btn.disabled=false;btn.textContent='✅ تأكيد التسليم وحفظ الإثبات';}
-};
-function showDeliverySuccess(tn,receiver){
-  const el=document.createElement('div');
-  el.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(6,20,15,.98);border:2px solid rgba(16,185,129,.7);border-radius:18px;padding:28px 24px;z-index:9999;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.8);min-width:280px;max-width:360px;';
-  el.innerHTML=`<div style="font-size:3.5rem;margin-bottom:10px;">🎉</div><div style="font-size:1.1rem;font-weight:900;color:#34d399;margin-bottom:8px;">تم التسليم بنجاح!</div><div style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;padding:12px;margin:10px 0;"><div style="font-family:monospace;font-size:1rem;font-weight:900;color:#fff;">${tn}</div><div style="font-size:.75rem;color:#6ee7b7;margin-top:4px;">تم التسليم لـ: ${receiver}</div></div><div style="font-size:.75rem;color:#6ee7b7;margin-bottom:14px;">✅ تم حفظ الصورة والتوقيع</div><button onclick="this.parentNode.remove()" style="background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:10px;color:#fff;padding:10px 28px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;">ممتاز ✓</button>`;
-  document.body.appendChild(el);setTimeout(()=>{if(el.parentNode)el.remove();},8000);
+
+function setupSig() {
+  const nc = sigCanvas.cloneNode(true);
+  sigCanvas.parentNode.replaceChild(nc, sigCanvas);
+  sigCanvas = nc;
+  sigCtx = sigCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  // خط إرشادي
+  clearSignature();
+
+  const getPos = e => {
+    const rect = sigCanvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return {
+      x: (src.clientX - rect.left) * (sigCanvas.width / rect.width),
+      y: (src.clientY - rect.top)  * (sigCanvas.height / rect.height)
+    };
+  };
+
+  sigCanvas.addEventListener('mousedown',  e => { e.preventDefault(); sigDrawing=true; const p=getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); }, {passive:false});
+  sigCanvas.addEventListener('mousemove',  e => { e.preventDefault(); if(!sigDrawing) return; const p=getPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasData=true; document.getElementById('sig-status').textContent='✅ تم رسم التوقيع'; }, {passive:false});
+  sigCanvas.addEventListener('mouseup',    e => { e.preventDefault(); sigDrawing=false; }, {passive:false});
+  sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing=true; const p=getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); }, {passive:false});
+  sigCanvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!sigDrawing) return; const p=getPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasData=true; document.getElementById('sig-status').textContent='✅ تم رسم التوقيع'; }, {passive:false});
+  sigCanvas.addEventListener('touchend',   e => { e.preventDefault(); sigDrawing=false; }, {passive:false});
 }
-function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleString('ar-YE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
-function showToast(msg,type='ok'){const el=document.getElementById('toast');el.textContent=msg;el.className='show'+(type==='err'?' err':type==='warn'?' warn':'');setTimeout(()=>el.className='',4000);}
+
+function clearSignature() {
+  if (!sigCtx || !sigCanvas) return;
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  sigCtx.fillStyle = '#f8fafc';
+  sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);
+  sigCtx.strokeStyle = '#cbd5e1';
+  sigCtx.lineWidth = 0.5;
+  sigCtx.beginPath();
+  sigCtx.moveTo(20, sigCanvas.height-25);
+  sigCtx.lineTo(sigCanvas.width-20, sigCanvas.height-25);
+  sigCtx.stroke();
+  sigCtx.strokeStyle = '#1d4ed8';
+  sigCtx.lineWidth = 2.5;
+  sigHasData = false;
+  document.getElementById('sig-status').textContent = '';
+}
+
+async function submitProof() {
+  const receiver = document.getElementById('proof-receiver').value.trim();
+  const notes    = document.getElementById('proof-notes').value.trim();
+
+  if (!receiver) { showToast('⚠️ أدخل اسم المستلم','terr'); return; }
+  if (!photoBase64) { showToast('⚠️ الصورة إلزامية','terr'); return; }
+  if (!sigHasData) { showToast('⚠️ التوقيع إلزامي','terr'); return; }
+
+  const btn = document.getElementById('proof-submit-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الحفظ...';
+  showToast('⏳ جاري حفظ الإثبات...','twarn');
+
+  try {
+    const sig = sigCanvas.toDataURL('image/png');
+    const {data:proof, error:pe} = await sb.from('delivery_proofs').insert([{
+      shipment_id: currentProofId,
+      proof_type: 'both',
+      photo_base64: photoBase64,
+      signature_base64: sig,
+      receiver_name: receiver,
+      notes: notes||null,
+      created_by: S.uid
+    }]).select().single();
+    if (pe) throw new Error(pe.message);
+
+    const {error:se} = await sb.from('shipments').update({
+      status: 'delivered',
+      delivered_at: new Date().toISOString(),
+      delivery_proof_id: proof.id,
+      updated_at: new Date().toISOString()
+    }).eq('id', currentProofId);
+    if (se) throw new Error(se.message);
+
+    await sb.from('tracking_logs').insert([{
+      shipment_id: currentProofId,
+      status: 'delivered',
+      location_note: 'تم التسليم لـ: '+receiver+(notes?' — '+notes:''),
+      created_by: S.uid
+    }]);
+
+    closeProof();
+    showToast('✅ تم التسليم بنجاح — '+currentProofTn);
+    loadTasks(); loadStats();
+  } catch(e) {
+    showToast('❌ فشل: '+e.message,'terr');
+    btn.disabled = false;
+    btn.textContent = '✅ تأكيد التسليم';
+  }
+}
+
+// ═══ Navigation ═══
+function navTo(pg) {
+  if (camActive && pg !== 'scan') { stopCamera(); document.getElementById('cam-wrap').classList.remove('on'); document.getElementById('cam-toggle-btn').textContent='📷'; }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  document.getElementById('nav-'+pg).classList.add('on');
+  if (pg === 'stats') loadStats();
+}
+
+// ═══ Realtime ═══
+function setupRealtime() {
+  sb.channel('driver-rt-'+S.uid).on('postgres_changes',{event:'*',schema:'public',table:'shipments',filter:'driver_id=eq.'+S.uid},()=>{loadAll();}).subscribe();
+}
+
+// ═══ Logout ═══
+async function doLogout() {
+  stopCamera();
+  await sb.auth.signOut();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('l-email').value = '';
+  document.getElementById('l-pass').value = '';
+}
+
+// ═══ Helpers ═══
+function openMaps(addr) {
+  const isA = /Android/.test(navigator.userAgent);
+  const isI = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if (isA) window.open('geo:0,0?q='+addr);
+  else if (isI) window.open('maps://maps.apple.com/?q='+addr);
+  else window.open('https://maps.google.com/?q='+addr);
+}
+
+function callWA(ph) {
+  if (!ph) return;
+  window.open('https://wa.me/'+ph.replace(/^\+/,'').replace(/^00/,''));
+}
+
+function showToast(msg, type='tok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + (type||'');
+  setTimeout(()=>el.className='', 4000);
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('ar-YE',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
 </script>
 </body>
 </html>
